@@ -2,6 +2,8 @@
 
 MCP server that gives AI coding agents structured project knowledge.
 
+**[Documentation](https://tomosius.github.io/atlas/)**
+
 ## Installation
 
 ```bash
