@@ -8,4 +8,9 @@ wheels/
 
 # Virtual environments
 .venv
+
+# MkDocs build output (deployed via gh-pages, not tracked)
+site/
+
+# Plan documents (local reference only)
 plan/
