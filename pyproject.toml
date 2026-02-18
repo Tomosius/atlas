@@ -273,6 +273,7 @@ addopts = [
     "-q",                 # quiet
     "--tb=short",         # compact tracebacks
     "--strict-markers",   # fail on unknown markers (typos in @pytest.mark.xxx)
+    "--ignore=tests/fixtures",  # fixture directories are not test files
 ]
 markers = [
     "unit: fast pure unit tests (no filesystem, no subprocess)",
