@@ -1,15 +1,139 @@
-[project]
-name = "atlas"
-version = "0.1.0"
-description = "MCP server that gives AI coding agents structured project knowledge"
-readme = "README.md"
-requires-python = ">=3.11"
-dependencies = []
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[dependency-groups]
+[project]
+name = "atlas-mcp"
+version = "0.1.0"
+description = "MCP server that gives AI coding agents structured project knowledge — standards, tools, conventions, structure"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Tomas" },
+]
+keywords = [
+    "mcp",
+    "ai",
+    "coding-agent",
+    "context",
+    "knowledge",
+    "developer-tools",
+    "claude",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Software Development",
+    "Typing :: Typed",
+]
+dependencies = [
+    "mcp>=1.0",
+]
+
+[project.optional-dependencies]
 dev = [
-    "basedpyright>=1.38.1",
-    "pytest>=9.0.2",
-    "ruff>=0.15.1",
-    "ty>=0.0.17",
+    "pytest>=8.0",
+    "ruff>=0.8",
+    "basedpyright>=1.20",
+    "pytest-asyncio>=0.24",
+]
+
+[project.scripts]
+atlas-mcp = "atlas.server:main_sync"
+atlas = "atlas.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/Tomosius/atlas"
+Repository = "https://github.com/Tomosius/atlas"
+Issues = "https://github.com/Tomosius/atlas/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/atlas"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"modules" = "atlas/_modules"
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/",
+    "modules/",
+    "tests/",
+    "pyproject.toml",
+    "README.md",
+    "LICENSE",
+    "CLAUDE.md",
+]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+src = ["src", "tests"]
+extend-exclude = [
+    ".venv",
+    "dist",
+    "__pycache__",
+    ".git",
+    ".atlas",
+    "modules",
+]
+
+[tool.ruff.lint]
+select = [
+    "E", "W", "F", "I", "N", "UP", "B", "SIM", "T20", "RUF", "C4", "PIE", "PT", "RET", "TCH",
+]
+ignore = [
+    "E501", "T201", "T203", "UP007", "B008", "SIM108", "RET504", "PT011", "RUF012",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["B011", "SIM300", "PT006", "RUF059"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["atlas"]
+force-single-line = false
+combine-as-imports = true
+lines-after-imports = 2
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = true
+
+[tool.basedpyright]
+pythonVersion = "3.10"
+pythonPlatform = "All"
+typeCheckingMode = "standard"
+venvPath = "."
+venv = ".venv"
+include = ["src", "tests"]
+exclude = [".venv", "dist", "__pycache__", ".git", ".atlas", "modules"]
+reportMissingTypeStubs = false
+reportUnknownMemberType = false
+reportUnknownArgumentType = false
+reportUnknownVariableType = false
+reportUnknownParameterType = false
+reportAny = false
+reportExplicitAny = false
+reportImplicitOverride = false
+reportMissingSuperCall = false
+reportUnusedCallResult = false
+reportUnreachable = "warning"
+reportDeprecated = "warning"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+asyncio_mode = "auto"
+markers = [
+    "slow: marks tests as slow",
+    "integration: marks integration tests that need real filesystem",
 ]
