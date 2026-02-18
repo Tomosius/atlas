@@ -85,7 +85,21 @@ gh project item-list 21 --owner Tomosius --format json | \
 ### Starting an issue
 
 1. Pick the lowest-numbered open issue in the current phase.
-2. Mark it in-progress (label + project board):
+2. Read `plan/07-GITHUB-PROJECT.md` and find the issue's row in the table to understand full context, scope, and what "done" looks like.
+3. Write a description to the GitHub issue body — include: what to build, acceptance criteria, and relevant plan doc references:
+   ```bash
+   gh issue edit <number> --body "## What
+   <what to build, 2-3 sentences from the plan>
+
+   ## Acceptance criteria
+   - <criterion 1>
+   - <criterion 2>
+
+   ## References
+   - plan/07-GITHUB-PROJECT.md §<section>
+   - plan/03-IMPLEMENTATION-GUIDE.md §<step> (if applicable)" --repo Tomosius/atlas
+   ```
+4. Mark it in-progress (label + project board):
    ```bash
    gh issue edit <number> --add-label "status:in-progress" --repo Tomosius/atlas
 
@@ -95,7 +109,7 @@ gh project item-list 21 --owner Tomosius --format json | \
    gh project item-edit --project-id PVT_kwHOAbrAN84BPiZJ --id $ITEM_ID \
      --field-id PVTSSF_lAHOAbrAN84BPiZJzg96unA --single-select-option-id 47fc9ee4
    ```
-3. Update the **Current Issue** line above.
+5. Update the **Current Issue** line above.
 
 ### During an issue
 
@@ -109,8 +123,15 @@ gh project item-list 21 --owner Tomosius --format json | \
 Run these commands in order:
 
 ```bash
-# 1. Close the issue with a completion comment
-gh issue close <number> --repo Tomosius/atlas --comment "Completed."
+# 1. Close the issue with a completion comment — summarise what was built and confirm criteria met
+gh issue close <number> --repo Tomosius/atlas --comment "Completed.
+
+## What was built
+<1-2 sentences describing what was implemented>
+
+## Acceptance criteria
+- [x] <criterion 1>
+- [x] <criterion 2>"
 
 # 2. Remove the in-progress label
 gh issue edit <number> --remove-label "status:in-progress" --repo Tomosius/atlas
