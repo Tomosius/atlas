@@ -14,3 +14,6 @@ site/
 
 # Plan documents (local reference only)
 plan/
+
+# MkDocs plugin cache
+.cache/
