@@ -23,12 +23,26 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** None — pick the next open issue from Phase 1
+**Current Issue:** #1 — Create repository with src layout and pyproject.toml
 
-### How to find the next issue to work on
+### Completed so far
+
+| Issue | Title | Notes |
+|---|---|---|
+| #2 | Create CLAUDE.md | ✅ this file |
+| #3 | Create README.md | ✅ minimal, sufficient for now |
+| #4 | Set up CI via GitHub Actions | ✅ `.github/workflows/ci.yml` |
+
+### Not yet started (next up)
+
+**Start here → Issue #1**: `pyproject.toml` exists but needs src layout, entry
+points (`atlas-mcp` + `atlas`), hatch build backend, ruff config, and
+basedpyright config per `plan/04-PYPROJECT-REFERENCE.toml`.
+
+Then continue in order: #5 (test fixtures), #6, #7, #8 … through #114.
 
 ```bash
-# List open Phase 1 issues, ordered by number
+# See all open Phase 1 issues
 gh issue list --repo Tomosius/atlas --label "phase:1" --state open --limit 50
 
 # See what is currently in-progress
