@@ -3,11 +3,7 @@
     "yaml-language-server": {
       "settings": {
         "yaml": {
-          "customTags": [
-            "!!python/name scalar",
-            "!!python/object/apply seq",
-            "!!python/tuple seq",
-          ],
+          "validate": false,
         },
       },
     },
