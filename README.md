@@ -25,4 +25,18 @@ Configure in your MCP-compatible editor (Claude Desktop, Zed, etc.):
 
 ## Status
 
-In development.
+In beta — breaking changes may occur at any time.
+
+## License
+
+**Free to use during beta**, including for commercial internal use.
+
+Licensed under the [Business Source License 1.1](LICENSE).  
+Created by [Tomas Pecukevicius](https://github.com/Tomosius/atlas).
+
+- Individual developers: free, forever.
+- Companies using it as a tool: free during beta.
+- Companies building a product on top of Atlas: [contact for a commercial license](mailto:pecukevicius@gmail.com).
+- Converts to MIT on **2028-01-01**.
+
+If you build something with Atlas, attribution is required — see [LICENSE](LICENSE).
