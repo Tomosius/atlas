@@ -1,7 +1,10 @@
 """System tool detection and command execution utilities."""
 
+import re
 import shutil
 import subprocess
+
+from atlas.core.models import SystemTools
 
 
 def run_command(
@@ -21,6 +24,7 @@ def run_command(
             capture_output=True,
             text=True,
             timeout=timeout,
+            check=False,
         )
         return result.returncode, result.stdout, result.stderr
     except FileNotFoundError:
@@ -48,16 +52,12 @@ def get_version(name: str, args: list[str] | None = None) -> str:
 
 def _parse_version(output: str) -> str:
     """Extract a version number from a tool's --version output."""
-    import re
-
     match = re.search(r"(\d+\.\d+[\.\d]*)", output)
-    return match.group(1) if match else output.split("\n")[0].strip()
+    return match.group(1) if match else output.split("\n", maxsplit=1)[0].strip()
 
 
-def detect_system_tools() -> "SystemTools":
+def detect_system_tools() -> SystemTools:
     """Detect versions of common CLI tools on the host system."""
-    from atlas.core.models import SystemTools
-
     return SystemTools(
         python3=get_version("python3"),
         node=get_version("node"),

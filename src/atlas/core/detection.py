@@ -2,7 +2,8 @@
 
 import os
 
-from atlas.core.models import Infrastructure, ProjectDetection, SystemTools
+from atlas.core.models import Infrastructure, ProjectDetection
+from atlas.core.system import detect_system_tools
 
 
 # --- Data tables ---
@@ -214,10 +215,7 @@ def _detect_existing_tools(project_dir: str) -> list[str]:
                 if marker in pyproject_content:
                     found.append(tool)
                     break
-            elif marker in entries:
-                found.append(tool)
-                break
-            elif marker in package_content:
+            elif marker in entries or marker in package_content:
                 found.append(tool)
                 break
 
@@ -336,8 +334,6 @@ def detect_project(project_dir: str) -> ProjectDetection:
     databases = _detect_databases(project_dir, languages)
     infrastructure = _detect_infrastructure(project_dir)
     structure_type, workspace_manager = _detect_structure(project_dir)
-
-    from atlas.core.system import detect_system_tools
 
     return ProjectDetection(
         languages=languages,
