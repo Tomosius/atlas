@@ -64,6 +64,13 @@ markdown_extensions:
 
 plugins:
   - search
+  - git-revision-date-localized:
+      enable_creation_date: true
+      type: timeago # shows "3 days ago" style
+      fallback_to_build_date: true
+  - git-committers:
+      repository: Tomosius/atlas
+      branch: main
   - mkdocstrings:
       handlers:
         python:
