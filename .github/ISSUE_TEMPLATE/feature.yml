@@ -1,0 +1,44 @@
+name: Feature Request
+description: Propose a new feature or enhancement
+title: "[feat] "
+labels: ["type:feat"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What should Atlas do?
+    validations:
+      required: true
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Phase
+      options:
+        - Phase 1 — Foundation
+        - Phase 2 — Workflow
+        - Phase 3 — Intelligence
+        - Phase 4 — God Mode
+        - Not sure
+    validations:
+      required: true
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - Core Engine
+        - MCP Server
+        - Parser
+        - Runtime
+        - Module Warehouse
+        - CLI
+        - Tests
+        - Documentation
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What other approaches did you think about?
