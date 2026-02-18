@@ -62,12 +62,34 @@ gh issue list --repo Tomosius/atlas --label "status:in-progress"
 
 ## Issue Workflow (follow exactly)
 
+### Project board IDs (do not change)
+
+| Field | ID |
+|---|---|
+| Project ID | `PVT_kwHOAbrAN84BPiZJ` |
+| Status field ID | `PVTSSF_lAHOAbrAN84BPiZJzg96unA` |
+| Status: Todo | `f75ad846` |
+| Status: In Progress | `47fc9ee4` |
+| Status: Done | `98236657` |
+
+Get the project item ID for an issue number:
+```bash
+gh project item-list 21 --owner Tomosius --format json | \
+  python3 -c "import json,sys; [print(i['id']) for i in json.load(sys.stdin)['items'] if i.get('content',{}).get('number')==<number>]"
+```
+
 ### Starting an issue
 
 1. Pick the lowest-numbered open issue in the current phase.
-2. Mark it in-progress:
+2. Mark it in-progress (label + project board):
    ```bash
    gh issue edit <number> --add-label "status:in-progress" --repo Tomosius/atlas
+
+   # Get item ID then set project board status to In Progress
+   ITEM_ID=$(gh project item-list 21 --owner Tomosius --format json | \
+     python3 -c "import json,sys; [print(i['id']) for i in json.load(sys.stdin)['items'] if i.get('content',{}).get('number')==<number>]")
+   gh project item-edit --project-id PVT_kwHOAbrAN84BPiZJ --id $ITEM_ID \
+     --field-id PVTSSF_lAHOAbrAN84BPiZJzg96unA --single-select-option-id 47fc9ee4
    ```
 3. Update the **Current Issue** line above.
 
@@ -89,8 +111,19 @@ gh issue close <number> --repo Tomosius/atlas --comment "Completed."
 # 2. Remove the in-progress label
 gh issue edit <number> --remove-label "status:in-progress" --repo Tomosius/atlas
 
-# 3. Mark the next issue as in-progress
+# 3. Set project board status to Done
+ITEM_ID=$(gh project item-list 21 --owner Tomosius --format json | \
+  python3 -c "import json,sys; [print(i['id']) for i in json.load(sys.stdin)['items'] if i.get('content',{}).get('number')==<number>]")
+gh project item-edit --project-id PVT_kwHOAbrAN84BPiZJ --id $ITEM_ID \
+  --field-id PVTSSF_lAHOAbrAN84BPiZJzg96unA --single-select-option-id 98236657
+
+# 4. Mark the next issue as in-progress (label + project board)
 gh issue edit <next-number> --add-label "status:in-progress" --repo Tomosius/atlas
+
+NEXT_ITEM_ID=$(gh project item-list 21 --owner Tomosius --format json | \
+  python3 -c "import json,sys; [print(i['id']) for i in json.load(sys.stdin)['items'] if i.get('content',{}).get('number')==<next-number>]")
+gh project item-edit --project-id PVT_kwHOAbrAN84BPiZJ --id $NEXT_ITEM_ID \
+  --field-id PVTSSF_lAHOAbrAN84BPiZJzg96unA --single-select-option-id 47fc9ee4
 ```
 
 Then update this file:
