@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #6 — Port data models (ProjectDetection, Infrastructure, SystemTools)
+**Current Issue:** #10 — (not started)
 
 ### Completed so far
 
@@ -34,10 +34,14 @@ One tool (`atlas`), 10 verbs, single string input.
 | #3 | Create README.md | ✅ |
 | #4 | Set up CI via GitHub Actions | ✅ `.github/workflows/ci.yml` |
 | #5 | Create test fixtures | ✅ `tests/fixtures/empty_project/` |
+| #6 | Port data models | ✅ `src/atlas/core/models.py` |
+| #7 | Port error codes | ✅ `src/atlas/core/errors.py` |
+| #8 | Port system utilities | ✅ `src/atlas/core/system.py` |
+| #9 | Port detection engine | ✅ `src/atlas/core/detection.py` |
 
 ### Not yet started (next up)
 
-Continue: #7, #8 … through #114.
+Continue: #10, #11 … through #114.
 
 ```bash
 # See all open Phase 1 issues
