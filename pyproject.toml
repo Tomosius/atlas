@@ -2,6 +2,10 @@
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+# =============================================================================
+# Project metadata
+# =============================================================================
+
 [project]
 name = "atlas-mcp"
 version = "0.1.0"
@@ -33,30 +37,55 @@ classifiers = [
     "Topic :: Software Development",
     "Typing :: Typed",
 ]
+
+# Runtime deps — keep minimal. Core engine is stdlib-only; only server.py needs mcp.
 dependencies = [
     "mcp>=1.0",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
+    # Testing
     "pytest>=8.0",
-    "ruff>=0.8",
-    "basedpyright>=1.20",
     "pytest-asyncio>=0.24",
+    "pytest-cov>=6.0",       # coverage reports
+    "pytest-xdist>=3.0",     # parallel test execution (-n auto)
+    # Linting & formatting
+    "ruff>=0.9",
+    # Type checking
+    "basedpyright>=1.20",
+    "ty>=0.0.17",
+    # Documentation
+    "mkdocs>=1.6,<2.0",
+    "mkdocs-material>=9.0",
+    "mkdocstrings[python]>=0.27",
 ]
 
 [project.scripts]
+# MCP server — launched by agent config (stdio transport)
+# Claude Desktop: {"mcpServers": {"atlas": {"command": "atlas-mcp"}}}
+# Zero-install:   {"mcpServers": {"atlas": {"command": "uvx", "args": ["atlas-mcp"]}}}
 atlas-mcp = "atlas.server:main_sync"
+
+# CLI for manual use, debugging, scripting
+# atlas init / atlas status / atlas retrieve python ruff
 atlas = "atlas.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/Tomosius/atlas"
 Repository = "https://github.com/Tomosius/atlas"
 Issues = "https://github.com/Tomosius/atlas/issues"
+Documentation = "https://tomosius.github.io/atlas"
+
+# =============================================================================
+# Build — Hatchling
+# =============================================================================
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/atlas"]
 
+# Bundle the module warehouse inside the wheel as atlas/_modules/
+# Atlas._find_warehouse() resolves this at runtime.
 [tool.hatch.build.targets.wheel.force-include]
 "modules" = "atlas/_modules"
 
@@ -65,15 +94,24 @@ include = [
     "src/",
     "modules/",
     "tests/",
+    "docs/",
     "pyproject.toml",
     "README.md",
     "LICENSE",
     "CLAUDE.md",
+    "justfile",
+    "mkdocs.yml",
 ]
+
+# =============================================================================
+# Ruff — linting + formatting
+# Replaces: flake8, black, isort, pydocstyle
+# Docs: https://docs.astral.sh/ruff/
+# =============================================================================
 
 [tool.ruff]
 target-version = "py310"
-line-length = 120
+line-length = 88         # PEP 8 / black standard
 src = ["src", "tests"]
 extend-exclude = [
     ".venv",
@@ -86,14 +124,73 @@ extend-exclude = [
 
 [tool.ruff.lint]
 select = [
-    "E", "W", "F", "I", "N", "UP", "B", "SIM", "T20", "RUF", "C4", "PIE", "PT", "RET", "TCH",
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes (undefined names, unused imports)
+    "I",    # isort (import ordering)
+    "N",    # pep8-naming
+    "UP",   # pyupgrade (modernise syntax for target-version)
+    "B",    # flake8-bugbear (common pitfalls and performance)
+    "SIM",  # flake8-simplify (simplifiable code)
+    "T20",  # flake8-print (flag stray print statements)
+    "RUF",  # ruff-specific rules
+    "C4",   # flake8-comprehensions (better list/dict/set comprehensions)
+    "PIE",  # flake8-pie (misc good practices)
+    "PT",   # flake8-pytest-style (consistent pytest usage)
+    "RET",  # flake8-return (return statement consistency)
+    "TCH",  # flake8-type-checking (move imports to TYPE_CHECKING block)
+    "D",    # pydocstyle — Google-style docstrings
+    "ANN",  # flake8-annotations — type annotations on all public APIs
+    "ERA",  # eradicate — detect commented-out code
+    "PL",   # pylint rules
 ]
+
 ignore = [
-    "E501", "T201", "T203", "UP007", "B008", "SIM108", "RET504", "PT011", "RUF012",
+    # --- Formatter handles these ---
+    "E501",    # line too long — ruff format enforces line-length
+
+    # --- Google docstring style: D211+D212 are correct, these conflict ---
+    "D203",    # one-blank-line-before-class — use D211 (no blank line) instead
+    "D213",    # multi-line-summary-second-line — use D212 (first line) instead
+
+    # --- Docstrings not required everywhere ---
+    "D100",    # missing docstring in public module
+    "D104",    # missing docstring in public package
+    "D107",    # missing docstring in __init__ — document on the class instead
+
+    # --- Type annotations: relax return type for __init__ (always None) ---
+    "ANN204",  # missing return type for __init__ (always None)
+
+    # --- Python 3.10 compatibility ---
+    "UP007",   # use X | Y union syntax — requires 3.10+, some edge cases
+
+    # --- Readability preferences ---
+    "SIM108",  # ternary operator — explicit if/else is often clearer
+    "RET504",  # unnecessary assignment before return — names aid readability
+
+    # --- Pylint: noisy or conflicts with our patterns ---
+    "PLR0913", # too many arguments — data-table functions need many params
+    "PLR2004", # magic value in comparison — common in detection tables
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**/*.py" = ["B011", "SIM300", "PT006", "RUF059"]
+"tests/**/*.py" = [
+    "D",       # no docstrings required in tests
+    "ANN",     # no type annotations required in tests
+    "PLR2004", # magic values fine in assertions
+    "S101",    # assert is the point of tests
+]
+"src/atlas/cli.py" = [
+    "T201",    # print() is the entire point of a CLI
+    "T203",    # pprint() fine in CLI
+]
+"src/atlas/server.py" = [
+    "T201",    # debug prints acceptable in server during development
+]
+
+[tool.ruff.lint.pydocstyle]
+# Google style: Args:, Returns:, Raises:, Yields:, Example:, Attributes:, Note:
+convention = "google"
 
 [tool.ruff.lint.isort]
 known-first-party = ["atlas"]
@@ -101,12 +198,32 @@ force-single-line = false
 combine-as-imports = true
 lines-after-imports = 2
 
+[tool.ruff.lint.pylint]
+max-args = 8  # raise default (5) slightly for data-heavy functions
+
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
-docstring-code-format = true
+docstring-code-format = true       # format code blocks inside docstrings
+docstring-code-line-length = 88
+
+# =============================================================================
+# ty — fast type checker (Astral, experimental)
+# Use for: quick feedback during development (runs in milliseconds)
+# Docs: https://github.com/astral-sh/ty
+# =============================================================================
+
+[tool.ty]
+# Minimal config — ty infers src layout from pyproject.toml
+# environment.python = ".venv"  # uncomment if ty can't find the venv
+
+# =============================================================================
+# basedpyright — thorough static type analysis
+# Use for: pre-push gate and CI (more thorough than ty)
+# Docs: https://docs.basedpyright.readthedocs.io/
+# =============================================================================
 
 [tool.basedpyright]
 pythonVersion = "3.10"
@@ -115,7 +232,19 @@ typeCheckingMode = "standard"
 venvPath = "."
 venv = ".venv"
 include = ["src", "tests"]
-exclude = [".venv", "dist", "__pycache__", ".git", ".atlas", "modules"]
+exclude = [
+    ".venv",
+    "dist",
+    "__pycache__",
+    ".git",
+    ".atlas",
+    "modules",
+]
+
+# These are intentionally relaxed because Atlas uses the result-dict pattern:
+#   {"ok": True, "data": ...} | {"ok": False, "error": ...}
+# This pattern avoids exceptions but makes return types look like dict[str, Any],
+# which triggers many "unknown type" warnings. Tighten as we add TypedDicts.
 reportMissingTypeStubs = false
 reportUnknownMemberType = false
 reportUnknownArgumentType = false
@@ -126,14 +255,51 @@ reportExplicitAny = false
 reportImplicitOverride = false
 reportMissingSuperCall = false
 reportUnusedCallResult = false
+
+# Warnings only — useful signal, not a hard blocker
 reportUnreachable = "warning"
 reportDeprecated = "warning"
+
+# =============================================================================
+# pytest
+# =============================================================================
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
 asyncio_mode = "auto"
+addopts = [
+    "-ra",                # show summary for all non-passing
+    "-q",                 # quiet
+    "--tb=short",         # compact tracebacks
+    "--strict-markers",   # fail on unknown markers (typos in @pytest.mark.xxx)
+]
 markers = [
-    "slow: marks tests as slow",
-    "integration: marks integration tests that need real filesystem",
+    "unit: fast pure unit tests (no filesystem, no subprocess)",
+    "integration: tests that need a real filesystem or subprocess",
+    "slow: tests that take >1s (deselect with -m 'not slow')",
+]
+
+# =============================================================================
+# Coverage
+# =============================================================================
+
+[tool.coverage.run]
+source = ["src/atlas"]
+branch = true          # measure branch coverage too
+omit = [
+    "tests/*",
+    "src/atlas/__init__.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+fail_under = 80
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "\\.\\.\\.",
+    "pass",
 ]
