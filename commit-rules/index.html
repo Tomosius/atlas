@@ -1,0 +1,3482 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="MCP server that gives AI coding agents structured project knowledge">
+      
+      
+      
+        <link rel="canonical" href="https://tomosius.github.io/atlas/commit-rules/">
+      
+      
+        <link rel="prev" href="../development/">
+      
+      
+        <link rel="next" href="../guides/contributing/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
+    
+    
+      
+        <title>Commit Rules - Atlas MCP</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#semantic-commit-protocol-atlas-mcp" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Atlas MCP" class="md-header__button md-logo" aria-label="Atlas MCP" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Atlas MCP
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Commit Rules
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Tomosius/atlas" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Tomosius/atlas
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../guides/installation/" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../guides/how-it-works/" class="md-tabs__link">
+          
+  
+  
+  Concepts
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../reference/modules-overview/" class="md-tabs__link">
+          
+  
+  
+  Module Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/server/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../development/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Atlas MCP" class="md-nav__button md-logo" aria-label="Atlas MCP" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Atlas MCP
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Tomosius/atlas" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Tomosius/atlas
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Concepts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/how-it-works/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How Atlas Works
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/modules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Verbs & API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Module Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Module Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/modules-overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/server/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    server
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/parser/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    parser
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    cli
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/detection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    core/detection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/scanner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    core/scanner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/categories/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    core/categories
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/modules/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    core/modules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/retrieve/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    core/retrieve
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/registry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    core/registry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/config/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    core/config
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/runner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    core/runner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Commit Rules
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Commit Rules
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#input-strategy-read-files-not-just-the-diff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        INPUT STRATEGY — Read Files, Not Just the Diff
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="INPUT STRATEGY — Read Files, Not Just the Diff">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-check-claudemd-for-current-issue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1 — Check CLAUDE.md for current issue
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-read-the-github-issue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2 — Read the GitHub issue
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-read-the-changed-files-in-full" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3 — Read the changed files in full
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-then-look-at-the-diff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4 — Then look at the diff
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-check-plan-documents-if-the-purpose-is-still-unclear" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5 — Check plan documents if the purpose is still unclear
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-this-matters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why this matters
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#atomicity-the-most-important-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ATOMICITY — THE MOST IMPORTANT RULE
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ATOMICITY — THE MOST IMPORTANT RULE">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-atomic-commits-matter-here" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why atomic commits matter here
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pass-atomicity-when-all-are-true" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pass atomicity when ALL are true
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tests-with-implementation-exception" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tests-with-Implementation Exception
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#split-when-any-are-true" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Split when ANY are true
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#non-atomic-diff-protocol" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Non-Atomic Diff Protocol
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#message-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MESSAGE STRUCTURE
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision-order-mandatory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DECISION ORDER (MANDATORY)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-selection-strict-priority" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TYPE SELECTION (STRICT PRIORITY)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#project-scopes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PROJECT SCOPES
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PROJECT SCOPES">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-engine-scopes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Engine Scopes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-level-scopes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top-Level Scopes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#infrastructure-scopes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Infrastructure Scopes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scope-selection-logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scope Selection Logic
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#banned-generic-scopes-never-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Banned Generic Scopes (NEVER use)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-to-omit-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to Omit Scope
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#subject-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SUBJECT RULES
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SUBJECT RULES">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#describe-what-not-how" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Describe WHAT, not HOW
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#banned-filler-verbs-never-use-as-main-verb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Banned Filler Verbs (NEVER use as main verb)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#body-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BODY RULES
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BODY RULES">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#when-body-is-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When Body Is Required
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#footer-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FOOTER RULES
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="FOOTER RULES">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#breaking-change" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Breaking Change
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-references-only-if-explicitly-provided-never-guess" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue References (only if explicitly provided — NEVER guess)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-workflow-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ISSUE WORKFLOW RULES
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ISSUE WORKFLOW RULES">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#starting-an-issue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Starting an Issue
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#during-an-issue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        During an Issue
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#completing-an-issue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Completing an Issue
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#completing-a-milestone" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Completing a Milestone
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pre-output-verification-mandatory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PRE-OUTPUT VERIFICATION (MANDATORY)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#red-flags-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RED FLAGS CHECKLIST
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#special-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SPECIAL PATTERNS
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#worked-examples-atlas-specific" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WORKED EXAMPLES (Atlas-Specific)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="WORKED EXAMPLES (Atlas-Specific)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#porting-a-module" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Porting a module
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adding-a-warehouse-module" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding a warehouse module
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixing-a-scanner-bug" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixing a scanner bug
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#breaking-api-change" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Breaking API change
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multiple-commits-for-one-issue-issue-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multiple commits for one issue (Issue #30)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#output-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OUTPUT FORMAT
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OUTPUT FORMAT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chat-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chat Mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#direct-commit-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Direct-Commit Mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#input-strategy-read-files-not-just-the-diff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        INPUT STRATEGY — Read Files, Not Just the Diff
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="INPUT STRATEGY — Read Files, Not Just the Diff">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-check-claudemd-for-current-issue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1 — Check CLAUDE.md for current issue
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-read-the-github-issue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2 — Read the GitHub issue
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-read-the-changed-files-in-full" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3 — Read the changed files in full
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-then-look-at-the-diff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4 — Then look at the diff
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-check-plan-documents-if-the-purpose-is-still-unclear" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5 — Check plan documents if the purpose is still unclear
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#why-this-matters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why this matters
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#atomicity-the-most-important-rule" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ATOMICITY — THE MOST IMPORTANT RULE
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ATOMICITY — THE MOST IMPORTANT RULE">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-atomic-commits-matter-here" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why atomic commits matter here
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pass-atomicity-when-all-are-true" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pass atomicity when ALL are true
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tests-with-implementation-exception" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tests-with-Implementation Exception
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#split-when-any-are-true" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Split when ANY are true
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#non-atomic-diff-protocol" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Non-Atomic Diff Protocol
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#message-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MESSAGE STRUCTURE
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decision-order-mandatory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DECISION ORDER (MANDATORY)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#type-selection-strict-priority" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TYPE SELECTION (STRICT PRIORITY)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#project-scopes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PROJECT SCOPES
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PROJECT SCOPES">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core-engine-scopes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Engine Scopes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#top-level-scopes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Top-Level Scopes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#infrastructure-scopes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Infrastructure Scopes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scope-selection-logic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scope Selection Logic
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#banned-generic-scopes-never-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Banned Generic Scopes (NEVER use)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-to-omit-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to Omit Scope
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#subject-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SUBJECT RULES
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SUBJECT RULES">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#describe-what-not-how" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Describe WHAT, not HOW
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#banned-filler-verbs-never-use-as-main-verb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Banned Filler Verbs (NEVER use as main verb)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#body-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BODY RULES
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BODY RULES">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#when-body-is-required" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When Body Is Required
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#footer-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FOOTER RULES
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="FOOTER RULES">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#breaking-change" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Breaking Change
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-references-only-if-explicitly-provided-never-guess" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue References (only if explicitly provided — NEVER guess)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#issue-workflow-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ISSUE WORKFLOW RULES
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ISSUE WORKFLOW RULES">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#starting-an-issue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Starting an Issue
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#during-an-issue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        During an Issue
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#completing-an-issue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Completing an Issue
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#completing-a-milestone" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Completing a Milestone
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pre-output-verification-mandatory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PRE-OUTPUT VERIFICATION (MANDATORY)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#red-flags-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RED FLAGS CHECKLIST
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#special-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SPECIAL PATTERNS
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#worked-examples-atlas-specific" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        WORKED EXAMPLES (Atlas-Specific)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="WORKED EXAMPLES (Atlas-Specific)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#porting-a-module" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Porting a module
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adding-a-warehouse-module" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding a warehouse module
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fixing-a-scanner-bug" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixing a scanner bug
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#breaking-api-change" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Breaking API change
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multiple-commits-for-one-issue-issue-30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multiple commits for one issue (Issue #30)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#output-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OUTPUT FORMAT
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OUTPUT FORMAT">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chat-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chat Mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#direct-commit-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Direct-Commit Mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href=".." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../development/" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Development
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="semantic-commit-protocol-atlas-mcp">SEMANTIC COMMIT PROTOCOL — Atlas MCP<a class="headerlink" href="#semantic-commit-protocol-atlas-mcp" title="Permanent link">&para;</a></h1>
+<p><strong>ROLE:</strong> You are a Senior Release Engineer.
+<strong>TASK:</strong> Produce the best possible semantic commit message for the current staged changes.</p>
+<blockquote>
+<p><strong>HARD RULES (always enforced):</strong>
+1. One logical change per commit. Mixed concerns → split.
+2. Subject: imperative mood, ≤72 chars, no <code>.</code> <code>...</code> <code>…</code> <code>!</code> <code>?</code> ending, no emojis, no banned verbs.
+3. Scope: domain name (not filename), ≤24 chars, lowercase, or omitted.
+4. Never hallucinate ticket numbers, versions, benchmarks, or business context.
+5. Output raw commit text only — no commentary, no wrappers.</p>
+<p><strong>Execution checklist (run before every output):</strong>
+1. Read context (see INPUT STRATEGY below) — diff alone is not enough.
+2. Atomic? → If not, split (chat: warn; direct-commit: abort).
+3. Type → highest match from TYPE SELECTION.
+4. Scope → pick from PROJECT SCOPES table, or omit.
+5. Subject ≤72 chars, imperative, no banned verbs, no trailing punctuation.
+6. Body required? → Check BODY RULES.
+7. Output → raw text only.</p>
+</blockquote>
+<hr />
+<h2 id="input-strategy-read-files-not-just-the-diff">INPUT STRATEGY — Read Files, Not Just the Diff<a class="headerlink" href="#input-strategy-read-files-not-just-the-diff" title="Permanent link">&para;</a></h2>
+<p><strong>A diff alone is insufficient context.</strong> Diffs show lines added/removed but
+not the purpose of the surrounding code, the issue being worked on, or the
+architectural intent. Before writing a commit message, always gather context
+in this order:</p>
+<h3 id="step-1-check-claudemd-for-current-issue">Step 1 — Check CLAUDE.md for current issue<a class="headerlink" href="#step-1-check-claudemd-for-current-issue" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>cat<span class="w"> </span>CLAUDE.md
+</span></code></pre></div>
+<p>This tells you:
+- Which issue is currently in-progress (the "Current Issue" field).
+- Which phase and milestone the work belongs to.
+- Links to the GitHub issue for full acceptance criteria.</p>
+<h3 id="step-2-read-the-github-issue">Step 2 — Read the GitHub issue<a class="headerlink" href="#step-2-read-the-github-issue" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>gh<span class="w"> </span>issue<span class="w"> </span>view<span class="w"> </span>&lt;number&gt;<span class="w"> </span>--repo<span class="w"> </span>Tomosius/atlas
+</span></code></pre></div>
+<p>This tells you:
+- The exact title and intent of the work.
+- What "done" looks like for this issue.
+- Which scope and type are most appropriate.</p>
+<h3 id="step-3-read-the-changed-files-in-full">Step 3 — Read the changed files in full<a class="headerlink" href="#step-3-read-the-changed-files-in-full" title="Permanent link">&para;</a></h3>
+<p>For each file touched by the staged changes, read it completely — not just
+the diff hunks. A diff shows you what changed; the file shows you what it
+is now and why it exists.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># See which files are staged</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>git<span class="w"> </span>diff<span class="w"> </span>--cached<span class="w"> </span>--name-only
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Read each one</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>cat<span class="w"> </span>src/atlas/core/scanner.py
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>cat<span class="w"> </span>tests/test_scanner.py
+</span></code></pre></div>
+<p>Reading the full file reveals:
+- The module's purpose and structure (not just the changed lines).
+- How new code fits into existing patterns.
+- Whether the change is truly atomic or mixes concerns.
+- The correct scope (a file named <code>scanner.py</code> clearly maps to <code>scanner</code>).</p>
+<h3 id="step-4-then-look-at-the-diff">Step 4 — Then look at the diff<a class="headerlink" href="#step-4-then-look-at-the-diff" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>git<span class="w"> </span>diff<span class="w"> </span>--cached
+</span></code></pre></div>
+<p>Now that you understand the files and the issue, the diff tells you the
+precise mechanics of what changed. Use it to write accurate HOW bullets
+in the body.</p>
+<h3 id="step-5-check-plan-documents-if-the-purpose-is-still-unclear">Step 5 — Check plan documents if the purpose is still unclear<a class="headerlink" href="#step-5-check-plan-documents-if-the-purpose-is-still-unclear" title="Permanent link">&para;</a></h3>
+<p>The <code>plan/</code> folder contains the authoritative design for every component.
+If a change touches detection, scanner, modules, etc. — read the relevant
+plan doc to understand the intended behavior.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>cat<span class="w"> </span>plan/01-ARCHITECTURE.md
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>cat<span class="w"> </span>plan/02-DESIGN-PATTERNS.md
+</span></code></pre></div>
+<h3 id="why-this-matters">Why this matters<a class="headerlink" href="#why-this-matters" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Context Source</th>
+<th>What it tells you</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CLAUDE.md</code></td>
+<td>Current issue number, phase, workflow state</td>
+</tr>
+<tr>
+<td><code>gh issue view</code></td>
+<td>Exact intent and acceptance criteria</td>
+</tr>
+<tr>
+<td>Full file read</td>
+<td>Module purpose, patterns, correct scope</td>
+</tr>
+<tr>
+<td>Diff</td>
+<td>Precise mechanical change (HOW bullets)</td>
+</tr>
+<tr>
+<td>Plan docs</td>
+<td>Architectural intent if purpose is unclear</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Never write a commit message from the diff alone.</strong> A diff of 10 added
+lines in <code>modules.py</code> could be <code>feat(modules)</code>, <code>fix(modules)</code>, or
+<code>refactor(modules)</code> depending on context only the full file and issue reveal.</p>
+<hr />
+<h2 id="atomicity-the-most-important-rule">ATOMICITY — THE MOST IMPORTANT RULE<a class="headerlink" href="#atomicity-the-most-important-rule" title="Permanent link">&para;</a></h2>
+<p><strong>One commit = one logical change that can be reverted independently.</strong></p>
+<h3 id="why-atomic-commits-matter-here">Why atomic commits matter here<a class="headerlink" href="#why-atomic-commits-matter-here" title="Permanent link">&para;</a></h3>
+<p>Each issue in this project maps to a single logical concern (see GitHub Issues).
+A single issue <strong>may and should</strong> produce <strong>multiple commits</strong> — one per logical
+sub-step. It is always better to commit more often than less.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>Issue #26: Create modules.py: install_module
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>  commit 1 → feat(modules): add install_module signature and validation
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>  commit 2 → feat(modules): load module bundle from warehouse
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>  commit 3 → feat(modules): scan and enrich module config on install
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>  commit 4 → feat(modules): write module to .atlas and update manifest
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>  commit 5 → test(modules): add install_module happy path tests
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>  commit 6 → test(modules): add conflict and not-found error tests
+</span></code></pre></div>
+<p><strong>Never bundle two independent outcomes into one commit, even if they are
+small.</strong> A reviewer must be able to revert any single commit without
+unintended side effects.</p>
+<h3 id="pass-atomicity-when-all-are-true">Pass atomicity when ALL are true<a class="headerlink" href="#pass-atomicity-when-all-are-true" title="Permanent link">&para;</a></h3>
+<ul>
+<li>One primary outcome (runtime, operational, or documentation).</li>
+<li>Reverting the entire commit would make sense as one undo operation.</li>
+</ul>
+<h3 id="tests-with-implementation-exception">Tests-with-Implementation Exception<a class="headerlink" href="#tests-with-implementation-exception" title="Permanent link">&para;</a></h3>
+<p>Tests that validate the same implementation ARE part of the same atomic
+commit. A <code>feat</code> commit that adds a feature plus its direct tests is one
+atomic unit. Do NOT split tests from the exact implementation they test.</p>
+<h3 id="split-when-any-are-true">Split when ANY are true<a class="headerlink" href="#split-when-any-are-true" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Multiple independent outcomes exist.</li>
+<li>Reverting part of the diff would break unrelated behavior.</li>
+<li>Changes span unrelated domains with separate user impact.</li>
+</ul>
+<h3 id="non-atomic-diff-protocol">Non-Atomic Diff Protocol<a class="headerlink" href="#non-atomic-diff-protocol" title="Permanent link">&para;</a></h3>
+<p><strong>In chat mode</strong>, output:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>WARNING: This diff is not atomic.
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>Reason: &lt;clear reason&gt;
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>Recommended split:
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>1. &lt;type&gt;(&lt;scope&gt;): &lt;first logical change&gt;
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>2. &lt;type&gt;(&lt;scope&gt;): &lt;second logical change&gt;
+</span></code></pre></div>
+<p><strong>In direct-commit mode</strong>, abort — never output a warning as a commit message.</p>
+<hr />
+<h2 id="message-structure">MESSAGE STRUCTURE<a class="headerlink" href="#message-structure" title="Permanent link">&para;</a></h2>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>&lt;type&gt;(&lt;scope&gt;): &lt;subject&gt;
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>&lt;blank line&gt;
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>&lt;WHY — motivation, bug cause, user impact&gt;
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>- &lt;HOW bullet 1&gt;
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>- &lt;HOW bullet 2&gt;  (max 3 bullets)
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>&lt;blank line&gt;
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>&lt;footers&gt;
+</span></code></pre></div>
+<p>Scope is optional. Subject is always required. Body and footers are
+conditional (see Sections below).</p>
+<hr />
+<h2 id="decision-order-mandatory">DECISION ORDER (MANDATORY)<a class="headerlink" href="#decision-order-mandatory" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Read CLAUDE.md</strong> — identify current issue number and phase.</li>
+<li><strong>Read the GitHub issue</strong> (<code>gh issue view &lt;n&gt; --repo Tomosius/atlas</code>) — understand intent.</li>
+<li><strong>Read all changed files in full</strong> (<code>git diff --cached --name-only</code>, then read each file).</li>
+<li><strong>Read the diff</strong> (<code>git diff --cached</code>) — now you understand what changed AND why.</li>
+<li>Check special cases: revert (only if hash provided), merge (only if metadata present).</li>
+<li>Run atomicity gate.</li>
+<li>If non-atomic → warn (chat) or abort (direct-commit).</li>
+<li>Identify primary vs supporting changes.</li>
+<li>Select type (priority order below).</li>
+<li>Select scope from PROJECT SCOPES table.</li>
+<li>Write subject.</li>
+<li>Add body and footers if required.</li>
+<li>Run pre-output verification.</li>
+<li>Output only the final payload.</li>
+</ol>
+<hr />
+<h2 id="type-selection-strict-priority">TYPE SELECTION (STRICT PRIORITY)<a class="headerlink" href="#type-selection-strict-priority" title="Permanent link">&para;</a></h2>
+<p>If multiple types apply to the same primary outcome, use the <strong>top-most</strong> match:</p>
+<table>
+<thead>
+<tr>
+<th>Priority</th>
+<th>Type</th>
+<th>When to Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>fix</strong></td>
+<td>Corrects incorrect behavior (user-facing bugs, internal bugs, security bugs)</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>feat</strong></td>
+<td>Adds new user-facing functionality</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>perf</strong></td>
+<td>Performance improvement (include benchmark in body if available)</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>refactor</strong></td>
+<td>No runtime behavior change. File moves, extraction, deprecation markers</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>build</strong></td>
+<td>Build system, dependencies, toolchain (uv, pip, docker, hatch)</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>test</strong></td>
+<td>Adding or correcting tests only</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>ci</strong></td>
+<td>CI pipeline/config only</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>docs</strong></td>
+<td>Documentation files only (README, CLAUDE.md, ADRs, public docstrings)</td>
+</tr>
+<tr>
+<td>9</td>
+<td><strong>style</strong></td>
+<td>Formatting, whitespace (no logic change)</td>
+</tr>
+<tr>
+<td>10</td>
+<td><strong>chore</strong></td>
+<td>Maintenance with no better type (.gitignore, removing unused files)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Special types:</strong>
+- <code>revert</code> — ONLY when original commit hash is explicitly provided.
+- <code>merge</code> — ONLY when merge metadata is present.
+- <code>security</code> — ONLY if project conventions explicitly allow it; otherwise use <code>fix</code>.</p>
+<hr />
+<h2 id="project-scopes">PROJECT SCOPES<a class="headerlink" href="#project-scopes" title="Permanent link">&para;</a></h2>
+<p>These are the canonical scopes for this project. Use the scope that matches
+the <strong>domain</strong> of the change, not the filename or folder name.</p>
+<h3 id="core-engine-scopes">Core Engine Scopes<a class="headerlink" href="#core-engine-scopes" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Scope</th>
+<th>Maps To</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>detection</code></td>
+<td><code>src/atlas/core/detection.py</code></td>
+<td>Project detection engine</td>
+</tr>
+<tr>
+<td><code>scanner</code></td>
+<td><code>src/atlas/core/scanner.py</code></td>
+<td>Config file parsing &amp; extraction</td>
+</tr>
+<tr>
+<td><code>categories</code></td>
+<td><code>src/atlas/core/categories.py</code></td>
+<td>Category contracts &amp; routing</td>
+</tr>
+<tr>
+<td><code>modules</code></td>
+<td><code>src/atlas/core/modules.py</code></td>
+<td>Module install/remove/update lifecycle</td>
+</tr>
+<tr>
+<td><code>retrieve</code></td>
+<td><code>src/atlas/core/retrieve.py</code></td>
+<td>Retrieve file building</td>
+</tr>
+<tr>
+<td><code>prompts</code></td>
+<td><code>src/atlas/core/prompts.py</code></td>
+<td>Dynamic prompt assembly</td>
+</tr>
+<tr>
+<td><code>config</code></td>
+<td><code>src/atlas/core/config.py</code></td>
+<td>Configuration hierarchy</td>
+</tr>
+<tr>
+<td><code>structure</code></td>
+<td><code>src/atlas/core/structure.py</code></td>
+<td>Project structure mapping</td>
+</tr>
+<tr>
+<td><code>registry</code></td>
+<td><code>src/atlas/core/registry.py</code></td>
+<td>Global module registry loading</td>
+</tr>
+<tr>
+<td><code>system</code></td>
+<td><code>src/atlas/core/system.py</code></td>
+<td>System tool detection</td>
+</tr>
+<tr>
+<td><code>runner</code></td>
+<td><code>src/atlas/core/runner.py</code></td>
+<td>Task execution (just verb)</td>
+</tr>
+<tr>
+<td><code>git</code></td>
+<td><code>src/atlas/core/git.py</code></td>
+<td>Git wrapper</td>
+</tr>
+<tr>
+<td><code>platform</code></td>
+<td><code>src/atlas/core/platform.py</code></td>
+<td>Platform CLI wrapper (gh, glab)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="top-level-scopes">Top-Level Scopes<a class="headerlink" href="#top-level-scopes" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Scope</th>
+<th>Maps To</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>server</code></td>
+<td><code>src/atlas/server.py</code></td>
+<td>MCP server, tool definition, description</td>
+</tr>
+<tr>
+<td><code>parser</code></td>
+<td><code>src/atlas/parser.py</code></td>
+<td>Universal input parser</td>
+</tr>
+<tr>
+<td><code>runtime</code></td>
+<td><code>src/atlas/runtime.py</code></td>
+<td>Atlas class, lazy properties, verb routing</td>
+</tr>
+<tr>
+<td><code>cli</code></td>
+<td><code>src/atlas/cli.py</code></td>
+<td>CLI entry point</td>
+</tr>
+</tbody>
+</table>
+<h3 id="infrastructure-scopes">Infrastructure Scopes<a class="headerlink" href="#infrastructure-scopes" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Scope</th>
+<th>Maps To</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>warehouse</code></td>
+<td><code>modules/</code></td>
+<td>Module bundles and registry.json</td>
+</tr>
+<tr>
+<td><code>tests</code></td>
+<td><code>tests/</code></td>
+<td>Test suite (use when ONLY test files change)</td>
+</tr>
+<tr>
+<td><code>docs</code></td>
+<td><code>*.md</code>, <code>CLAUDE.md</code></td>
+<td>Documentation</td>
+</tr>
+<tr>
+<td><code>build</code></td>
+<td><code>pyproject.toml</code>, <code>hatch*</code></td>
+<td>Build &amp; packaging</td>
+</tr>
+<tr>
+<td><code>ci</code></td>
+<td><code>.github/workflows/</code></td>
+<td>GitHub Actions</td>
+</tr>
+</tbody>
+</table>
+<h3 id="scope-selection-logic">Scope Selection Logic<a class="headerlink" href="#scope-selection-logic" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Files Changed</th>
+<th>Strategy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 file</td>
+<td>Most specific domain from the file path</td>
+</tr>
+<tr>
+<td>2–3 files in same domain</td>
+<td>Common parent domain</td>
+</tr>
+<tr>
+<td>Source + matching tests</td>
+<td>Use source domain (not <code>tests</code>)</td>
+</tr>
+<tr>
+<td>&gt;3 unrelated domains</td>
+<td>Omit scope entirely</td>
+</tr>
+</tbody>
+</table>
+<h3 id="banned-generic-scopes-never-use">Banned Generic Scopes (NEVER use)<a class="headerlink" href="#banned-generic-scopes-never-use" title="Permanent link">&para;</a></h3>
+<p><code>utils</code>, <code>common</code>, <code>helpers</code>, <code>misc</code>, <code>general</code>, <code>lib</code>, <code>shared</code>, <code>core</code>
+(use the specific sub-scope instead of <code>core</code>)</p>
+<h3 id="when-to-omit-scope">When to Omit Scope<a class="headerlink" href="#when-to-omit-scope" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Changes span &gt;3 distinct scopes.</li>
+<li>Scope adds no information beyond the subject.</li>
+</ul>
+<hr />
+<h2 id="subject-rules">SUBJECT RULES<a class="headerlink" href="#subject-rules" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Imperative mood:</strong> "add" not "added", "fix" not "fixed".</li>
+<li><strong>Length:</strong> Target ≤50 chars. Hard limit ≤72 chars (including <code>type(scope):</code> prefix).</li>
+<li><strong>Format:</strong> No period at end. Lowercase first letter (except proper nouns).</li>
+<li><strong>Breaking:</strong> Add <code>!</code> after scope: <code>feat(runtime)!: require project path argument</code>.</li>
+<li><strong>Specificity:</strong> A reviewer MUST be able to guess the diff from the subject alone.</li>
+<li><strong>No emojis. No Gitmoji. Text only.</strong></li>
+</ul>
+<h3 id="describe-what-not-how">Describe WHAT, not HOW<a class="headerlink" href="#describe-what-not-how" title="Permanent link">&para;</a></h3>
+<ul>
+<li>❌ <code>fix(scanner): add try/catch to TOML parser</code></li>
+<li>
+<p>✅ <code>fix(scanner): prevent crash on empty TOML sections</code></p>
+</li>
+<li>
+<p>❌ <code>feat(modules): add install_module function</code></p>
+</li>
+<li>✅ <code>feat(modules): install module from warehouse with config enrichment</code></li>
+</ul>
+<h3 id="banned-filler-verbs-never-use-as-main-verb">Banned Filler Verbs (NEVER use as main verb)<a class="headerlink" href="#banned-filler-verbs-never-use-as-main-verb" title="Permanent link">&para;</a></h3>
+<p><code>update</code>, <code>change</code>, <code>modify</code>, <code>improve</code>, <code>adjust</code>, <code>tweak</code>, <code>handle</code>,
+<code>ensure</code>, <code>address</code>, <code>fix up</code>, <code>work on</code></p>
+<p>→ Use specific verbs: <code>add</code>, <code>remove</code>, <code>extract</code>, <code>validate</code>, <code>reject</code>,
+<code>enforce</code>, <code>replace</code>, <code>rename</code>, <code>cache</code>, <code>restrict</code>, <code>paginate</code>, <code>migrate</code>,
+<code>optimize</code>, <code>split</code>, <code>consolidate</code>, <code>serialize</code>, <code>throttle</code>, <code>configure</code>,
+<code>enable</code>, <code>disable</code>, <code>port</code>, <code>implement</code>, <code>expose</code>, <code>build</code>, <code>generate</code>.</p>
+<hr />
+<h2 id="body-rules">BODY RULES<a class="headerlink" href="#body-rules" title="Permanent link">&para;</a></h2>
+<h3 id="when-body-is-required">When Body Is Required<a class="headerlink" href="#when-body-is-required" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Condition</th>
+<th>Body?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>feat</code>, <code>fix</code></td>
+<td><strong>REQUIRED</strong> (omit only for trivially obvious changes)</td>
+</tr>
+<tr>
+<td><code>perf</code></td>
+<td><strong>REQUIRED</strong> (MUST include benchmark if available)</td>
+</tr>
+<tr>
+<td>Security-sensitive fix</td>
+<td><strong>REQUIRED</strong></td>
+</tr>
+<tr>
+<td>BREAKING CHANGE</td>
+<td><strong>REQUIRED</strong></td>
+</tr>
+<tr>
+<td><code>refactor</code>, <code>build</code></td>
+<td>Recommended</td>
+</tr>
+<tr>
+<td><code>docs</code>, <code>style</code>, <code>test</code>, <code>ci</code>, <code>chore</code></td>
+<td>Optional</td>
+</tr>
+</tbody>
+</table>
+<h3 id="structure">Structure<a class="headerlink" href="#structure" title="Permanent link">&para;</a></h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>&lt;WHY — motivation, bug cause, user impact&gt;
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>- &lt;HOW — approach bullet 1&gt;
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>- &lt;HOW — approach bullet 2&gt;
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>- &lt;HOW — max 3 bullets&gt;
+</span></code></pre></div>
+<ul>
+<li>Wrap at 72 characters.</li>
+<li>Plain <code>-</code> bullets. No Markdown headers, bold, or links.</li>
+<li>One blank line between subject and body.</li>
+<li>One blank line between body and footers.</li>
+<li>Do NOT invent tickets, incidents, or benchmarks.</li>
+</ul>
+<hr />
+<h2 id="footer-rules">FOOTER RULES<a class="headerlink" href="#footer-rules" title="Permanent link">&para;</a></h2>
+<h3 id="breaking-change">Breaking Change<a class="headerlink" href="#breaking-change" title="Permanent link">&para;</a></h3>
+<p><div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>BREAKING CHANGE: &lt;what changed, what breaks, migration path&gt;
+</span></code></pre></div>
+<code>!</code> in subject requires this footer. Footer requires <code>!</code>. Bidirectional.</p>
+<h3 id="issue-references-only-if-explicitly-provided-never-guess">Issue References (only if explicitly provided — NEVER guess)<a class="headerlink" href="#issue-references-only-if-explicitly-provided-never-guess" title="Permanent link">&para;</a></h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>Closes: #&lt;number&gt;
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>Fixes: #&lt;number&gt;
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>Refs: #&lt;number&gt;
+</span></code></pre></div>
+<p><strong>CRITICAL:</strong> Do NOT hallucinate issue numbers. If no issue number is
+visible in context, omit entirely.</p>
+<h3 id="security">Security<a class="headerlink" href="#security" title="Permanent link">&para;</a></h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>CVE: CVE-YYYY-NNNNN
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>Advisory: &lt;URL&gt;
+</span></code></pre></div>
+<hr />
+<h2 id="issue-workflow-rules">ISSUE WORKFLOW RULES<a class="headerlink" href="#issue-workflow-rules" title="Permanent link">&para;</a></h2>
+<p>These rules govern how to handle GitHub issues during development.</p>
+<h3 id="starting-an-issue">Starting an Issue<a class="headerlink" href="#starting-an-issue" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Find the next open issue on the project board.</li>
+<li>Run: <code>gh issue edit &lt;number&gt; --add-label "status:in-progress" --repo Tomosius/atlas</code></li>
+<li>Update <code>CLAUDE.md</code> — set <strong>Current Issue</strong> to that issue number and title.</li>
+</ol>
+<h3 id="during-an-issue">During an Issue<a class="headerlink" href="#during-an-issue" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Commit as many times as needed. More commits is better than fewer.</li>
+<li>Each commit should reference the issue scope (not necessarily the number).</li>
+<li>Follow the atomic commit rules above strictly.</li>
+</ul>
+<h3 id="completing-an-issue">Completing an Issue<a class="headerlink" href="#completing-an-issue" title="Permanent link">&para;</a></h3>
+<p>When all work for an issue is done:</p>
+<ol>
+<li>Close the issue:
+   <div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>gh<span class="w"> </span>issue<span class="w"> </span>close<span class="w"> </span>&lt;number&gt;<span class="w"> </span>--repo<span class="w"> </span>Tomosius/atlas<span class="w"> </span>--comment<span class="w"> </span><span class="s2">&quot;Completed.&quot;</span>
+</span></code></pre></div></li>
+<li>Remove in-progress label:
+   <div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>gh<span class="w"> </span>issue<span class="w"> </span>edit<span class="w"> </span>&lt;number&gt;<span class="w"> </span>--remove-label<span class="w"> </span><span class="s2">&quot;status:in-progress&quot;</span><span class="w"> </span>--repo<span class="w"> </span>Tomosius/atlas
+</span></code></pre></div></li>
+<li>Update <code>CLAUDE.md</code> — clear <strong>Current Issue</strong>, note it as completed.</li>
+<li>Open the next issue and mark it in-progress:
+   <div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>gh<span class="w"> </span>issue<span class="w"> </span>edit<span class="w"> </span>&lt;next-number&gt;<span class="w"> </span>--add-label<span class="w"> </span><span class="s2">&quot;status:in-progress&quot;</span><span class="w"> </span>--repo<span class="w"> </span>Tomosius/atlas
+</span></code></pre></div></li>
+<li>Update <code>CLAUDE.md</code> — set <strong>Current Issue</strong> to the new issue.</li>
+</ol>
+<h3 id="completing-a-milestone">Completing a Milestone<a class="headerlink" href="#completing-a-milestone" title="Permanent link">&para;</a></h3>
+<p>When all issues in a milestone are closed:</p>
+<ol>
+<li>Determine the new version:</li>
+<li>Phase 1 ships → <code>0.1.0</code></li>
+<li>Phase 2 ships → <code>0.2.0</code></li>
+<li>Phase 3 ships → <code>0.3.0</code></li>
+<li>Phase 4 ships → <code>1.0.0</code></li>
+<li>
+<p>Patch releases within a phase → increment patch digit.</p>
+</li>
+<li>
+<p>Bump version in <code>pyproject.toml</code>:
+   <div class="language-toml highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">[project]</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;0.2.0&quot;</span>
+</span></code></pre></div></p>
+</li>
+<li>
+<p>Commit the bump:
+   <div class="language-text highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>chore(release): bump version to 0.2.0
+</span></code></pre></div></p>
+</li>
+<li>
+<p>Close the milestone on GitHub:
+   <div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>gh<span class="w"> </span>api<span class="w"> </span>repos/Tomosius/atlas/milestones/&lt;id&gt;<span class="w"> </span>-X<span class="w"> </span>PATCH<span class="w"> </span>-f<span class="w"> </span><span class="nv">state</span><span class="o">=</span>closed
+</span></code></pre></div></p>
+</li>
+<li>
+<p>Update <code>CLAUDE.md</code> — note the completed milestone and current version.</p>
+</li>
+</ol>
+<hr />
+<h2 id="pre-output-verification-mandatory">PRE-OUTPUT VERIFICATION (MANDATORY)<a class="headerlink" href="#pre-output-verification-mandatory" title="Permanent link">&para;</a></h2>
+<p>Before output, run ALL checks. If any fails, rewrite before outputting.</p>
+<ol>
+<li><strong>Type:</strong> Highest valid match?</li>
+<li><strong>Scope:</strong> Valid domain, ≤24 chars, lowercase, no extensions, not banned — or intentionally omitted?</li>
+<li><strong>Subject verb:</strong> Banned verb? → Rewrite.</li>
+<li><strong>Subject length:</strong> Full line (including prefix) ≤72 chars?</li>
+<li><strong>Trailing punctuation:</strong> Subject must NOT end with <code>.</code> <code>...</code> <code>…</code> <code>!</code> <code>?</code></li>
+<li><strong>Atomicity:</strong> One logical change only?</li>
+<li><strong>Body:</strong> Required for this type? WHY derived from diff?</li>
+<li><strong>Breaking markers:</strong> <code>!</code> ↔ <code>BREAKING CHANGE:</code> consistent?</li>
+<li><strong>References:</strong> Issue numbers explicitly known, not guessed?</li>
+<li><strong>Output only the final, passed version.</strong></li>
+</ol>
+<hr />
+<h2 id="red-flags-checklist">RED FLAGS CHECKLIST<a class="headerlink" href="#red-flags-checklist" title="Permanent link">&para;</a></h2>
+<p>Before finalizing, verify NONE of these are true:</p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Subject describes two unrelated outcomes joined by "and" → Split.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Subject uses a banned filler verb → Be specific.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Subject exceeds 72 characters → Shorten.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Subject ends with <code>.</code> <code>...</code> <code>…</code> <code>!</code> <code>?</code> → Remove.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Body just restates the diff → Explain WHY instead.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Scope is a filename, extension, or folder name → Use the domain.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Scope exceeds 24 characters → Shorten.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Scope is <code>core</code> → Use specific sub-scope instead.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Breaking <code>!</code> but no <code>BREAKING CHANGE:</code> footer → Add footer.</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Footer contains a guessed issue number → Remove.</li>
+</ul>
+<hr />
+<h2 id="special-patterns">SPECIAL PATTERNS<a class="headerlink" href="#special-patterns" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Format</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dependency bump (both versions visible)</td>
+<td><code>build(deps): bump &lt;pkg&gt; from &lt;old&gt; to &lt;new&gt;</code></td>
+</tr>
+<tr>
+<td>Dependency bump (only new version visible)</td>
+<td><code>build(deps): bump &lt;pkg&gt; to &lt;new&gt;</code></td>
+</tr>
+<tr>
+<td>Dev dependency bump</td>
+<td><code>build(deps-dev): bump &lt;pkg&gt; from &lt;old&gt; to &lt;new&gt;</code></td>
+</tr>
+<tr>
+<td>Port from old codebase</td>
+<td><code>feat(&lt;scope&gt;): port &lt;description&gt; from atlas-cli</code></td>
+</tr>
+<tr>
+<td>Formatter-only</td>
+<td><code>style: apply ruff formatting</code></td>
+</tr>
+<tr>
+<td>Initial commit</td>
+<td><code>feat: initialize project with &lt;framework&gt;</code></td>
+</tr>
+<tr>
+<td>Version bump</td>
+<td><code>chore(release): bump version to &lt;version&gt;</code></td>
+</tr>
+<tr>
+<td>Revert</td>
+<td><code>revert: &lt;original subject verbatim&gt;</code> (hash required)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="worked-examples-atlas-specific">WORKED EXAMPLES (Atlas-Specific)<a class="headerlink" href="#worked-examples-atlas-specific" title="Permanent link">&para;</a></h2>
+<h3 id="porting-a-module">Porting a module<a class="headerlink" href="#porting-a-module" title="Permanent link">&para;</a></h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>feat(detection): port language markers and lock file tables from atlas-cli
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>Detection relied on scattered conditionals. Porting the data
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>tables enables parametrized testing and easier extension.
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>- Port LANGUAGE_MARKERS dict (14 languages)
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>- Port LOCK_FILE_MAP for package manager detection
+</span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>- Port FRAMEWORK_PATTERNS for framework identification
+</span></code></pre></div>
+<h3 id="adding-a-warehouse-module">Adding a warehouse module<a class="headerlink" href="#adding-a-warehouse-module" title="Permanent link">&para;</a></h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>feat(warehouse): add ruff module bundle with rules and config extraction
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>Agents working on Python projects need ruff rule references
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>and extracted config values to apply consistent formatting.
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>
+</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>- Add module.json with category, detect_files, conflicts_with
+</span><span id="__span-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>- Write rules.md covering line-length, select, ignore conventions
+</span><span id="__span-19-8"><a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>- Add config keys: line-length, select, ignore, extend-ignore
+</span></code></pre></div>
+<h3 id="fixing-a-scanner-bug">Fixing a scanner bug<a class="headerlink" href="#fixing-a-scanner-bug" title="Permanent link">&para;</a></h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>fix(scanner): prevent crash on empty TOML sections
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>pyproject.toml files with empty [tool.ruff] sections caused
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>KeyError in the TOML section parser, aborting the entire scan.
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>- Guard section dict access with .get() before key extraction
+</span></code></pre></div>
+<h3 id="breaking-api-change">Breaking API change<a class="headerlink" href="#breaking-api-change" title="Permanent link">&para;</a></h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>feat(parser)!: require explicit verb for all atlas commands
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>Implicit verb detection caused ambiguous routing when query
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>strings matched verb names. Explicit verbs make intent clear.
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>BREAKING CHANGE: All atlas inputs must now start with a verb.
+</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>&quot;ruff&quot; → &quot;retrieve ruff&quot;. &quot;pytest --verbose&quot; → &quot;just pytest --verbose&quot;.
+</span></code></pre></div>
+<h3 id="multiple-commits-for-one-issue-issue-30">Multiple commits for one issue (Issue #30)<a class="headerlink" href="#multiple-commits-for-one-issue-issue-30" title="Permanent link">&para;</a></h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a># Commit 1
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>feat(retrieve): add build_retrieve_file signature and file skeleton
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>
+</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a># Commit 2
+</span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>feat(retrieve): inject extracted config values into rules.md placeholders
+</span><span id="__span-22-6"><a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>
+</span><span id="__span-22-7"><a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a># Commit 3
+</span><span id="__span-22-8"><a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a>feat(retrieve): apply section filtering to narrow retrieve output
+</span><span id="__span-22-9"><a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a>
+</span><span id="__span-22-10"><a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a># Commit 4
+</span><span id="__span-22-11"><a id="__codelineno-22-11" name="__codelineno-22-11" href="#__codelineno-22-11"></a>feat(retrieve): add freshness timestamp to retrieve file header
+</span><span id="__span-22-12"><a id="__codelineno-22-12" name="__codelineno-22-12" href="#__codelineno-22-12"></a>
+</span><span id="__span-22-13"><a id="__codelineno-22-13" name="__codelineno-22-13" href="#__codelineno-22-13"></a># Commit 5
+</span><span id="__span-22-14"><a id="__codelineno-22-14" name="__codelineno-22-14" href="#__codelineno-22-14"></a>test(retrieve): add parametrized tests for value injection and filtering
+</span></code></pre></div>
+<hr />
+<h2 id="output-format">OUTPUT FORMAT<a class="headerlink" href="#output-format" title="Permanent link">&para;</a></h2>
+<h3 id="chat-mode">Chat Mode<a class="headerlink" href="#chat-mode" title="Permanent link">&para;</a></h3>
+<p>Output ONLY the raw commit message. No introduction, no explanation,
+no Markdown fences, no quotation marks. Just the text starting with
+<code>type(scope): subject</code> or <code>type: subject</code>.</p>
+<p><strong>Exception:</strong> If pre-output verification triggers a WARNING (non-atomic,
+truncated), output the WARNING instead of a commit message.</p>
+<h3 id="direct-commit-mode">Direct-Commit Mode<a class="headerlink" href="#direct-commit-mode" title="Permanent link">&para;</a></h3>
+<p>Raw commit message text only. Never warnings. Abort on failure.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.top", "search.highlight", "search.suggest", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
