@@ -1,0 +1,112 @@
+site_name: Atlas MCP
+site_description: MCP server that gives AI coding agents structured project knowledge
+site_url: https://tomosius.github.io/atlas
+repo_url: https://github.com/Tomosius/atlas
+repo_name: Tomosius/atlas
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs # top-level sections as tabs
+    - navigation.tabs.sticky # tabs stay visible on scroll
+    - navigation.sections # expand sections in sidebar
+    - navigation.expand # expand all sections by default
+    - navigation.path # breadcrumbs
+    - navigation.top # back-to-top button
+    - search.highlight # highlight search terms in results
+    - search.suggest # autocomplete search
+    - content.code.copy # copy button on code blocks
+    - content.code.annotate # code annotations
+    - content.tabs.link # sync tabbed content
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - admonition # !!! note / warning / tip blocks
+  - pymdownx.details # collapsible admonitions
+  - pymdownx.superfences: # code blocks inside admonitions
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight: # syntax highlighting
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite # inline code highlighting
+  - pymdownx.tabbed: # tabbed content blocks
+      alternate_style: true
+  - pymdownx.tasklist: # - [x] checkboxes
+      custom_checkbox: true
+  - pymdownx.emoji: # :material-check: emoji
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - attr_list # {.class} attributes on elements
+  - md_in_html # markdown inside HTML blocks
+  - pymdownx.snippets: # --8<-- file inclusion
+      base_path: ["."]
+  - toc:
+      permalink: true # anchor links on headings
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            docstring_style: google
+            show_source: true
+            show_root_heading: true
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            members_order: source
+            separate_signature: true
+            show_signature_annotations: true
+            unwrap_annotated: true
+            merge_init_into_class: true
+            docstring_section_style: table
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: guides/installation.md
+      - Quick Start: guides/quickstart.md
+      - Configuration: guides/configuration.md
+  - Concepts:
+      - How Atlas Works: guides/how-it-works.md
+      - Modules: guides/modules.md
+      - Verbs & API: guides/api.md
+  - Module Reference:
+      - Overview: reference/modules-overview.md
+  - API Reference:
+      - server: api/server.md
+      - parser: api/parser.md
+      - runtime: api/runtime.md
+      - cli: api/cli.md
+      - core/detection: api/detection.md
+      - core/scanner: api/scanner.md
+      - core/categories: api/categories.md
+      - core/modules: api/modules.md
+      - core/retrieve: api/retrieve.md
+      - core/registry: api/registry.md
+      - core/config: api/config.md
+      - core/runner: api/runner.md
+  - Development:
+      - Development Guide: development.md
+      - Commit Rules: commit-rules.md
+      - Contributing: guides/contributing.md
