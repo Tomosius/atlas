@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #5 — Create test fixtures: Python project, TypeScript project, empty project
+**Current Issue:** #6 — Port data models (ProjectDetection, Infrastructure, SystemTools)
 
 ### Completed so far
 
@@ -33,15 +33,11 @@ One tool (`atlas`), 10 verbs, single string input.
 | #2 | Create CLAUDE.md | ✅ this file |
 | #3 | Create README.md | ✅ |
 | #4 | Set up CI via GitHub Actions | ✅ `.github/workflows/ci.yml` |
+| #5 | Create test fixtures | ✅ `tests/fixtures/empty_project/` |
 
 ### Not yet started (next up)
 
-**Current → Issue #5**: Create `tests/fixtures/` with three fixture projects:
-- `python_project/` — `pyproject.toml` with ruff + pytest, `src/` layout
-- `typescript_project/` — `package.json`, `tsconfig.json`, `eslint.config.js`
-- `empty_project/` — bare directory, no config files
-
-Then continue: #6, #7, #8 … through #114.
+Continue: #7, #8 … through #114.
 
 ```bash
 # See all open Phase 1 issues
