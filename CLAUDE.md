@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #18 — (not started)
+**Current Issue:** #19 — (not started)
 
 ### Completed so far
 
@@ -46,10 +46,11 @@ One tool (`atlas`), 10 verbs, single string input.
 | #15 | Port scan_module_config and enrich_module_rules | ✅ |
 | #16 | Write tests for config scanner | ✅ 124 tests, `tests/test_scanner.py` |
 | #17 | Port category contracts (13 categories + 2 auto) | ✅ `src/atlas/core/categories.py` |
+| #18 | Port CategoryRouter class | ✅ `CategoryRouter` in `src/atlas/core/categories.py` |
 
 ### Not yet started (next up)
 
-Continue: #18, #19 … through #114.
+Continue: #19, #20 … through #114.
 
 ```bash
 # See all open Phase 1 issues
