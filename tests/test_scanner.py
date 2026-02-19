@@ -525,3 +525,191 @@ class TestGetConfigLocations:
         for module in MODULE_CONFIG_MAP:
             locs = get_config_locations(module)
             assert len(locs) > 0, f"{module} returned empty locations"
+
+
+# ---------------------------------------------------------------------------
+# scan_module_config
+# ---------------------------------------------------------------------------
+
+
+class TestScanModuleConfig:
+    # --- unknown / empty ---
+
+    def test_unknown_module_returns_not_found(self, tmp_path):
+        result = scan_module_config("nonexistent-xyz", str(tmp_path))
+        assert result == {"found": False}
+
+    def test_empty_dir_returns_not_found(self, tmp_path):
+        result = scan_module_config("ruff", str(tmp_path))
+        assert result == {"found": False}
+
+    # --- format: exists ---
+
+    def test_exists_format_found(self, tmp_path):
+        (tmp_path / "requirements.txt").write_text("flask\n", encoding="utf-8")
+        result = scan_module_config("pip", str(tmp_path))
+        assert result["found"] is True
+        assert result["config_file"] == "requirements.txt"
+        assert result["extracted"] == {}
+
+    def test_exists_format_not_found(self, tmp_path):
+        result = scan_module_config("pip", str(tmp_path))
+        assert result["found"] is False
+
+    # --- format: dir ---
+
+    def test_dir_format_found(self, tmp_path):
+        (tmp_path / ".git").mkdir()
+        result = scan_module_config("git", str(tmp_path))
+        assert result["found"] is True
+        assert result["config_file"] == ".git"
+        assert result["extracted"] == {}
+
+    def test_dir_format_not_found(self, tmp_path):
+        result = scan_module_config("git", str(tmp_path))
+        assert result["found"] is False
+
+    # --- format: glob_exists ---
+
+    def test_glob_exists_found(self, tmp_path):
+        (tmp_path / "mydb.db").write_text("", encoding="utf-8")
+        result = scan_module_config("sqlite", str(tmp_path))
+        assert result["found"] is True
+        assert result["config_file"] == "*.db"
+
+    def test_glob_exists_not_found(self, tmp_path):
+        result = scan_module_config("sqlite", str(tmp_path))
+        assert result["found"] is False
+
+    # --- format: toml ---
+
+    def test_toml_format_extracts_values(self, tmp_path):
+        (tmp_path / "pyproject.toml").write_text(
+            "[tool.ruff]\nline-length = 120\ntarget-version = \"py310\"\n",
+            encoding="utf-8",
+        )
+        result = scan_module_config("ruff", str(tmp_path))
+        assert result["found"] is True
+        assert result["config_file"] == "pyproject.toml"
+        assert result["extracted"]["style"]["line_length"] == 120
+        assert result["extracted"]["style"]["python_version"] == "py310"
+
+    def test_toml_priority_first_file_wins(self, tmp_path):
+        # pyproject.toml (priority 1) and ruff.toml (priority 2) both present
+        (tmp_path / "pyproject.toml").write_text(
+            "[tool.ruff]\nline-length = 100\n", encoding="utf-8"
+        )
+        (tmp_path / "ruff.toml").write_text("line-length = 80\n", encoding="utf-8")
+        result = scan_module_config("ruff", str(tmp_path))
+        assert result["config_file"] == "pyproject.toml"
+        assert result["extracted"]["style"]["line_length"] == 100
+
+    def test_toml_no_section_match_returns_empty_extracted(self, tmp_path):
+        # pyproject.toml exists but has no [tool.ruff] section
+        (tmp_path / "pyproject.toml").write_text("[project]\nname = \"app\"\n", encoding="utf-8")
+        result = scan_module_config("ruff", str(tmp_path))
+        # File is found but section is absent → extracted is empty
+        assert result["found"] is True
+        assert result["extracted"] == {}
+
+    # --- format: json ---
+
+    def test_json_format_extracts_values(self, tmp_path):
+        (tmp_path / "tsconfig.json").write_text(
+            '{"strict": true, "target": "ES2020"}', encoding="utf-8"
+        )
+        result = scan_module_config("typescript", str(tmp_path))
+        assert result["found"] is True
+        assert result["config_file"] == "tsconfig.json"
+        assert result["extracted"]["style"]["strict_mode"] is True
+        assert result["extracted"]["style"]["target"] == "ES2020"
+
+    def test_json_with_section_extracts_nested(self, tmp_path):
+        (tmp_path / "package.json").write_text(
+            '{"jest": {"testTimeout": 5000, "testEnvironment": "node"}}',
+            encoding="utf-8",
+        )
+        result = scan_module_config("jest", str(tmp_path))
+        assert result["found"] is True
+        assert result["extracted"]["testing"]["timeout"] == 5000
+        assert result["extracted"]["testing"]["environment"] == "node"
+
+    # --- format: ini ---
+
+    def test_ini_format_extracts_values(self, tmp_path):
+        (tmp_path / "setup.cfg").write_text(
+            "[flake8]\nmax-line-length = 88\nextend-ignore = E501\n", encoding="utf-8"
+        )
+        result = scan_module_config("flake8", str(tmp_path))
+        assert result["found"] is True
+        assert result["config_file"] == "setup.cfg"
+        assert result["extracted"]["style"]["line_length"] == "88"
+
+    # --- format: yaml ---
+
+    def test_yaml_format_extracts_values(self, tmp_path):
+        (tmp_path / ".golangci.yml").write_text(
+            "timeout: 5m\nissues-exit-code: 1\n", encoding="utf-8"
+        )
+        result = scan_module_config("golangci-lint", str(tmp_path))
+        assert result["found"] is True
+        assert result["config_file"] == ".golangci.yml"
+
+    # --- format: gomod ---
+
+    def test_gomod_format_extracts_values(self, tmp_path):
+        (tmp_path / "go.mod").write_text(
+            "module github.com/org/app\ngo 1.21\n", encoding="utf-8"
+        )
+        result = scan_module_config("go", str(tmp_path))
+        assert result["found"] is True
+        assert result["config_file"] == "go.mod"
+        assert result["extracted"]["project"]["module"] == "github.com/org/app"
+        assert result["extracted"]["style"]["go_version"] == "1.21"
+
+    # --- custom config_locations override ---
+
+    def test_custom_config_locations_override(self, tmp_path):
+        (tmp_path / "custom.toml").write_text("line-length = 99\n", encoding="utf-8")
+        custom_locs = [{"file": "custom.toml", "format": "toml", "section": None, "priority": 1}]
+        result = scan_module_config("ruff", str(tmp_path), config_locations=custom_locs)
+        assert result["found"] is True
+        assert result["config_file"] == "custom.toml"
+
+    def test_empty_custom_locations_returns_not_found(self, tmp_path):
+        result = scan_module_config("ruff", str(tmp_path), config_locations=[])
+        assert result == {"found": False}
+
+    # --- plan §5.2 examples ---
+
+    def test_plan_ruff_from_pyproject(self, tmp_path):
+        """Plan §5.2 example: ruff config in pyproject.toml."""
+        (tmp_path / "pyproject.toml").write_text(
+            '[tool.ruff]\nline-length = 120\nselect = ["E", "W", "F"]\n',
+            encoding="utf-8",
+        )
+        result = scan_module_config("ruff", str(tmp_path))
+        assert result["found"] is True
+        assert result["extracted"]["style"]["line_length"] == 120
+
+    def test_plan_pytest_from_pyproject(self, tmp_path):
+        """Plan §5.2 example: pytest config in pyproject.toml."""
+        (tmp_path / "pyproject.toml").write_text(
+            "[tool.pytest.ini_options]\ntestpaths = [\"tests\"]\naddopts = \"-v\"\n",
+            encoding="utf-8",
+        )
+        result = scan_module_config("pytest", str(tmp_path))
+        assert result["found"] is True
+        assert result["extracted"]["testing"]["test_dirs"] == ["tests"]
+
+    def test_plan_typescript_from_tsconfig(self, tmp_path):
+        """Plan §5.2 example: TypeScript config from tsconfig.json."""
+        (tmp_path / "tsconfig.json").write_text(
+            '{"compilerOptions": {"strict": true, "target": "ESNext"}}',
+            encoding="utf-8",
+        )
+        result = scan_module_config("typescript", str(tmp_path))
+        assert result["found"] is True
+        # compilerOptions is not a direct key — strict/target are at root level
+        # tsconfig uses section=None so root keys are extracted directly
+        assert result["config_file"] == "tsconfig.json"
