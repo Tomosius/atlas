@@ -10,6 +10,7 @@ from atlas.core.detection import (
     _TOOL_MARKERS,
     _WORKSPACE_MANAGERS,
     _detect_languages,
+    _detect_package_manager,
 )
 
 
@@ -82,3 +83,28 @@ class TestDetectLanguages:
 
         assert "elixir" in languages
         assert primary == "elixir"
+
+
+# ---------------------------------------------------------------------------
+# _detect_package_manager
+# ---------------------------------------------------------------------------
+
+
+class TestDetectPackageManager:
+    """Parametrized tests covering every entry in _LOCK_FILE_MANAGERS."""
+
+    @pytest.mark.parametrize("lock_file,expected_manager", _LOCK_FILE_MANAGERS.items())
+    def test_lock_file_returns_correct_manager(
+        self, lock_file: str, expected_manager: str, tmp_path
+    ):
+        (tmp_path / lock_file).write_text("", encoding="utf-8")
+        result = _detect_package_manager(str(tmp_path), languages=[])
+        assert result == expected_manager
+
+    def test_no_lock_file_returns_none(self, tmp_path):
+        result = _detect_package_manager(str(tmp_path), languages=[])
+        assert result == "none"
+
+    def test_empty_dir_returns_none(self, tmp_path):
+        result = _detect_package_manager(str(tmp_path), languages=[])
+        assert result == "none"
