@@ -324,3 +324,113 @@ MODULE_CONFIG_MAP: dict[str, list[dict]] = {
         {"file": "setup.cfg", "format": "ini", "section": "isort", "priority": 3},
     ],
 }
+
+# Maps module name → {raw_config_key: atlas_dotted_path}.
+# The scanner extracts these values from the config file and stores them
+# under the Atlas internal namespace so rules templates can reference them
+# as {{style.line_length}}, {{project.name}}, etc.
+MODULE_CONFIG_KEYS: dict[str, dict[str, str]] = {
+    # --- Languages ---
+    "python": {
+        "requires-python": "style.python_version",
+        "name": "project.name",
+        "version": "project.version",
+    },
+    "typescript": {
+        "strict": "style.strict_mode",
+        "target": "style.target",
+        "module": "style.module_system",
+    },
+    "rust": {
+        "edition": "style.edition",
+        "name": "project.name",
+        "version": "project.version",
+    },
+    "go": {
+        "go": "style.go_version",
+        "module": "project.module",
+    },
+    # --- Linters ---
+    "ruff": {
+        "line-length": "style.line_length",
+        "target-version": "style.python_version",
+        "select": "style.lint_rules",
+        "ignore": "style.lint_ignore",
+        "indent-width": "style.indent_width",
+    },
+    "eslint": {
+        "rules": "style.lint_rules",
+        "env": "style.environments",
+        "extends": "style.extends",
+    },
+    "biome": {
+        "indentStyle": "style.indent_style",
+        "indentWidth": "style.indent_width",
+        "lineWidth": "style.line_length",
+    },
+    "flake8": {
+        "max-line-length": "style.line_length",
+        "max-complexity": "style.max_complexity",
+        "extend-ignore": "style.lint_ignore",
+        "per-file-ignores": "style.per_file_ignores",
+    },
+    "golangci-lint": {
+        "timeout": "testing.timeout",
+        "issues-exit-code": "style.exit_code",
+    },
+    # --- Formatters ---
+    "prettier": {
+        "printWidth": "style.line_length",
+        "tabWidth": "style.indent_width",
+        "useTabs": "style.use_tabs",
+        "singleQuote": "style.single_quote",
+        "trailingComma": "style.trailing_comma",
+        "semi": "style.semicolons",
+    },
+    "rustfmt": {
+        "max_width": "style.line_length",
+        "tab_spaces": "style.indent_width",
+        "edition": "style.edition",
+    },
+    # --- Testing ---
+    "pytest": {
+        "testpaths": "testing.test_dirs",
+        "pythonpath": "testing.python_path",
+        "addopts": "testing.extra_args",
+        "minversion": "testing.min_version",
+    },
+    "vitest": {
+        "testTimeout": "testing.timeout",
+        "coverage": "testing.coverage",
+    },
+    "jest": {
+        "testTimeout": "testing.timeout",
+        "coverageDirectory": "testing.coverage_dir",
+        "testEnvironment": "testing.environment",
+    },
+    # --- Package Managers ---
+    "uv": {
+        "dev-dependencies": "project.dev_dependencies",
+        "python": "style.python_version",
+    },
+    "cargo": {
+        "edition": "style.edition",
+        "resolver": "project.resolver",
+    },
+    # --- Standalone tools ---
+    "mypy": {
+        "python_version": "style.python_version",
+        "strict": "style.strict_mode",
+        "ignore_missing_imports": "style.ignore_missing_imports",
+    },
+    "black": {
+        "line-length": "style.line_length",
+        "target-version": "style.python_version",
+        "skip-string-normalization": "style.skip_string_normalization",
+    },
+    "isort": {
+        "line_length": "style.line_length",
+        "profile": "style.profile",
+        "known_first_party": "style.first_party_imports",
+    },
+}
