@@ -624,3 +624,155 @@ def _parse_toml_values(section_content: str) -> dict:
         i += 1
 
     return result
+
+
+# --- JSON parser ---
+
+
+def _read_json_safe(path: str) -> dict:
+    """Load a JSON file and return its contents as a dict, or {} on any error."""
+    import json
+
+    try:
+        with open(path, encoding="utf-8", errors="ignore") as f:
+            data = json.load(f)
+        return data if isinstance(data, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def _navigate_json_path(data: dict, path: str) -> dict | None:
+    """Resolve a dotted path into a nested dict.
+
+    Args:
+        data: The root JSON dict.
+        path: Dotted key path, e.g. ``"compilerOptions"`` or ``"tool.jest"``.
+
+    Returns:
+        The nested dict at the path, or None if any key is missing or the
+        value at the path is not a dict.
+    """
+    current: object = data
+    for part in path.split("."):
+        if not isinstance(current, dict):
+            return None
+        current = current.get(part)
+    return current if isinstance(current, dict) else None
+
+
+# --- INI parser ---
+
+
+def _read_ini_section(path: str, section: str) -> dict:
+    """Read a section from an INI-style config file via configparser.
+
+    Args:
+        path: Absolute path to the INI file.
+        section: Section name (without brackets), e.g. ``"flake8"``.
+
+    Returns:
+        A flat dict of {key: value} strings for the section, or {} if the
+        file cannot be read or the section does not exist.
+    """
+    import configparser
+
+    parser = configparser.ConfigParser(strict=False)
+    try:
+        parser.read(path, encoding="utf-8")
+    except (OSError, configparser.Error):
+        return {}
+
+    if not parser.has_section(section):
+        return {}
+
+    return dict(parser.items(section))
+
+
+# --- YAML parser (simple key: value only — no PyYAML) ---
+
+
+def _parse_yaml_value(raw: str) -> str | int | list | bool:
+    """Convert a raw YAML scalar string to a Python type.
+
+    Handles: booleans (true/false/yes/no), integers, and plain strings.
+    List values (``[a, b]`` inline or block ``- item``) are not supported
+    here — use the full YAML library for complex structures.
+    """
+    raw = raw.strip()
+
+    if raw.lower() in ("true", "yes"):
+        return True
+    if raw.lower() in ("false", "no"):
+        return False
+
+    # Quoted string
+    if (raw.startswith('"') and raw.endswith('"')) or (
+        raw.startswith("'") and raw.endswith("'")
+    ):
+        return raw[1:-1]
+
+    try:
+        return int(raw)
+    except ValueError:
+        pass
+
+    return raw
+
+
+def _read_yaml_simple(path: str) -> dict:
+    """Parse a simple ``key: value`` YAML file using only the stdlib.
+
+    Limitations:
+    - Only top-level ``key: value`` pairs are extracted.
+    - Block sequences (``- item``) and nested mappings are skipped.
+    - Inline arrays (``[a, b]``) are returned as raw strings.
+
+    Returns:
+        A flat dict of {key: typed_value}, or {} on any error.
+    """
+    content = _read_file_safe(path)
+    if not content:
+        return {}
+
+    result: dict = {}
+    for line in content.splitlines():
+        stripped = line.strip()
+        # Skip blank lines, comments, and list items
+        if not stripped or stripped.startswith("#") or stripped.startswith("-"):
+            continue
+        # Skip lines that are indented (nested mappings)
+        if line != stripped and not line.startswith(" ") is False:
+            pass
+        if ":" in stripped and not stripped.startswith(":"):
+            key, _, value_raw = stripped.partition(":")
+            key = key.strip()
+            value_raw = value_raw.strip()
+            if key and not key.startswith("-"):
+                result[key] = _parse_yaml_value(value_raw) if value_raw else ""
+
+    return result
+
+
+# --- go.mod parser ---
+
+
+def _read_gomod(path: str) -> dict:
+    """Parse a go.mod file and extract the module path and Go version.
+
+    Returns:
+        A dict with keys ``"module"`` and ``"go"`` (both strings), or {}
+        on any read error.
+    """
+    content = _read_file_safe(path)
+    if not content:
+        return {}
+
+    result: dict = {}
+    for line in content.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("module "):
+            result["module"] = stripped[len("module "):].strip()
+        elif stripped.startswith("go "):
+            result["go"] = stripped[len("go "):].strip()
+
+    return result
