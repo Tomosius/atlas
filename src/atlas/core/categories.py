@@ -440,6 +440,65 @@ def get_expected_commands(category: str) -> list[str]:
     return ALL_CATEGORIES.get(category, {}).get("expected_commands", [])
 
 
+def validate_module_against_contract(module_name: str, reg_entry: dict) -> list[dict]:
+    """Validate *reg_entry* against its category's contract.
+
+    Returns a list of error dicts ``{"module": module_name, "error": message}``.
+    An empty list means the module is valid.
+    """
+    errors: list[dict] = []
+
+    category = reg_entry.get("category", "")
+    contract = ALL_CATEGORIES.get(category)
+
+    if contract is None:
+        errors.append(
+            {
+                "module": module_name,
+                "error": f"unknown category: {category!r}",
+            }
+        )
+        return errors  # can't validate further without a contract
+
+    # Check required fields
+    for field in contract.get("required_fields", []):
+        if field not in reg_entry:
+            errors.append(
+                {
+                    "module": module_name,
+                    "error": f"missing required field: {field!r}",
+                }
+            )
+
+    # Check expected commands
+    commands = reg_entry.get("commands", {})
+    for cmd in contract.get("expected_commands", []):
+        if cmd not in commands:
+            errors.append(
+                {
+                    "module": module_name,
+                    "error": f"missing expected command: {cmd!r}",
+                }
+            )
+
+    return errors
+
+
+def validate_registry_integrity(registry: dict) -> list[dict]:
+    """Validate every module in *registry* against its category contract.
+
+    *registry* is expected to be ``{"modules": {name: entry, ...}}``.
+
+    Returns a flat list of error dicts across all modules.
+    An empty list means the entire registry is valid.
+    """
+    errors: list[dict] = []
+    modules = registry.get("modules", {})
+    for name, entry in modules.items():
+        errors.extend(validate_module_against_contract(name, entry))
+    return errors
+
+
 # ---------------------------------------------------------------------------
 # CategoryRouter
 # ---------------------------------------------------------------------------
