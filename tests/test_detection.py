@@ -16,6 +16,7 @@ from atlas.core.detection import (
     _detect_infrastructure,
     _detect_languages,
     _detect_package_manager,
+    _detect_structure,
 )
 
 
@@ -331,3 +332,46 @@ class TestDetectInfrastructure:
         (tmp_path / ".gitlab-ci.yml").write_text("", encoding="utf-8")
         infra = _detect_infrastructure(str(tmp_path))
         assert infra.gitlab_ci
+
+
+# ---------------------------------------------------------------------------
+# _detect_structure
+# ---------------------------------------------------------------------------
+
+
+class TestDetectStructure:
+    """Tests covering monorepo, fullstack, and single structure detection."""
+
+    @pytest.mark.parametrize("marker,expected_manager", _WORKSPACE_MANAGERS.items())
+    def test_workspace_marker_returns_monorepo(
+        self, marker: str, expected_manager: str, tmp_path
+    ):
+        (tmp_path / marker).write_text("", encoding="utf-8")
+        structure, manager = _detect_structure(str(tmp_path))
+        assert structure == "monorepo"
+        assert manager == expected_manager
+
+    def test_two_fullstack_dirs_returns_fullstack(self, tmp_path):
+        # Use the first two entries from _FULLSTACK_DIRS
+        d1, d2 = _FULLSTACK_DIRS[0], _FULLSTACK_DIRS[1]
+        (tmp_path / d1).mkdir()
+        (tmp_path / d2).mkdir()
+        structure, manager = _detect_structure(str(tmp_path))
+        assert structure == "fullstack"
+        assert manager == "none"
+
+    def test_one_fullstack_dir_returns_single(self, tmp_path):
+        (tmp_path / _FULLSTACK_DIRS[0]).mkdir()
+        structure, _ = _detect_structure(str(tmp_path))
+        assert structure == "single"
+
+    def test_empty_dir_returns_single(self, tmp_path):
+        structure, manager = _detect_structure(str(tmp_path))
+        assert structure == "single"
+        assert manager == "none"
+
+    def test_all_fullstack_dirs_returns_fullstack(self, tmp_path):
+        for d in _FULLSTACK_DIRS:
+            (tmp_path / d).mkdir()
+        structure, _ = _detect_structure(str(tmp_path))
+        assert structure == "fullstack"
