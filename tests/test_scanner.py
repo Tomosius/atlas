@@ -279,3 +279,129 @@ class TestNavigateJsonPath:
         data = {"tool": {"jest": {"timeout": 5000}}}
         result = _navigate_json_path(data, "tool.jest")
         assert result == {"timeout": 5000}
+
+
+# ---------------------------------------------------------------------------
+# _read_ini_section
+# ---------------------------------------------------------------------------
+
+
+class TestReadIniSection:
+    def test_reads_existing_section(self, tmp_path):
+        f = tmp_path / "setup.cfg"
+        f.write_text("[flake8]\nmax-line-length = 88\nextend-ignore = E501\n", encoding="utf-8")
+        result = _read_ini_section(str(f), "flake8")
+        assert result["max-line-length"] == "88"
+        assert result["extend-ignore"] == "E501"
+
+    def test_returns_empty_for_missing_section(self, tmp_path):
+        f = tmp_path / "setup.cfg"
+        f.write_text("[flake8]\nmax-line-length = 88\n", encoding="utf-8")
+        assert _read_ini_section(str(f), "mypy") == {}
+
+    def test_returns_empty_for_nonexistent_file(self, tmp_path):
+        assert _read_ini_section(str(tmp_path / "missing.cfg"), "flake8") == {}
+
+    def test_reads_pytest_section(self, tmp_path):
+        f = tmp_path / "pytest.ini"
+        f.write_text("[pytest]\ntestpaths = tests\naddopts = -v\n", encoding="utf-8")
+        result = _read_ini_section(str(f), "pytest")
+        assert result["testpaths"] == "tests"
+        assert result["addopts"] == "-v"
+
+    def test_returns_empty_for_empty_section(self, tmp_path):
+        f = tmp_path / "setup.cfg"
+        f.write_text("[flake8]\n", encoding="utf-8")
+        result = _read_ini_section(str(f), "flake8")
+        assert isinstance(result, dict)
+
+
+# ---------------------------------------------------------------------------
+# _parse_yaml_value / _read_yaml_simple
+# ---------------------------------------------------------------------------
+
+
+class TestParseYamlValue:
+    def test_true_string(self):
+        assert _parse_yaml_value("true") is True
+
+    def test_false_string(self):
+        assert _parse_yaml_value("false") is False
+
+    def test_yes_string(self):
+        assert _parse_yaml_value("yes") is True
+
+    def test_no_string(self):
+        assert _parse_yaml_value("no") is False
+
+    def test_integer(self):
+        assert _parse_yaml_value("30") == 30
+
+    def test_plain_string(self):
+        assert _parse_yaml_value("myproject") == "myproject"
+
+    def test_double_quoted_string(self):
+        assert _parse_yaml_value('"hello"') == "hello"
+
+    def test_strips_whitespace(self):
+        assert _parse_yaml_value("  42  ") == 42
+
+
+class TestReadYamlSimple:
+    def test_reads_simple_key_value(self, tmp_path):
+        f = tmp_path / "config.yml"
+        f.write_text("timeout: 30\nstrictMode: true\nname: myproject\n", encoding="utf-8")
+        result = _read_yaml_simple(str(f))
+        assert result["timeout"] == 30
+        assert result["strictMode"] is True
+        assert result["name"] == "myproject"
+
+    def test_returns_empty_for_nonexistent(self, tmp_path):
+        assert _read_yaml_simple(str(tmp_path / "missing.yml")) == {}
+
+    def test_skips_comments(self, tmp_path):
+        f = tmp_path / "config.yml"
+        f.write_text("# comment\ntimeout: 30\n", encoding="utf-8")
+        result = _read_yaml_simple(str(f))
+        assert result["timeout"] == 30
+        assert len(result) == 1
+
+    def test_skips_list_items(self, tmp_path):
+        f = tmp_path / "config.yml"
+        f.write_text("timeout: 30\n- item\n", encoding="utf-8")
+        result = _read_yaml_simple(str(f))
+        assert "timeout" in result
+
+
+# ---------------------------------------------------------------------------
+# _read_gomod
+# ---------------------------------------------------------------------------
+
+
+class TestReadGomod:
+    def test_extracts_module_and_go_version(self, tmp_path):
+        f = tmp_path / "go.mod"
+        f.write_text("module github.com/myorg/myapp\n\ngo 1.21\n", encoding="utf-8")
+        result = _read_gomod(str(f))
+        assert result["module"] == "github.com/myorg/myapp"
+        assert result["go"] == "1.21"
+
+    def test_returns_empty_for_nonexistent(self, tmp_path):
+        assert _read_gomod(str(tmp_path / "missing.mod")) == {}
+
+    def test_module_only(self, tmp_path):
+        f = tmp_path / "go.mod"
+        f.write_text("module example.com/app\n", encoding="utf-8")
+        result = _read_gomod(str(f))
+        assert result["module"] == "example.com/app"
+        assert "go" not in result
+
+    def test_ignores_require_block(self, tmp_path):
+        f = tmp_path / "go.mod"
+        f.write_text(
+            "module example.com/app\ngo 1.20\nrequire (\n    github.com/pkg v1.0.0\n)\n",
+            encoding="utf-8",
+        )
+        result = _read_gomod(str(f))
+        assert result["module"] == "example.com/app"
+        assert result["go"] == "1.20"
