@@ -202,6 +202,13 @@ class TestValidateModuleAgainstContract:
         errors = validate_module_against_contract("ruff", {})
         assert len(errors) > 0
 
+    def test_commands_is_none_does_not_crash(self):
+        entry = self._valid_linter()
+        entry["commands"] = None
+        errors = validate_module_against_contract("ruff", entry)
+        assert len(errors) >= 1
+        assert any("check" in e["error"] for e in errors)
+
 
 # ---------------------------------------------------------------------------
 # validate_registry_integrity
