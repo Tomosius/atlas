@@ -1,6 +1,5 @@
 """Tests for atlas.core.scanner — all parsers and public API."""
 
-
 from atlas.core.scanner import (
     MODULE_CONFIG_MAP,
     _brackets_balanced,
@@ -143,7 +142,7 @@ class TestParseTomlArray:
 
 class TestReadTomlSection:
     def test_extracts_simple_section(self):
-        content = "[tool.ruff]\nline-length = 120\ntarget-version = \"py310\"\n"
+        content = '[tool.ruff]\nline-length = 120\ntarget-version = "py310"\n'
         section = _read_toml_section(content, "[tool.ruff]")
         assert "line-length = 120" in section
         assert 'target-version = "py310"' in section
@@ -162,7 +161,7 @@ class TestReadTomlSection:
         assert _read_toml_section("", "[tool.ruff]") == ""
 
     def test_does_not_stop_at_array_of_tables(self):
-        content = "[tool.ruff]\nline-length = 120\n[[servers]]\nname = \"test\"\n"
+        content = '[tool.ruff]\nline-length = 120\n[[servers]]\nname = "test"\n'
         section = _read_toml_section(content, "[tool.ruff]")
         assert "line-length = 120" in section
 
@@ -201,7 +200,7 @@ class TestParseTomlValues:
         assert len(result) == 1
 
     def test_skips_subsection_headers(self):
-        content = "line-length = 88\n[tool.ruff.lint]\nselect = [\"E\"]\n"
+        content = 'line-length = 88\n[tool.ruff.lint]\nselect = ["E"]\n'
         result = _parse_toml_values(content)
         assert "line-length" in result
 
@@ -287,7 +286,9 @@ class TestNavigateJsonPath:
 class TestReadIniSection:
     def test_reads_existing_section(self, tmp_path):
         f = tmp_path / "setup.cfg"
-        f.write_text("[flake8]\nmax-line-length = 88\nextend-ignore = E501\n", encoding="utf-8")
+        f.write_text(
+            "[flake8]\nmax-line-length = 88\nextend-ignore = E501\n", encoding="utf-8"
+        )
         result = _read_ini_section(str(f), "flake8")
         assert result["max-line-length"] == "88"
         assert result["extend-ignore"] == "E501"
@@ -348,7 +349,9 @@ class TestParseYamlValue:
 class TestReadYamlSimple:
     def test_reads_simple_key_value(self, tmp_path):
         f = tmp_path / "config.yml"
-        f.write_text("timeout: 30\nstrictMode: true\nname: myproject\n", encoding="utf-8")
+        f.write_text(
+            "timeout: 30\nstrictMode: true\nname: myproject\n", encoding="utf-8"
+        )
         result = _read_yaml_simple(str(f))
         assert result["timeout"] == 30
         assert result["strictMode"] is True
@@ -582,7 +585,7 @@ class TestScanModuleConfig:
 
     def test_toml_format_extracts_values(self, tmp_path):
         (tmp_path / "pyproject.toml").write_text(
-            "[tool.ruff]\nline-length = 120\ntarget-version = \"py310\"\n",
+            '[tool.ruff]\nline-length = 120\ntarget-version = "py310"\n',
             encoding="utf-8",
         )
         result = scan_module_config("ruff", str(tmp_path))
@@ -603,7 +606,9 @@ class TestScanModuleConfig:
 
     def test_toml_no_section_match_returns_empty_extracted(self, tmp_path):
         # pyproject.toml exists but has no [tool.ruff] section
-        (tmp_path / "pyproject.toml").write_text("[project]\nname = \"app\"\n", encoding="utf-8")
+        (tmp_path / "pyproject.toml").write_text(
+            '[project]\nname = "app"\n', encoding="utf-8"
+        )
         result = scan_module_config("ruff", str(tmp_path))
         # File is found but section is absent → extracted is empty
         assert result["found"] is True
@@ -668,7 +673,9 @@ class TestScanModuleConfig:
 
     def test_custom_config_locations_override(self, tmp_path):
         (tmp_path / "custom.toml").write_text("line-length = 99\n", encoding="utf-8")
-        custom_locs = [{"file": "custom.toml", "format": "toml", "section": None, "priority": 1}]
+        custom_locs = [
+            {"file": "custom.toml", "format": "toml", "section": None, "priority": 1}
+        ]
         result = scan_module_config("ruff", str(tmp_path), config_locations=custom_locs)
         assert result["found"] is True
         assert result["config_file"] == "custom.toml"
@@ -692,7 +699,7 @@ class TestScanModuleConfig:
     def test_plan_pytest_from_pyproject(self, tmp_path):
         """Plan §5.2 example: pytest config in pyproject.toml."""
         (tmp_path / "pyproject.toml").write_text(
-            "[tool.pytest.ini_options]\ntestpaths = [\"tests\"]\naddopts = \"-v\"\n",
+            '[tool.pytest.ini_options]\ntestpaths = ["tests"]\naddopts = "-v"\n',
             encoding="utf-8",
         )
         result = scan_module_config("pytest", str(tmp_path))

@@ -17,14 +17,29 @@ import os
 MODULE_CONFIG_MAP: dict[str, list[dict]] = {
     # --- Languages ---
     "python": [
-        {"file": "pyproject.toml", "format": "toml", "section": "[project]", "priority": 1},
+        {
+            "file": "pyproject.toml",
+            "format": "toml",
+            "section": "[project]",
+            "priority": 1,
+        },
         {"file": "setup.cfg", "format": "ini", "section": "metadata", "priority": 2},
         {"file": "setup.py", "format": "exists", "section": None, "priority": 3},
-        {"file": "requirements.txt", "format": "exists", "section": None, "priority": 4},
+        {
+            "file": "requirements.txt",
+            "format": "exists",
+            "section": None,
+            "priority": 4,
+        },
     ],
     "typescript": [
         {"file": "tsconfig.json", "format": "json", "section": None, "priority": 1},
-        {"file": "tsconfig.base.json", "format": "json", "section": None, "priority": 2},
+        {
+            "file": "tsconfig.base.json",
+            "format": "json",
+            "section": None,
+            "priority": 2,
+        },
     ],
     "rust": [
         {"file": "Cargo.toml", "format": "toml", "section": "[package]", "priority": 1},
@@ -35,7 +50,12 @@ MODULE_CONFIG_MAP: dict[str, list[dict]] = {
     "java": [
         {"file": "pom.xml", "format": "exists", "section": None, "priority": 1},
         {"file": "build.gradle", "format": "exists", "section": None, "priority": 2},
-        {"file": "build.gradle.kts", "format": "exists", "section": None, "priority": 3},
+        {
+            "file": "build.gradle.kts",
+            "format": "exists",
+            "section": None,
+            "priority": 3,
+        },
     ],
     "ruby": [
         {"file": "Gemfile", "format": "exists", "section": None, "priority": 1},
@@ -58,23 +78,48 @@ MODULE_CONFIG_MAP: dict[str, list[dict]] = {
     ],
     # --- Linters ---
     "ruff": [
-        {"file": "pyproject.toml", "format": "toml", "section": "[tool.ruff]", "priority": 1},
+        {
+            "file": "pyproject.toml",
+            "format": "toml",
+            "section": "[tool.ruff]",
+            "priority": 1,
+        },
         {"file": "ruff.toml", "format": "toml", "section": None, "priority": 2},
         {"file": ".ruff.toml", "format": "toml", "section": None, "priority": 3},
     ],
     "eslint": [
-        {"file": "eslint.config.js", "format": "exists", "section": None, "priority": 1},
-        {"file": "eslint.config.mjs", "format": "exists", "section": None, "priority": 2},
+        {
+            "file": "eslint.config.js",
+            "format": "exists",
+            "section": None,
+            "priority": 1,
+        },
+        {
+            "file": "eslint.config.mjs",
+            "format": "exists",
+            "section": None,
+            "priority": 2,
+        },
         {"file": ".eslintrc.json", "format": "json", "section": None, "priority": 3},
         {"file": ".eslintrc.js", "format": "exists", "section": None, "priority": 4},
-        {"file": "package.json", "format": "json", "section": "eslintConfig", "priority": 5},
+        {
+            "file": "package.json",
+            "format": "json",
+            "section": "eslintConfig",
+            "priority": 5,
+        },
     ],
     "biome": [
         {"file": "biome.json", "format": "json", "section": None, "priority": 1},
         {"file": "biome.jsonc", "format": "json", "section": None, "priority": 2},
     ],
     "clippy": [
-        {"file": "Cargo.toml", "format": "toml", "section": "[lints.clippy]", "priority": 1},
+        {
+            "file": "Cargo.toml",
+            "format": "toml",
+            "section": "[lints.clippy]",
+            "priority": 1,
+        },
         {"file": ".clippy.toml", "format": "toml", "section": None, "priority": 2},
     ],
     "flake8": [
@@ -94,8 +139,18 @@ MODULE_CONFIG_MAP: dict[str, list[dict]] = {
         {"file": ".prettierrc.json", "format": "json", "section": None, "priority": 2},
         {"file": ".prettierrc.yml", "format": "yaml", "section": None, "priority": 3},
         {"file": ".prettierrc.yaml", "format": "yaml", "section": None, "priority": 4},
-        {"file": "prettier.config.js", "format": "exists", "section": None, "priority": 5},
-        {"file": "package.json", "format": "json", "section": "prettier", "priority": 6},
+        {
+            "file": "prettier.config.js",
+            "format": "exists",
+            "section": None,
+            "priority": 5,
+        },
+        {
+            "file": "package.json",
+            "format": "json",
+            "section": "prettier",
+            "priority": 6,
+        },
     ],
     "rustfmt": [
         {"file": "rustfmt.toml", "format": "toml", "section": None, "priority": 1},
@@ -117,8 +172,18 @@ MODULE_CONFIG_MAP: dict[str, list[dict]] = {
         {"file": "tox.ini", "format": "ini", "section": "pytest", "priority": 4},
     ],
     "vitest": [
-        {"file": "vitest.config.ts", "format": "exists", "section": None, "priority": 1},
-        {"file": "vitest.config.js", "format": "exists", "section": None, "priority": 2},
+        {
+            "file": "vitest.config.ts",
+            "format": "exists",
+            "section": None,
+            "priority": 1,
+        },
+        {
+            "file": "vitest.config.js",
+            "format": "exists",
+            "section": None,
+            "priority": 2,
+        },
         {"file": "vite.config.ts", "format": "exists", "section": None, "priority": 3},
     ],
     "jest": [
@@ -127,11 +192,26 @@ MODULE_CONFIG_MAP: dict[str, list[dict]] = {
         {"file": "package.json", "format": "json", "section": "jest", "priority": 3},
     ],
     "playwright": [
-        {"file": "playwright.config.ts", "format": "exists", "section": None, "priority": 1},
-        {"file": "playwright.config.js", "format": "exists", "section": None, "priority": 2},
+        {
+            "file": "playwright.config.ts",
+            "format": "exists",
+            "section": None,
+            "priority": 1,
+        },
+        {
+            "file": "playwright.config.js",
+            "format": "exists",
+            "section": None,
+            "priority": 2,
+        },
     ],
     "cargo-test": [
-        {"file": "Cargo.toml", "format": "toml", "section": "[profile.test]", "priority": 1},
+        {
+            "file": "Cargo.toml",
+            "format": "toml",
+            "section": "[profile.test]",
+            "priority": 1,
+        },
     ],
     "go-test": [
         {"file": "go.mod", "format": "gomod", "section": None, "priority": 1},
@@ -150,15 +230,35 @@ MODULE_CONFIG_MAP: dict[str, list[dict]] = {
         {"file": "settings.py", "format": "exists", "section": None, "priority": 2},
     ],
     "fastapi": [
-        {"file": "pyproject.toml", "format": "toml", "section": "[project]", "priority": 1},
+        {
+            "file": "pyproject.toml",
+            "format": "toml",
+            "section": "[project]",
+            "priority": 1,
+        },
     ],
     "flask": [
-        {"file": "pyproject.toml", "format": "toml", "section": "[project]", "priority": 1},
+        {
+            "file": "pyproject.toml",
+            "format": "toml",
+            "section": "[project]",
+            "priority": 1,
+        },
         {"file": ".env", "format": "exists", "section": None, "priority": 2},
     ],
     "svelte": [
-        {"file": "svelte.config.js", "format": "exists", "section": None, "priority": 1},
-        {"file": "svelte.config.ts", "format": "exists", "section": None, "priority": 2},
+        {
+            "file": "svelte.config.js",
+            "format": "exists",
+            "section": None,
+            "priority": 1,
+        },
+        {
+            "file": "svelte.config.ts",
+            "format": "exists",
+            "section": None,
+            "priority": 2,
+        },
     ],
     "vue": [
         {"file": "vue.config.js", "format": "exists", "section": None, "priority": 1},
@@ -176,8 +276,18 @@ MODULE_CONFIG_MAP: dict[str, list[dict]] = {
     ],
     # --- Databases ---
     "postgresql": [
-        {"file": "docker-compose.yml", "format": "yaml", "section": None, "priority": 1},
-        {"file": "docker-compose.yaml", "format": "yaml", "section": None, "priority": 2},
+        {
+            "file": "docker-compose.yml",
+            "format": "yaml",
+            "section": None,
+            "priority": 1,
+        },
+        {
+            "file": "docker-compose.yaml",
+            "format": "yaml",
+            "section": None,
+            "priority": 2,
+        },
         {"file": ".env", "format": "exists", "section": None, "priority": 3},
     ],
     "sqlite": [
@@ -186,10 +296,20 @@ MODULE_CONFIG_MAP: dict[str, list[dict]] = {
     ],
     "redis": [
         {"file": "redis.conf", "format": "exists", "section": None, "priority": 1},
-        {"file": "docker-compose.yml", "format": "yaml", "section": None, "priority": 2},
+        {
+            "file": "docker-compose.yml",
+            "format": "yaml",
+            "section": None,
+            "priority": 2,
+        },
     ],
     "mongodb": [
-        {"file": "docker-compose.yml", "format": "yaml", "section": None, "priority": 1},
+        {
+            "file": "docker-compose.yml",
+            "format": "yaml",
+            "section": None,
+            "priority": 1,
+        },
         {"file": ".env", "format": "exists", "section": None, "priority": 2},
     ],
     # --- VCS ---
@@ -223,16 +343,31 @@ MODULE_CONFIG_MAP: dict[str, list[dict]] = {
         {"file": ".gitlab-ci.yml", "format": "yaml", "section": None, "priority": 1},
     ],
     "bitbucket": [
-        {"file": "bitbucket-pipelines.yml", "format": "yaml", "section": None, "priority": 1},
+        {
+            "file": "bitbucket-pipelines.yml",
+            "format": "yaml",
+            "section": None,
+            "priority": 1,
+        },
     ],
     # --- Package Managers ---
     "uv": [
         {"file": "uv.toml", "format": "toml", "section": None, "priority": 1},
-        {"file": "pyproject.toml", "format": "toml", "section": "[tool.uv]", "priority": 2},
+        {
+            "file": "pyproject.toml",
+            "format": "toml",
+            "section": "[tool.uv]",
+            "priority": 2,
+        },
         {"file": "uv.lock", "format": "exists", "section": None, "priority": 3},
     ],
     "pip": [
-        {"file": "requirements.txt", "format": "exists", "section": None, "priority": 1},
+        {
+            "file": "requirements.txt",
+            "format": "exists",
+            "section": None,
+            "priority": 1,
+        },
         {"file": "pip.conf", "format": "ini", "section": "global", "priority": 2},
     ],
     "pnpm": [
@@ -241,7 +376,12 @@ MODULE_CONFIG_MAP: dict[str, list[dict]] = {
         {"file": "package.json", "format": "json", "section": None, "priority": 3},
     ],
     "npm": [
-        {"file": "package-lock.json", "format": "exists", "section": None, "priority": 1},
+        {
+            "file": "package-lock.json",
+            "format": "exists",
+            "section": None,
+            "priority": 1,
+        },
         {"file": ".npmrc", "format": "ini", "section": None, "priority": 2},
         {"file": "package.json", "format": "json", "section": None, "priority": 3},
     ],
@@ -256,7 +396,12 @@ MODULE_CONFIG_MAP: dict[str, list[dict]] = {
     ],
     "cargo": [
         {"file": "Cargo.lock", "format": "exists", "section": None, "priority": 1},
-        {"file": "Cargo.toml", "format": "toml", "section": "[workspace]", "priority": 2},
+        {
+            "file": "Cargo.toml",
+            "format": "toml",
+            "section": "[workspace]",
+            "priority": 2,
+        },
     ],
     # --- Environments ---
     "docker": [
@@ -264,8 +409,18 @@ MODULE_CONFIG_MAP: dict[str, list[dict]] = {
         {"file": ".dockerignore", "format": "exists", "section": None, "priority": 2},
     ],
     "docker-compose": [
-        {"file": "docker-compose.yml", "format": "yaml", "section": None, "priority": 1},
-        {"file": "docker-compose.yaml", "format": "yaml", "section": None, "priority": 2},
+        {
+            "file": "docker-compose.yml",
+            "format": "yaml",
+            "section": None,
+            "priority": 1,
+        },
+        {
+            "file": "docker-compose.yaml",
+            "format": "yaml",
+            "section": None,
+            "priority": 2,
+        },
         {"file": "compose.yml", "format": "yaml", "section": None, "priority": 3},
     ],
     "venv": [
@@ -284,11 +439,21 @@ MODULE_CONFIG_MAP: dict[str, list[dict]] = {
         {"file": ".gitlab-ci.yml", "format": "yaml", "section": None, "priority": 1},
     ],
     "circleci": [
-        {"file": ".circleci/config.yml", "format": "yaml", "section": None, "priority": 1},
+        {
+            "file": ".circleci/config.yml",
+            "format": "yaml",
+            "section": None,
+            "priority": 1,
+        },
     ],
     # --- Stacks ---
     "python-backend": [
-        {"file": "pyproject.toml", "format": "toml", "section": "[project]", "priority": 1},
+        {
+            "file": "pyproject.toml",
+            "format": "toml",
+            "section": "[project]",
+            "priority": 1,
+        },
     ],
     "python-cli": [
         {
@@ -299,7 +464,12 @@ MODULE_CONFIG_MAP: dict[str, list[dict]] = {
         },
     ],
     "python-library": [
-        {"file": "pyproject.toml", "format": "toml", "section": "[project]", "priority": 1},
+        {
+            "file": "pyproject.toml",
+            "format": "toml",
+            "section": "[project]",
+            "priority": 1,
+        },
     ],
     "ts-frontend": [
         {"file": "package.json", "format": "json", "section": None, "priority": 1},
@@ -318,16 +488,31 @@ MODULE_CONFIG_MAP: dict[str, list[dict]] = {
     ],
     # --- Standalone tools (not yet full module bundles, used by detection engine) ---
     "mypy": [
-        {"file": "pyproject.toml", "format": "toml", "section": "[tool.mypy]", "priority": 1},
+        {
+            "file": "pyproject.toml",
+            "format": "toml",
+            "section": "[tool.mypy]",
+            "priority": 1,
+        },
         {"file": "mypy.ini", "format": "ini", "section": "mypy", "priority": 2},
         {"file": ".mypy.ini", "format": "ini", "section": "mypy", "priority": 3},
         {"file": "setup.cfg", "format": "ini", "section": "mypy", "priority": 4},
     ],
     "black": [
-        {"file": "pyproject.toml", "format": "toml", "section": "[tool.black]", "priority": 1},
+        {
+            "file": "pyproject.toml",
+            "format": "toml",
+            "section": "[tool.black]",
+            "priority": 1,
+        },
     ],
     "isort": [
-        {"file": "pyproject.toml", "format": "toml", "section": "[tool.isort]", "priority": 1},
+        {
+            "file": "pyproject.toml",
+            "format": "toml",
+            "section": "[tool.isort]",
+            "priority": 1,
+        },
         {"file": ".isort.cfg", "format": "ini", "section": "settings", "priority": 2},
         {"file": "setup.cfg", "format": "ini", "section": "isort", "priority": 3},
     ],
@@ -773,9 +958,9 @@ def _read_gomod(path: str) -> dict:
     for line in content.splitlines():
         stripped = line.strip()
         if stripped.startswith("module "):
-            result["module"] = stripped[len("module "):].strip()
+            result["module"] = stripped[len("module ") :].strip()
         elif stripped.startswith("go "):
-            result["go"] = stripped[len("go "):].strip()
+            result["go"] = stripped[len("go ") :].strip()
 
     return result
 
@@ -861,7 +1046,11 @@ def scan_module_config(  # noqa: PLR0912
         or ``{"found": False}`` if no config file was found or the module
         is unknown.
     """
-    locations = config_locations if config_locations is not None else get_config_locations(module_name)
+    locations = (
+        config_locations
+        if config_locations is not None
+        else get_config_locations(module_name)
+    )
     if not locations:
         return {"found": False}
 
@@ -916,7 +1105,9 @@ def scan_module_config(  # noqa: PLR0912
                 nested = _navigate_json_path(data, section)
                 raw_values = nested if nested is not None else {}
             else:
-                raw_values = {k: v for k, v in data.items() if isinstance(v, (str, int, bool))}
+                raw_values = {
+                    k: v for k, v in data.items() if isinstance(v, (str, int, bool))
+                }
 
         elif fmt == "ini":
             raw_values = _read_ini_section(file_path, section or "")

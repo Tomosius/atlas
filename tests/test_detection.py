@@ -31,7 +31,9 @@ class TestDetectLanguages:
     """Parametrized tests covering every entry in _LANGUAGE_MARKERS."""
 
     @pytest.mark.parametrize(("lang", "markers"), _LANGUAGE_MARKERS.items())
-    def test_exact_filename_marker_detected(self, lang: str, markers: list[str], tmp_path):
+    def test_exact_filename_marker_detected(
+        self, lang: str, markers: list[str], tmp_path
+    ):
         """Creating any non-glob marker file must detect that language."""
         exact_markers = [m for m in markers if not m.startswith("*")]
         if not exact_markers:
@@ -44,7 +46,9 @@ class TestDetectLanguages:
         assert lang in languages
 
     @pytest.mark.parametrize(("lang", "markers"), _LANGUAGE_MARKERS.items())
-    def test_glob_extension_marker_detected(self, lang: str, markers: list[str], tmp_path):
+    def test_glob_extension_marker_detected(
+        self, lang: str, markers: list[str], tmp_path
+    ):
         """Creating a file with a glob-matched extension must detect that language."""
         glob_markers = [m for m in markers if m.startswith("*")]
         if not glob_markers:
@@ -101,7 +105,9 @@ class TestDetectLanguages:
 class TestDetectPackageManager:
     """Parametrized tests covering every entry in _LOCK_FILE_MANAGERS."""
 
-    @pytest.mark.parametrize(("lock_file", "expected_manager"), _LOCK_FILE_MANAGERS.items())
+    @pytest.mark.parametrize(
+        ("lock_file", "expected_manager"), _LOCK_FILE_MANAGERS.items()
+    )
     def test_lock_file_returns_correct_manager(
         self, lock_file: str, expected_manager: str, tmp_path
     ):
@@ -134,7 +140,9 @@ def _tool_markers_by_kind(tool: str) -> tuple[list[str], list[str]]:
 class TestDetectExistingTools:
     """Parametrized tests covering every entry in _TOOL_MARKERS."""
 
-    @pytest.mark.parametrize("tool", [t for t in _TOOL_MARKERS if _tool_markers_by_kind(t)[0]])
+    @pytest.mark.parametrize(
+        "tool", [t for t in _TOOL_MARKERS if _tool_markers_by_kind(t)[0]]
+    )
     def test_toml_section_marker_detected(self, tool: str, tmp_path):
         toml_markers, _ = _tool_markers_by_kind(tool)
         content = "\n".join(toml_markers)
@@ -142,7 +150,9 @@ class TestDetectExistingTools:
         found = _detect_existing_tools(str(tmp_path))
         assert tool in found
 
-    @pytest.mark.parametrize("tool", [t for t in _TOOL_MARKERS if _tool_markers_by_kind(t)[1]])
+    @pytest.mark.parametrize(
+        "tool", [t for t in _TOOL_MARKERS if _tool_markers_by_kind(t)[1]]
+    )
     def test_standalone_file_marker_detected(self, tool: str, tmp_path):
         _, file_markers = _tool_markers_by_kind(tool)
         (tmp_path / file_markers[0]).write_text("", encoding="utf-8")
@@ -155,7 +165,9 @@ class TestDetectExistingTools:
 
     def test_jest_detected_via_package_json_marker(self, tmp_path):
         """jest.config.js in package.json content also triggers detection."""
-        (tmp_path / "package.json").write_text('{"scripts": {"test": "jest.config.js"}}')
+        (tmp_path / "package.json").write_text(
+            '{"scripts": {"test": "jest.config.js"}}'
+        )
         found = _detect_existing_tools(str(tmp_path))
         assert "jest" in found
 
@@ -178,7 +190,11 @@ class TestDetectFrameworksAndStack:
 
     @pytest.mark.parametrize(
         ("framework", "lang_stack"),
-        [(f, ls) for f, ls in _FRAMEWORK_PATTERNS.items() if f not in _AMBIGUOUS_FRAMEWORKS],
+        [
+            (f, ls)
+            for f, ls in _FRAMEWORK_PATTERNS.items()
+            if f not in _AMBIGUOUS_FRAMEWORKS
+        ],
     )
     def test_framework_detected_and_stack_correct(
         self, framework: str, lang_stack: tuple[str, str], tmp_path
@@ -187,13 +203,13 @@ class TestDetectFrameworksAndStack:
         (tmp_path / "pyproject.toml").write_text(
             f'[project]\ndependencies = ["{framework}"]', encoding="utf-8"
         )
-        lang_marker = next(
-            m for m in _LANGUAGE_MARKERS[lang] if not m.startswith("*")
-        )
+        lang_marker = next(m for m in _LANGUAGE_MARKERS[lang] if not m.startswith("*"))
         if lang_marker != "pyproject.toml":
             (tmp_path / lang_marker).write_text("", encoding="utf-8")
 
-        frameworks, stack = _detect_frameworks_and_stack(str(tmp_path), languages=[lang])
+        frameworks, stack = _detect_frameworks_and_stack(
+            str(tmp_path), languages=[lang]
+        )
 
         assert framework in frameworks
         assert stack == expected_stack
@@ -203,7 +219,9 @@ class TestDetectFrameworksAndStack:
         (tmp_path / "package.json").write_text(
             '{"dependencies": {"react-native": "0.73"}}', encoding="utf-8"
         )
-        frameworks, _ = _detect_frameworks_and_stack(str(tmp_path), languages=["typescript"])
+        frameworks, _ = _detect_frameworks_and_stack(
+            str(tmp_path), languages=["typescript"]
+        )
         assert "react-native" in frameworks
 
     def test_first_framework_wins_stack(self, tmp_path):
@@ -215,7 +233,9 @@ class TestDetectFrameworksAndStack:
         assert stack == "python-backend"
 
     def test_fallback_stack_python(self, tmp_path):
-        frameworks, stack = _detect_frameworks_and_stack(str(tmp_path), languages=["python"])
+        frameworks, stack = _detect_frameworks_and_stack(
+            str(tmp_path), languages=["python"]
+        )
         assert frameworks == []
         assert stack == "python-library"
 
@@ -344,7 +364,9 @@ class TestDetectInfrastructure:
 class TestDetectStructure:
     """Tests covering monorepo, fullstack, and single structure detection."""
 
-    @pytest.mark.parametrize(("marker", "expected_manager"), _WORKSPACE_MANAGERS.items())
+    @pytest.mark.parametrize(
+        ("marker", "expected_manager"), _WORKSPACE_MANAGERS.items()
+    )
     def test_workspace_marker_returns_monorepo(
         self, marker: str, expected_manager: str, tmp_path
     ):
