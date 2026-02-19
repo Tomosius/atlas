@@ -9,6 +9,7 @@ from atlas.core.detection import (
     _LOCK_FILE_MANAGERS,
     _TOOL_MARKERS,
     _WORKSPACE_MANAGERS,
+    _detect_existing_tools,
     _detect_languages,
     _detect_package_manager,
 )
@@ -108,3 +109,45 @@ class TestDetectPackageManager:
     def test_empty_dir_returns_none(self, tmp_path):
         result = _detect_package_manager(str(tmp_path), languages=[])
         assert result == "none"
+
+
+# ---------------------------------------------------------------------------
+# _detect_existing_tools
+# ---------------------------------------------------------------------------
+
+
+def _tool_markers_by_kind(tool: str) -> tuple[list[str], list[str]]:
+    """Split a tool's markers into TOML-section markers and file markers."""
+    markers = _TOOL_MARKERS[tool]
+    toml = [m for m in markers if m.startswith("[")]
+    files = [m for m in markers if not m.startswith("[")]
+    return toml, files
+
+
+class TestDetectExistingTools:
+    """Parametrized tests covering every entry in _TOOL_MARKERS."""
+
+    @pytest.mark.parametrize("tool", [t for t in _TOOL_MARKERS if _tool_markers_by_kind(t)[0]])
+    def test_toml_section_marker_detected(self, tool: str, tmp_path):
+        toml_markers, _ = _tool_markers_by_kind(tool)
+        content = "\n".join(toml_markers)
+        (tmp_path / "pyproject.toml").write_text(content, encoding="utf-8")
+        found = _detect_existing_tools(str(tmp_path))
+        assert tool in found
+
+    @pytest.mark.parametrize("tool", [t for t in _TOOL_MARKERS if _tool_markers_by_kind(t)[1]])
+    def test_standalone_file_marker_detected(self, tool: str, tmp_path):
+        _, file_markers = _tool_markers_by_kind(tool)
+        (tmp_path / file_markers[0]).write_text("", encoding="utf-8")
+        found = _detect_existing_tools(str(tmp_path))
+        assert tool in found
+
+    def test_empty_dir_detects_no_tools(self, tmp_path):
+        found = _detect_existing_tools(str(tmp_path))
+        assert found == []
+
+    def test_jest_detected_via_package_json_marker(self, tmp_path):
+        """jest.config.js in package.json content also triggers detection."""
+        (tmp_path / "package.json").write_text('{"scripts": {"test": "jest.config.js"}}')
+        found = _detect_existing_tools(str(tmp_path))
+        assert "jest" in found
