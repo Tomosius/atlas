@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #10 — (not started)
+**Current Issue:** #18 — (not started)
 
 ### Completed so far
 
@@ -38,10 +38,18 @@ One tool (`atlas`), 10 verbs, single string input.
 | #7 | Port error codes | ✅ `src/atlas/core/errors.py` |
 | #8 | Port system utilities | ✅ `src/atlas/core/system.py` |
 | #9 | Port detection engine | ✅ `src/atlas/core/detection.py` |
+| #10 | Write tests for detection engine | ✅ 153 tests, `tests/test_detection.py` |
+| #11 | Port config scanner: MODULE_CONFIG_MAP | ✅ 72 entries, `src/atlas/core/scanner.py` |
+| #12 | Port config scanner: MODULE_CONFIG_KEYS | ✅ 19 entries |
+| #13 | Port TOML section parser | ✅ |
+| #14 | Port JSON, INI, YAML, go.mod parsers | ✅ |
+| #15 | Port scan_module_config and enrich_module_rules | ✅ |
+| #16 | Write tests for config scanner | ✅ 124 tests, `tests/test_scanner.py` |
+| #17 | Port category contracts (13 categories + 2 auto) | ✅ `src/atlas/core/categories.py` |
 
 ### Not yet started (next up)
 
-Continue: #10, #11 … through #114.
+Continue: #18, #19 … through #114.
 
 ```bash
 # See all open Phase 1 issues
