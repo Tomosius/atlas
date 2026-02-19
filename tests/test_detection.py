@@ -10,6 +10,7 @@ from atlas.core.detection import (
     _LOCK_FILE_MANAGERS,
     _TOOL_MARKERS,
     _WORKSPACE_MANAGERS,
+    _detect_databases,
     _detect_existing_tools,
     _detect_frameworks_and_stack,
     _detect_languages,
@@ -233,3 +234,38 @@ class TestDetectFrameworksAndStack:
     def test_no_language_no_stack(self, tmp_path):
         _, stack = _detect_frameworks_and_stack(str(tmp_path), languages=[])
         assert stack == ""
+
+
+# ---------------------------------------------------------------------------
+# _detect_databases
+# ---------------------------------------------------------------------------
+
+
+class TestDetectDatabases:
+    """Parametrized tests covering every entry in _DATABASE_PATTERNS."""
+
+    @pytest.mark.parametrize("db", _DATABASE_PATTERNS)
+    def test_db_detected_from_pyproject(self, db: str, tmp_path):
+        (tmp_path / "pyproject.toml").write_text(
+            f'[project]\ndependencies = ["{db}"]', encoding="utf-8"
+        )
+        result = _detect_databases(str(tmp_path), languages=[])
+        assert db in result
+
+    @pytest.mark.parametrize("db", _DATABASE_PATTERNS)
+    def test_db_detected_from_requirements_txt(self, db: str, tmp_path):
+        (tmp_path / "requirements.txt").write_text(f"{db}==1.0.0\n", encoding="utf-8")
+        result = _detect_databases(str(tmp_path), languages=[])
+        assert db in result
+
+    @pytest.mark.parametrize("db", _DATABASE_PATTERNS)
+    def test_db_detected_from_package_json(self, db: str, tmp_path):
+        (tmp_path / "package.json").write_text(
+            f'{{"dependencies": {{"{db}": "1.0.0"}}}}', encoding="utf-8"
+        )
+        result = _detect_databases(str(tmp_path), languages=[])
+        assert db in result
+
+    def test_empty_dir_detects_no_databases(self, tmp_path):
+        result = _detect_databases(str(tmp_path), languages=[])
+        assert result == []
