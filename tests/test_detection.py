@@ -19,6 +19,7 @@ from atlas.core.detection import (
     _detect_structure,
     detect_project,
 )
+from atlas.core.models import ProjectDetection
 
 
 # ---------------------------------------------------------------------------
@@ -29,7 +30,7 @@ from atlas.core.detection import (
 class TestDetectLanguages:
     """Parametrized tests covering every entry in _LANGUAGE_MARKERS."""
 
-    @pytest.mark.parametrize("lang,markers", _LANGUAGE_MARKERS.items())
+    @pytest.mark.parametrize(("lang", "markers"), _LANGUAGE_MARKERS.items())
     def test_exact_filename_marker_detected(self, lang: str, markers: list[str], tmp_path):
         """Creating any non-glob marker file must detect that language."""
         exact_markers = [m for m in markers if not m.startswith("*")]
@@ -38,11 +39,11 @@ class TestDetectLanguages:
 
         marker = exact_markers[0]
         (tmp_path / marker).write_text("", encoding="utf-8")
-        languages, primary = _detect_languages(str(tmp_path))
+        languages, _primary = _detect_languages(str(tmp_path))
 
         assert lang in languages
 
-    @pytest.mark.parametrize("lang,markers", _LANGUAGE_MARKERS.items())
+    @pytest.mark.parametrize(("lang", "markers"), _LANGUAGE_MARKERS.items())
     def test_glob_extension_marker_detected(self, lang: str, markers: list[str], tmp_path):
         """Creating a file with a glob-matched extension must detect that language."""
         glob_markers = [m for m in markers if m.startswith("*")]
@@ -51,7 +52,7 @@ class TestDetectLanguages:
 
         ext = glob_markers[0][1:]  # strip leading '*'
         (tmp_path / f"example{ext}").write_text("", encoding="utf-8")
-        languages, primary = _detect_languages(str(tmp_path))
+        languages, _primary = _detect_languages(str(tmp_path))
 
         assert lang in languages
 
@@ -100,7 +101,7 @@ class TestDetectLanguages:
 class TestDetectPackageManager:
     """Parametrized tests covering every entry in _LOCK_FILE_MANAGERS."""
 
-    @pytest.mark.parametrize("lock_file,expected_manager", _LOCK_FILE_MANAGERS.items())
+    @pytest.mark.parametrize(("lock_file", "expected_manager"), _LOCK_FILE_MANAGERS.items())
     def test_lock_file_returns_correct_manager(
         self, lock_file: str, expected_manager: str, tmp_path
     ):
@@ -176,7 +177,7 @@ class TestDetectFrameworksAndStack:
     """Parametrized tests covering every entry in _FRAMEWORK_PATTERNS."""
 
     @pytest.mark.parametrize(
-        "framework,lang_stack",
+        ("framework", "lang_stack"),
         [(f, ls) for f, ls in _FRAMEWORK_PATTERNS.items() if f not in _AMBIGUOUS_FRAMEWORKS],
     )
     def test_framework_detected_and_stack_correct(
@@ -343,7 +344,7 @@ class TestDetectInfrastructure:
 class TestDetectStructure:
     """Tests covering monorepo, fullstack, and single structure detection."""
 
-    @pytest.mark.parametrize("marker,expected_manager", _WORKSPACE_MANAGERS.items())
+    @pytest.mark.parametrize(("marker", "expected_manager"), _WORKSPACE_MANAGERS.items())
     def test_workspace_marker_returns_monorepo(
         self, marker: str, expected_manager: str, tmp_path
     ):
@@ -421,6 +422,5 @@ class TestDetectProject:
         assert result.system_tools is not None
 
     def test_returns_project_detection_type(self, tmp_path):
-        from atlas.core.models import ProjectDetection
         result = detect_project(str(tmp_path))
         assert isinstance(result, ProjectDetection)

@@ -1,9 +1,7 @@
 """Tests for atlas.core.scanner — all parsers and public API."""
 
-import pytest
 
 from atlas.core.scanner import (
-    MODULE_CONFIG_KEYS,
     MODULE_CONFIG_MAP,
     _brackets_balanced,
     _map_extracted_values,
@@ -521,7 +519,6 @@ class TestGetConfigLocations:
                 assert "priority" in loc
 
     def test_all_modules_in_map_return_locations(self):
-        from atlas.core.scanner import MODULE_CONFIG_MAP
         for module in MODULE_CONFIG_MAP:
             locs = get_config_locations(module)
             assert len(locs) > 0, f"{module} returned empty locations"

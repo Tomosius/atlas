@@ -2,6 +2,12 @@
 
 from __future__ import annotations
 
+import configparser
+import fnmatch
+import json
+import os
+
+
 # --- Data tables ---
 
 # Maps module name → ordered list of config file locations.
@@ -631,8 +637,6 @@ def _parse_toml_values(section_content: str) -> dict:
 
 def _read_json_safe(path: str) -> dict:
     """Load a JSON file and return its contents as a dict, or {} on any error."""
-    import json
-
     try:
         with open(path, encoding="utf-8", errors="ignore") as f:
             data = json.load(f)
@@ -674,8 +678,6 @@ def _read_ini_section(path: str, section: str) -> dict:
         A flat dict of {key: value} strings for the section, or {} if the
         file cannot be read or the section does not exist.
     """
-    import configparser
-
     parser = configparser.ConfigParser(strict=False)
     try:
         parser.read(path, encoding="utf-8")
@@ -738,10 +740,10 @@ def _read_yaml_simple(path: str) -> dict:
     for line in content.splitlines():
         stripped = line.strip()
         # Skip blank lines, comments, and list items
-        if not stripped or stripped.startswith("#") or stripped.startswith("-"):
+        if not stripped or stripped.startswith(("#", "-")):
             continue
         # Skip lines that are indented (nested mappings)
-        if line != stripped and not line.startswith(" ") is False:
+        if line != stripped and line.startswith(" ") is not False:
             pass
         if ":" in stripped and not stripped.startswith(":"):
             key, _, value_raw = stripped.partition(":")
@@ -832,7 +834,7 @@ def _map_extracted_values(raw_values: dict, key_mapping: dict) -> dict:
     return result
 
 
-def scan_module_config(
+def scan_module_config(  # noqa: PLR0912
     module_name: str,
     project_dir: str,
     config_locations: list[dict] | None = None,
@@ -859,9 +861,6 @@ def scan_module_config(
         or ``{"found": False}`` if no config file was found or the module
         is unknown.
     """
-    import fnmatch
-    import os
-
     locations = config_locations if config_locations is not None else get_config_locations(module_name)
     if not locations:
         return {"found": False}
