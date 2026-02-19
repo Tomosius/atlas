@@ -471,7 +471,8 @@ def validate_module_against_contract(module_name: str, reg_entry: dict) -> list[
             )
 
     # Check expected commands
-    commands = reg_entry.get("commands", {})
+    commands_val = reg_entry.get("commands", {})
+    commands = commands_val if isinstance(commands_val, dict) else {}
     for cmd in contract.get("expected_commands", []):
         if cmd not in commands:
             errors.append(
