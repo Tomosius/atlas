@@ -17,6 +17,7 @@ from atlas.core.detection import (
     _detect_languages,
     _detect_package_manager,
     _detect_structure,
+    detect_project,
 )
 
 
@@ -375,3 +376,51 @@ class TestDetectStructure:
             (tmp_path / d).mkdir()
         structure, _ = _detect_structure(str(tmp_path))
         assert structure == "fullstack"
+
+
+# ---------------------------------------------------------------------------
+# detect_project (public API)
+# ---------------------------------------------------------------------------
+
+
+class TestDetectProject:
+    """Integration-level tests for the public detect_project function."""
+
+    def test_empty_dir_returns_default_detection(self, tmp_path):
+        result = detect_project(str(tmp_path))
+        assert result.languages == []
+        assert result.primary_language == ""
+        assert result.package_manager == "none"
+        assert result.existing_tools == []
+        assert result.frameworks == []
+        assert result.stack == ""
+        assert result.databases == []
+        assert result.structure_type == "single"
+        assert result.workspace_manager == "none"
+
+    def test_nonexistent_path_returns_default_detection(self, tmp_path):
+        result = detect_project(str(tmp_path / "does_not_exist"))
+        assert result.languages == []
+        assert result.primary_language == ""
+        assert result.package_manager == "none"
+
+    def test_python_project_detected(self, tmp_path):
+        (tmp_path / "pyproject.toml").write_text(
+            '[project]\nname = "myapp"\n[tool.pytest.ini_options]\n', encoding="utf-8"
+        )
+        (tmp_path / "uv.lock").write_text("", encoding="utf-8")
+        result = detect_project(str(tmp_path))
+        assert "python" in result.languages
+        assert result.primary_language == "python"
+        assert result.package_manager == "uv"
+        assert "pytest" in result.existing_tools
+
+    def test_system_tools_always_populated(self, tmp_path):
+        result = detect_project(str(tmp_path))
+        # SystemTools is always populated (may be 'not found' but not None)
+        assert result.system_tools is not None
+
+    def test_returns_project_detection_type(self, tmp_path):
+        from atlas.core.models import ProjectDetection
+        result = detect_project(str(tmp_path))
+        assert isinstance(result, ProjectDetection)
