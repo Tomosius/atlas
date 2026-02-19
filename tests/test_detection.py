@@ -13,6 +13,7 @@ from atlas.core.detection import (
     _detect_databases,
     _detect_existing_tools,
     _detect_frameworks_and_stack,
+    _detect_infrastructure,
     _detect_languages,
     _detect_package_manager,
 )
@@ -269,3 +270,64 @@ class TestDetectDatabases:
     def test_empty_dir_detects_no_databases(self, tmp_path):
         result = _detect_databases(str(tmp_path), languages=[])
         assert result == []
+
+
+# ---------------------------------------------------------------------------
+# _detect_infrastructure
+# ---------------------------------------------------------------------------
+
+
+class TestDetectInfrastructure:
+    """Each Infrastructure flag toggled on and verified."""
+
+    def test_empty_dir_all_flags_false(self, tmp_path):
+        infra = _detect_infrastructure(str(tmp_path))
+        assert not infra.git
+        assert not infra.gitignore
+        assert not infra.dockerfile
+        assert not infra.docker_compose
+        assert not infra.github_actions
+        assert not infra.github_dir
+        assert not infra.gitlab_ci
+
+    def test_git_flag(self, tmp_path):
+        (tmp_path / ".git").mkdir()
+        infra = _detect_infrastructure(str(tmp_path))
+        assert infra.git
+
+    def test_gitignore_flag(self, tmp_path):
+        (tmp_path / ".gitignore").write_text("", encoding="utf-8")
+        infra = _detect_infrastructure(str(tmp_path))
+        assert infra.gitignore
+
+    def test_dockerfile_flag(self, tmp_path):
+        (tmp_path / "Dockerfile").write_text("", encoding="utf-8")
+        infra = _detect_infrastructure(str(tmp_path))
+        assert infra.dockerfile
+
+    def test_docker_compose_yml_flag(self, tmp_path):
+        (tmp_path / "docker-compose.yml").write_text("", encoding="utf-8")
+        infra = _detect_infrastructure(str(tmp_path))
+        assert infra.docker_compose
+
+    def test_docker_compose_yaml_flag(self, tmp_path):
+        (tmp_path / "docker-compose.yaml").write_text("", encoding="utf-8")
+        infra = _detect_infrastructure(str(tmp_path))
+        assert infra.docker_compose
+
+    def test_github_dir_flag(self, tmp_path):
+        (tmp_path / ".github").mkdir()
+        infra = _detect_infrastructure(str(tmp_path))
+        assert infra.github_dir
+
+    def test_github_actions_flag(self, tmp_path):
+        workflows = tmp_path / ".github" / "workflows"
+        workflows.mkdir(parents=True)
+        infra = _detect_infrastructure(str(tmp_path))
+        assert infra.github_actions
+        assert infra.github_dir
+
+    def test_gitlab_ci_flag(self, tmp_path):
+        (tmp_path / ".gitlab-ci.yml").write_text("", encoding="utf-8")
+        infra = _detect_infrastructure(str(tmp_path))
+        assert infra.gitlab_ci
