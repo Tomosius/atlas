@@ -713,3 +713,99 @@ class TestScanModuleConfig:
         # compilerOptions is not a direct key — strict/target are at root level
         # tsconfig uses section=None so root keys are extracted directly
         assert result["config_file"] == "tsconfig.json"
+
+
+# ---------------------------------------------------------------------------
+# scan_all_modules
+# ---------------------------------------------------------------------------
+
+
+class TestScanAllModules:
+    def test_empty_module_list_returns_empty_dict(self, tmp_path):
+        result = scan_all_modules([], str(tmp_path))
+        assert result == {}
+
+    def test_single_module_not_found(self, tmp_path):
+        result = scan_all_modules(["ruff"], str(tmp_path))
+        assert result == {"ruff": {"found": False}}
+
+    def test_single_module_found(self, tmp_path):
+        (tmp_path / "pyproject.toml").write_text(
+            "[tool.ruff]\nline-length = 88\n", encoding="utf-8"
+        )
+        result = scan_all_modules(["ruff"], str(tmp_path))
+        assert result["ruff"]["found"] is True
+
+    def test_multiple_modules_mixed_results(self, tmp_path):
+        (tmp_path / "pyproject.toml").write_text(
+            "[tool.ruff]\nline-length = 88\n", encoding="utf-8"
+        )
+        result = scan_all_modules(["ruff", "eslint"], str(tmp_path))
+        assert result["ruff"]["found"] is True
+        assert result["eslint"]["found"] is False
+
+    def test_returns_dict_keyed_by_module_name(self, tmp_path):
+        modules = ["ruff", "mypy"]
+        result = scan_all_modules(modules, str(tmp_path))
+        assert set(result.keys()) == {"ruff", "mypy"}
+
+    def test_unknown_module_gets_not_found(self, tmp_path):
+        result = scan_all_modules(["unknown-xyz"], str(tmp_path))
+        assert result["unknown-xyz"] == {"found": False}
+
+
+# ---------------------------------------------------------------------------
+# enrich_module_rules
+# ---------------------------------------------------------------------------
+
+
+class TestEnrichModuleRules:
+    def test_no_config_returns_base_rules_unchanged(self, tmp_path):
+        base = {"style": {"line_length": 88}}
+        result = enrich_module_rules("ruff", base, str(tmp_path))
+        assert result == {"style": {"line_length": 88}}
+
+    def test_does_not_mutate_base_rules(self, tmp_path):
+        (tmp_path / "pyproject.toml").write_text(
+            "[tool.ruff]\nline-length = 120\n", encoding="utf-8"
+        )
+        base = {"style": {"line_length": 88}}
+        enrich_module_rules("ruff", base, str(tmp_path))
+        assert base["style"]["line_length"] == 88  # original untouched
+
+    def test_merges_extracted_into_base_dict(self, tmp_path):
+        (tmp_path / "pyproject.toml").write_text(
+            "[tool.ruff]\nline-length = 120\n", encoding="utf-8"
+        )
+        base = {"style": {"line_length": 88, "indent_width": 4}}
+        result = enrich_module_rules("ruff", base, str(tmp_path))
+        assert result["style"]["line_length"] == 120
+        assert result["style"]["indent_width"] == 4  # preserved from base
+
+    def test_adds_new_top_level_keys(self, tmp_path):
+        (tmp_path / "pyproject.toml").write_text(
+            "[tool.ruff]\nline-length = 100\n", encoding="utf-8"
+        )
+        base: dict = {}
+        result = enrich_module_rules("ruff", base, str(tmp_path))
+        assert result["style"]["line_length"] == 100
+
+    def test_overwrites_non_dict_top_level(self, tmp_path):
+        (tmp_path / "pyproject.toml").write_text(
+            "[tool.ruff]\nline-length = 100\n", encoding="utf-8"
+        )
+        base = {"style": "old-string-value"}
+        result = enrich_module_rules("ruff", base, str(tmp_path))
+        # extracted style is a dict, replaces the string
+        assert isinstance(result["style"], dict)
+        assert result["style"]["line_length"] == 100
+
+    def test_returns_new_dict_not_same_object(self, tmp_path):
+        base = {"style": {"line_length": 88}}
+        result = enrich_module_rules("ruff", base, str(tmp_path))
+        assert result is not base
+
+    def test_unknown_module_returns_base_unchanged(self, tmp_path):
+        base = {"style": {"line_length": 88}}
+        result = enrich_module_rules("nonexistent-xyz", base, str(tmp_path))
+        assert result == base
