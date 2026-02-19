@@ -776,3 +776,199 @@ def _read_gomod(path: str) -> dict:
             result["go"] = stripped[len("go "):].strip()
 
     return result
+
+
+# --- Public API and helpers ---
+
+
+def get_config_locations(module_name: str) -> list[dict]:
+    """Return the ordered config file locations for a module.
+
+    Args:
+        module_name: The module identifier, e.g. ``"ruff"``.
+
+    Returns:
+        A list of location dicts (file, format, section, priority),
+        sorted by priority ascending. Empty list if module is unknown.
+    """
+    locations = MODULE_CONFIG_MAP.get(module_name, [])
+    return sorted(locations, key=lambda x: x.get("priority", 99))
+
+
+def _set_nested(d: dict, dotted_key: str, value: object) -> None:
+    """Set a value at a dotted path inside a nested dict, creating dicts as needed.
+
+    Example::
+
+        d = {}
+        _set_nested(d, "style.line_length", 120)
+        # d == {"style": {"line_length": 120}}
+    """
+    parts = dotted_key.split(".")
+    current = d
+    for part in parts[:-1]:
+        if part not in current or not isinstance(current[part], dict):
+            current[part] = {}
+        current = current[part]
+    current[parts[-1]] = value
+
+
+def _map_extracted_values(raw_values: dict, key_mapping: dict) -> dict:
+    """Map raw config key/value pairs to Atlas internal dotted paths.
+
+    Args:
+        raw_values: Flat dict of {raw_key: value} extracted from a config file.
+        key_mapping: Dict of {raw_key: atlas_dotted_path} from MODULE_CONFIG_KEYS.
+
+    Returns:
+        Nested dict with Atlas internal structure, e.g.
+        ``{"style": {"line_length": 120}}``.
+    """
+    result: dict = {}
+    for raw_key, value in raw_values.items():
+        atlas_path = key_mapping.get(raw_key)
+        if atlas_path:
+            _set_nested(result, atlas_path, value)
+    return result
+
+
+def scan_module_config(
+    module_name: str,
+    project_dir: str,
+    config_locations: list[dict] | None = None,
+) -> dict:
+    """Scan a project directory for a module's configuration file.
+
+    Tries each config location in priority order. Returns on first match.
+
+    Args:
+        module_name: The module identifier, e.g. ``"ruff"``.
+        project_dir: Absolute or relative path to the project root.
+        config_locations: Override config locations (e.g. from module.json).
+                          Falls back to MODULE_CONFIG_MAP if None.
+
+    Returns:
+        A result dict::
+
+            {
+                "found": True,
+                "config_file": "pyproject.toml",
+                "extracted": {"style": {"line_length": 120}},
+            }
+
+        or ``{"found": False}`` if no config file was found or the module
+        is unknown.
+    """
+    import fnmatch
+    import os
+
+    locations = config_locations if config_locations is not None else get_config_locations(module_name)
+    if not locations:
+        return {"found": False}
+
+    key_mapping = MODULE_CONFIG_KEYS.get(module_name, {})
+
+    for loc in locations:
+        file_pattern = loc.get("file", "")
+        fmt = loc.get("format", "exists")
+        section = loc.get("section")
+
+        # Resolve glob patterns
+        if "*" in file_pattern:
+            try:
+                entries = os.listdir(project_dir)
+            except OSError:
+                continue
+            matches = [e for e in entries if fnmatch.fnmatch(e, file_pattern)]
+            if not matches:
+                continue
+            file_path = os.path.join(project_dir, matches[0])
+        else:
+            file_path = os.path.join(project_dir, file_pattern)
+
+        # Check existence based on format
+        if fmt == "dir":
+            if not os.path.isdir(file_path):
+                continue
+            return {"found": True, "config_file": file_pattern, "extracted": {}}
+
+        if fmt in ("exists", "glob_exists"):
+            if not os.path.isfile(file_path):
+                continue
+            return {"found": True, "config_file": file_pattern, "extracted": {}}
+
+        if not os.path.isfile(file_path):
+            continue
+
+        # Parse the file and extract values
+        raw_values: dict = {}
+
+        if fmt == "toml":
+            content = _read_file_safe(file_path)
+            if section:
+                section_text = _read_toml_section(content, section)
+                raw_values = _parse_toml_values(section_text)
+            else:
+                raw_values = _parse_toml_values(content)
+
+        elif fmt == "json":
+            data = _read_json_safe(file_path)
+            if section:
+                nested = _navigate_json_path(data, section)
+                raw_values = nested if nested is not None else {}
+            else:
+                raw_values = {k: v for k, v in data.items() if isinstance(v, (str, int, bool))}
+
+        elif fmt == "ini":
+            raw_values = _read_ini_section(file_path, section or "")
+
+        elif fmt == "yaml":
+            raw_values = _read_yaml_simple(file_path)
+
+        elif fmt == "gomod":
+            raw_values = _read_gomod(file_path)
+
+        extracted = _map_extracted_values(raw_values, key_mapping) if raw_values else {}
+        return {"found": True, "config_file": file_pattern, "extracted": extracted}
+
+    return {"found": False}
+
+
+def scan_all_modules(module_names: list[str], project_dir: str) -> dict[str, dict]:
+    """Scan multiple modules and return results keyed by module name.
+
+    Args:
+        module_names: List of module identifiers to scan.
+        project_dir: Absolute or relative path to the project root.
+
+    Returns:
+        Dict of {module_name: scan_result} where each scan_result is the
+        output of :func:`scan_module_config`.
+    """
+    return {name: scan_module_config(name, project_dir) for name in module_names}
+
+
+def enrich_module_rules(module_name: str, base_rules: dict, project_dir: str) -> dict:
+    """Merge project-specific config values into a base rules dict.
+
+    Scans the project for the module's config and deep-merges the extracted
+    values into a copy of ``base_rules``.
+
+    Args:
+        module_name: The module identifier, e.g. ``"ruff"``.
+        base_rules: The base rules dict (e.g. loaded from rules.md frontmatter).
+        project_dir: Absolute or relative path to the project root.
+
+    Returns:
+        A new dict that is ``base_rules`` updated with any extracted values.
+        The original ``base_rules`` is not modified.
+    """
+    result = dict(base_rules)
+    scan = scan_module_config(module_name, project_dir)
+    if scan.get("found") and scan.get("extracted"):
+        for top_key, sub in scan["extracted"].items():
+            if isinstance(sub, dict) and isinstance(result.get(top_key), dict):
+                result[top_key] = {**result[top_key], **sub}
+            else:
+                result[top_key] = sub
+    return result
