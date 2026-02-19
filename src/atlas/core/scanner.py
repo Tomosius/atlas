@@ -1,5 +1,7 @@
 """Config scanner: reads tool configuration from project files."""
 
+from __future__ import annotations
+
 # --- Data tables ---
 
 # Maps module name → ordered list of config file locations.
@@ -434,3 +436,191 @@ MODULE_CONFIG_KEYS: dict[str, dict[str, str]] = {
         "known_first_party": "style.first_party_imports",
     },
 }
+
+
+# --- TOML parser (stdlib only — no tomllib / tomli) ---
+
+
+def _read_file_safe(path: str) -> str:
+    """Read a file and return its contents, or empty string on any error."""
+    try:
+        with open(path, encoding="utf-8", errors="ignore") as f:
+            return f.read()
+    except OSError:
+        return ""
+
+
+def _brackets_balanced(text: str) -> bool:
+    """Return True if all square brackets in text are balanced."""
+    depth = 0
+    for ch in text:
+        if ch == "[":
+            depth += 1
+        elif ch == "]":
+            depth -= 1
+            if depth < 0:
+                return False
+    return depth == 0
+
+
+def _read_toml_section(content: str, section: str) -> str:
+    """Extract the text of a TOML section (between its header and the next header).
+
+    Args:
+        content: Full TOML file content as a string.
+        section: Section header to find, e.g. ``"[tool.ruff]"``.
+
+    Returns:
+        The text between the section header and the next ``[`` header,
+        or an empty string if the section is not found.
+    """
+    lines = content.splitlines()
+    section_stripped = section.strip()
+    inside = False
+    result: list[str] = []
+
+    for line in lines:
+        stripped = line.strip()
+        if stripped == section_stripped:
+            inside = True
+            continue
+        if inside:
+            # Stop at the next section header (but not array-of-tables like [[x]])
+            if stripped.startswith("[") and not stripped.startswith("[["):
+                break
+            result.append(line)
+
+    return "\n".join(result)
+
+
+def _parse_toml_array(raw: str) -> list:
+    """Parse a TOML inline array string like ``'["a", "b"]'`` into a list.
+
+    Handles:
+    - String elements (single or double quoted)
+    - Integer and boolean elements
+    - Nested brackets balanced check for multiline continuation
+    """
+    raw = raw.strip()
+    if not (raw.startswith("[") and raw.endswith("]")):
+        return []
+    inner = raw[1:-1].strip()
+    if not inner:
+        return []
+
+    items: list = []
+    current = ""
+    in_string = False
+    string_char = ""
+    depth = 0
+
+    for ch in inner:
+        if in_string:
+            current += ch
+            if ch == string_char:
+                in_string = False
+        elif ch in ('"', "'"):
+            in_string = True
+            string_char = ch
+            current += ch
+        elif ch == "[":
+            depth += 1
+            current += ch
+        elif ch == "]":
+            depth -= 1
+            current += ch
+        elif ch == "," and depth == 0:
+            items.append(_parse_toml_value(current.strip()))
+            current = ""
+        else:
+            current += ch
+
+    if current.strip():
+        items.append(_parse_toml_value(current.strip()))
+
+    return items
+
+
+def _parse_toml_value(raw: str) -> str | int | list | bool:
+    """Convert a raw TOML value string to a Python type.
+
+    Handles: quoted strings, integers, booleans (true/false), and arrays.
+    Falls back to returning the raw string for anything else.
+    """
+    raw = raw.strip()
+
+    # Quoted string (single or double)
+    if (raw.startswith('"') and raw.endswith('"')) or (
+        raw.startswith("'") and raw.endswith("'")
+    ):
+        return raw[1:-1]
+
+    # Inline array
+    if raw.startswith("["):
+        return _parse_toml_array(raw)
+
+    # Boolean
+    if raw == "true":
+        return True
+    if raw == "false":
+        return False
+
+    # Integer
+    try:
+        return int(raw)
+    except ValueError:
+        pass
+
+    # Return as-is (e.g. unquoted identifiers)
+    return raw
+
+
+def _parse_toml_values(section_content: str) -> dict:
+    """Parse key=value pairs from TOML section content.
+
+    Handles:
+    - Simple ``key = value`` lines
+    - Multiline arrays (continuation until brackets are balanced)
+    - Inline comments (``# ...``) stripped from values
+    - Subsection headers (``[tool.ruff.lint]``) treated as nested key separators
+
+    Returns a flat dict of {key: typed_value}.
+    """
+    result: dict = {}
+    lines = section_content.splitlines()
+    i = 0
+
+    while i < len(lines):
+        line = lines[i]
+        stripped = line.strip()
+
+        # Skip blank lines and comments
+        if not stripped or stripped.startswith("#"):
+            i += 1
+            continue
+
+        # Skip subsection headers inside this section
+        if stripped.startswith("["):
+            i += 1
+            continue
+
+        if "=" in stripped:
+            key, _, value_raw = stripped.partition("=")
+            key = key.strip()
+            value_raw = value_raw.strip()
+
+            # Strip inline comment (outside of strings/arrays)
+            if "#" in value_raw and not value_raw.startswith(("[", '"', "'")):
+                value_raw = value_raw.partition("#")[0].strip()
+
+            # Multiline array: accumulate lines until brackets are balanced
+            if value_raw.startswith("[") and not _brackets_balanced(value_raw):
+                while i + 1 < len(lines) and not _brackets_balanced(value_raw):
+                    i += 1
+                    value_raw += " " + lines[i].strip()
+
+            result[key] = _parse_toml_value(value_raw)
+
+        i += 1
+
+    return result
