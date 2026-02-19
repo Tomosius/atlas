@@ -3,6 +3,7 @@
 import pytest
 
 from atlas.core.detection import (
+    _DATABASE_PATTERNS,
     _FRAMEWORK_PATTERNS,
     _FULLSTACK_DIRS,
     _LANGUAGE_MARKERS,
@@ -10,6 +11,7 @@ from atlas.core.detection import (
     _TOOL_MARKERS,
     _WORKSPACE_MANAGERS,
     _detect_existing_tools,
+    _detect_frameworks_and_stack,
     _detect_languages,
     _detect_package_manager,
 )
@@ -151,3 +153,83 @@ class TestDetectExistingTools:
         (tmp_path / "package.json").write_text('{"scripts": {"test": "jest.config.js"}}')
         found = _detect_existing_tools(str(tmp_path))
         assert "jest" in found
+
+
+# ---------------------------------------------------------------------------
+# _detect_frameworks_and_stack
+# ---------------------------------------------------------------------------
+
+
+# Frameworks whose name is a substring of another framework's name cause the
+# engine's simple `in` check to match the shorter name first, making exact
+# stack assertions fragile.  Those cases are tested separately below.
+# "react" is a substring of "react-native"; both must be excluded from the
+# parametrized exact-stack test and covered by dedicated tests below.
+_AMBIGUOUS_FRAMEWORKS = {"react", "react-native"}
+
+
+class TestDetectFrameworksAndStack:
+    """Parametrized tests covering every entry in _FRAMEWORK_PATTERNS."""
+
+    @pytest.mark.parametrize(
+        "framework,lang_stack",
+        [(f, ls) for f, ls in _FRAMEWORK_PATTERNS.items() if f not in _AMBIGUOUS_FRAMEWORKS],
+    )
+    def test_framework_detected_and_stack_correct(
+        self, framework: str, lang_stack: tuple[str, str], tmp_path
+    ):
+        lang, expected_stack = lang_stack
+        (tmp_path / "pyproject.toml").write_text(
+            f'[project]\ndependencies = ["{framework}"]', encoding="utf-8"
+        )
+        lang_marker = next(
+            m for m in _LANGUAGE_MARKERS[lang] if not m.startswith("*")
+        )
+        if lang_marker != "pyproject.toml":
+            (tmp_path / lang_marker).write_text("", encoding="utf-8")
+
+        frameworks, stack = _detect_frameworks_and_stack(str(tmp_path), languages=[lang])
+
+        assert framework in frameworks
+        assert stack == expected_stack
+
+    def test_react_native_detected(self, tmp_path):
+        """react-native is detected even though 'react' also matches as substring."""
+        (tmp_path / "package.json").write_text(
+            '{"dependencies": {"react-native": "0.73"}}', encoding="utf-8"
+        )
+        frameworks, _ = _detect_frameworks_and_stack(str(tmp_path), languages=["typescript"])
+        assert "react-native" in frameworks
+
+    def test_first_framework_wins_stack(self, tmp_path):
+        """Stack should be set by the first matched framework."""
+        (tmp_path / "pyproject.toml").write_text(
+            '[project]\ndependencies = ["fastapi", "flask"]', encoding="utf-8"
+        )
+        _, stack = _detect_frameworks_and_stack(str(tmp_path), languages=["python"])
+        assert stack == "python-backend"
+
+    def test_fallback_stack_python(self, tmp_path):
+        frameworks, stack = _detect_frameworks_and_stack(str(tmp_path), languages=["python"])
+        assert frameworks == []
+        assert stack == "python-library"
+
+    def test_fallback_stack_typescript(self, tmp_path):
+        _, stack = _detect_frameworks_and_stack(str(tmp_path), languages=["typescript"])
+        assert stack == "ts-library"
+
+    def test_fallback_stack_javascript(self, tmp_path):
+        _, stack = _detect_frameworks_and_stack(str(tmp_path), languages=["javascript"])
+        assert stack == "js-library"
+
+    def test_fallback_stack_rust(self, tmp_path):
+        _, stack = _detect_frameworks_and_stack(str(tmp_path), languages=["rust"])
+        assert stack == "rust-library"
+
+    def test_fallback_stack_go(self, tmp_path):
+        _, stack = _detect_frameworks_and_stack(str(tmp_path), languages=["go"])
+        assert stack == "go-service"
+
+    def test_no_language_no_stack(self, tmp_path):
+        _, stack = _detect_frameworks_and_stack(str(tmp_path), languages=[])
+        assert stack == ""
