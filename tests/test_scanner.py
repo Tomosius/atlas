@@ -405,3 +405,123 @@ class TestReadGomod:
         result = _read_gomod(str(f))
         assert result["module"] == "example.com/app"
         assert result["go"] == "1.20"
+
+
+# ---------------------------------------------------------------------------
+# _set_nested
+# ---------------------------------------------------------------------------
+
+
+class TestSetNested:
+    def test_single_key(self):
+        d: dict = {}
+        _set_nested(d, "key", "value")
+        assert d == {"key": "value"}
+
+    def test_dotted_two_levels(self):
+        d: dict = {}
+        _set_nested(d, "style.line_length", 120)
+        assert d == {"style": {"line_length": 120}}
+
+    def test_dotted_three_levels(self):
+        d: dict = {}
+        _set_nested(d, "a.b.c", 42)
+        assert d == {"a": {"b": {"c": 42}}}
+
+    def test_overwrites_existing_leaf(self):
+        d = {"style": {"line_length": 88}}
+        _set_nested(d, "style.line_length", 120)
+        assert d["style"]["line_length"] == 120
+
+    def test_creates_intermediate_dicts(self):
+        d: dict = {}
+        _set_nested(d, "x.y.z", True)
+        assert d["x"]["y"]["z"] is True
+
+    def test_replaces_non_dict_intermediate(self):
+        d: dict = {"a": "not_a_dict"}
+        _set_nested(d, "a.b", 1)
+        assert d["a"]["b"] == 1
+
+    def test_multiple_keys_same_top(self):
+        d: dict = {}
+        _set_nested(d, "style.line_length", 100)
+        _set_nested(d, "style.indent_width", 4)
+        assert d == {"style": {"line_length": 100, "indent_width": 4}}
+
+
+# ---------------------------------------------------------------------------
+# _map_extracted_values
+# ---------------------------------------------------------------------------
+
+
+class TestMapExtractedValues:
+    def test_maps_known_key(self):
+        raw = {"line-length": 120}
+        mapping = {"line-length": "style.line_length"}
+        result = _map_extracted_values(raw, mapping)
+        assert result == {"style": {"line_length": 120}}
+
+    def test_skips_unknown_keys(self):
+        raw = {"unknown-key": "value"}
+        mapping = {"line-length": "style.line_length"}
+        result = _map_extracted_values(raw, mapping)
+        assert result == {}
+
+    def test_maps_multiple_keys(self):
+        raw = {"line-length": 120, "target-version": "py310"}
+        mapping = {
+            "line-length": "style.line_length",
+            "target-version": "style.python_version",
+        }
+        result = _map_extracted_values(raw, mapping)
+        assert result["style"]["line_length"] == 120
+        assert result["style"]["python_version"] == "py310"
+
+    def test_empty_raw_returns_empty(self):
+        mapping = {"line-length": "style.line_length"}
+        assert _map_extracted_values({}, mapping) == {}
+
+    def test_empty_mapping_returns_empty(self):
+        raw = {"line-length": 120}
+        assert _map_extracted_values(raw, {}) == {}
+
+    def test_boolean_value_preserved(self):
+        raw = {"strict": True}
+        mapping = {"strict": "style.strict_mode"}
+        result = _map_extracted_values(raw, mapping)
+        assert result["style"]["strict_mode"] is True
+
+
+# ---------------------------------------------------------------------------
+# get_config_locations
+# ---------------------------------------------------------------------------
+
+
+class TestGetConfigLocations:
+    def test_known_module_returns_list(self):
+        locs = get_config_locations("ruff")
+        assert isinstance(locs, list)
+        assert len(locs) > 0
+
+    def test_unknown_module_returns_empty(self):
+        assert get_config_locations("nonexistent-module-xyz") == []
+
+    def test_sorted_by_priority(self):
+        locs = get_config_locations("ruff")
+        priorities = [loc["priority"] for loc in locs]
+        assert priorities == sorted(priorities)
+
+    def test_each_location_has_required_keys(self):
+        for module in ("ruff", "pytest", "eslint", "mypy"):
+            for loc in get_config_locations(module):
+                assert "file" in loc
+                assert "format" in loc
+                assert "section" in loc
+                assert "priority" in loc
+
+    def test_all_modules_in_map_return_locations(self):
+        from atlas.core.scanner import MODULE_CONFIG_MAP
+        for module in MODULE_CONFIG_MAP:
+            locs = get_config_locations(module)
+            assert len(locs) > 0, f"{module} returned empty locations"
