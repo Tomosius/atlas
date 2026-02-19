@@ -438,3 +438,52 @@ def get_required_fields(category: str) -> list[str]:
 def get_expected_commands(category: str) -> list[str]:
     """Return the list of expected command keys for *category*."""
     return ALL_CATEGORIES.get(category, {}).get("expected_commands", [])
+
+
+# ---------------------------------------------------------------------------
+# CategoryRouter
+# ---------------------------------------------------------------------------
+
+
+class CategoryRouter:
+    """Query interface for finding installed modules by category or command.
+
+    Used by the MCP server and runtime to determine which verbs and tools
+    are available given the current project's installed modules.
+    """
+
+    def __init__(self, manifest: dict, registry: dict) -> None:
+        self._manifest = manifest
+        self._registry = registry
+
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
+
+    def has_category_installed(self, category: str) -> bool:
+        """Return True if at least one installed module belongs to *category*."""
+        installed = self._manifest.get("installed_modules", {})
+        return any(info.get("category") == category for info in installed.values())
+
+    def find_all_with_command(self, command: str) -> list[dict]:
+        """Return every installed module that exposes *command*.
+
+        Each entry is ``{"module": <name>, "command": <cmd_string>}``.
+        """
+        installed = self._manifest.get("installed_modules", {})
+        modules = self._registry.get("modules", {})
+        results = []
+        for name in installed:
+            reg = modules.get(name, {})
+            commands = reg.get("commands", {})
+            if command in commands:
+                results.append({"module": name, "command": commands[command]})
+        return results
+
+    def find_module_for_category(self, category: str) -> str | None:
+        """Return the first installed module name for *category*, or None."""
+        installed = self._manifest.get("installed_modules", {})
+        for name, info in installed.items():
+            if info.get("category") == category:
+                return name
+        return None
