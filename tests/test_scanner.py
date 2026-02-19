@@ -213,3 +213,69 @@ class TestParseTomlValues:
 
     def test_empty_content_returns_empty_dict(self):
         assert _parse_toml_values("") == {}
+
+
+# ---------------------------------------------------------------------------
+# _read_json_safe
+# ---------------------------------------------------------------------------
+
+
+class TestReadJsonSafe:
+    def test_reads_valid_json(self, tmp_path):
+        f = tmp_path / "tsconfig.json"
+        f.write_text('{"compilerOptions": {"strict": true}}', encoding="utf-8")
+        result = _read_json_safe(str(f))
+        assert result["compilerOptions"]["strict"] is True
+
+    def test_returns_empty_for_nonexistent(self, tmp_path):
+        assert _read_json_safe(str(tmp_path / "missing.json")) == {}
+
+    def test_returns_empty_for_invalid_json(self, tmp_path):
+        f = tmp_path / "bad.json"
+        f.write_text("{not valid json", encoding="utf-8")
+        assert _read_json_safe(str(f)) == {}
+
+    def test_returns_empty_when_root_is_list(self, tmp_path):
+        f = tmp_path / "list.json"
+        f.write_text("[1, 2, 3]", encoding="utf-8")
+        assert _read_json_safe(str(f)) == {}
+
+    def test_reads_nested_dict(self, tmp_path):
+        f = tmp_path / "pkg.json"
+        f.write_text('{"name": "myapp", "version": "1.0.0"}', encoding="utf-8")
+        result = _read_json_safe(str(f))
+        assert result["name"] == "myapp"
+
+
+# ---------------------------------------------------------------------------
+# _navigate_json_path
+# ---------------------------------------------------------------------------
+
+
+class TestNavigateJsonPath:
+    def test_single_key(self):
+        data = {"compilerOptions": {"strict": True}}
+        result = _navigate_json_path(data, "compilerOptions")
+        assert result == {"strict": True}
+
+    def test_dotted_path(self):
+        data = {"a": {"b": {"c": "value"}}}
+        result = _navigate_json_path(data, "a.b")
+        assert result == {"c": "value"}
+
+    def test_missing_key_returns_none(self):
+        data = {"compilerOptions": {}}
+        assert _navigate_json_path(data, "missing") is None
+
+    def test_non_dict_value_returns_none(self):
+        data = {"name": "myapp"}
+        assert _navigate_json_path(data, "name") is None
+
+    def test_empty_path_segment(self):
+        data = {}
+        assert _navigate_json_path(data, "a.b.c") is None
+
+    def test_deeply_nested(self):
+        data = {"tool": {"jest": {"timeout": 5000}}}
+        result = _navigate_json_path(data, "tool.jest")
+        assert result == {"timeout": 5000}
