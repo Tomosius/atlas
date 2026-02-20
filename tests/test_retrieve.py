@@ -13,6 +13,7 @@ from atlas.core.retrieve import (
     _load_module_rules,
     build_all_retrieve_files,
     build_retrieve_file,
+    filter_sections,
     build_status_file,
 )
 
@@ -449,3 +450,60 @@ class TestBuildAllRetrieveFiles:
         assert "ruff" in result
         assert "pytest" in result
         assert "_status" in result
+
+
+# ---------------------------------------------------------------------------
+# filter_sections
+# ---------------------------------------------------------------------------
+
+
+class TestFilterSections:
+    _CONTENT = (
+        "# Python Rules\n\n"
+        "## Linting\nUse ruff.\n\n"
+        "## Testing\nUse pytest.\n\n"
+        "## Formatting\nUse black.\n"
+    )
+
+    def test_empty_filter_returns_content_unchanged(self):
+        result = filter_sections(self._CONTENT, [])
+        assert result == self._CONTENT
+
+    def test_matching_filter_returns_only_that_section(self):
+        result = filter_sections(self._CONTENT, ["linting"])
+        assert "Linting" in result
+        assert "Testing" not in result
+        assert "Formatting" not in result
+
+    def test_filter_is_case_insensitive(self):
+        result = filter_sections(self._CONTENT, ["LINTING"])
+        assert "Linting" in result
+        assert "Testing" not in result
+
+    def test_partial_word_match(self):
+        result = filter_sections(self._CONTENT, ["lint"])
+        assert "Linting" in result
+        assert "Testing" not in result
+
+    def test_multiple_filter_words_return_all_matching(self):
+        result = filter_sections(self._CONTENT, ["linting", "testing"])
+        assert "Linting" in result
+        assert "Testing" in result
+        assert "Formatting" not in result
+
+    def test_no_match_returns_original_content(self):
+        result = filter_sections(self._CONTENT, ["nonexistent"])
+        assert result == self._CONTENT
+
+    def test_empty_content_returns_empty(self):
+        result = filter_sections("", ["linting"])
+        assert result == ""
+
+    def test_content_without_sections_and_no_match_returns_original(self):
+        content = "Just some prose without any headers."
+        result = filter_sections(content, ["linting"])
+        assert result == content
+
+    def test_returns_string(self):
+        result = filter_sections(self._CONTENT, ["linting"])
+        assert isinstance(result, str)
