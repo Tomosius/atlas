@@ -1,0 +1,36 @@
+{
+  "id": "rustfmt",
+  "name": "rustfmt",
+  "version": "1.0.0",
+  "category": "formatter",
+  "description": "Rust code formatter",
+
+  "detect_files": ["rustfmt.toml", ".rustfmt.toml"],
+  "detect_in_config": {},
+
+  "for_languages": ["rust"],
+
+  "requires": ["rust"],
+  "combines_with": ["rust", "clippy"],
+  "conflicts_with": [],
+
+  "commands": {
+    "fix": "cargo fmt",
+    "check": "cargo fmt --check"
+  },
+
+  "config_locations": [
+    {"file": "rustfmt.toml", "format": "toml", "section": null, "priority": 1},
+    {"file": ".rustfmt.toml", "format": "toml", "section": null, "priority": 2}
+  ],
+
+  "config_keys": {
+    "max_width": "style.max_width",
+    "tab_spaces": "style.tab_spaces",
+    "edition": "style.edition",
+    "imports_granularity": "style.imports_granularity"
+  },
+
+  "system_tool": "rustfmt",
+  "health_check": "rustfmt --version"
+}
