@@ -1,0 +1,33 @@
+{
+  "id": "clippy",
+  "name": "Clippy",
+  "version": "1.0.0",
+  "category": "linter",
+  "description": "Rust linter (cargo clippy)",
+
+  "detect_files": [],
+  "detect_in_config": {},
+
+  "for_languages": ["rust"],
+
+  "requires": ["rust"],
+  "combines_with": ["rust", "rustfmt"],
+  "conflicts_with": [],
+
+  "commands": {
+    "check": "cargo clippy -- -D warnings",
+    "check-all": "cargo clippy --all-targets --all-features -- -D warnings"
+  },
+
+  "config_locations": [
+    {"file": "Cargo.toml", "format": "toml", "section": "[lints.clippy]", "priority": 1},
+    {"file": ".cargo/config.toml", "format": "toml", "section": "[build]", "priority": 2}
+  ],
+
+  "config_keys": {
+    "lints.clippy": "linter.rules"
+  },
+
+  "system_tool": "cargo",
+  "health_check": "cargo clippy --version"
+}
