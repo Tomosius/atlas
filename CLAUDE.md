@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #69 — Create module bundle: linters/biome
+**Current Issue:** #70 — Create module bundle: linters/clippy
 
 ### Completed so far
 
@@ -98,10 +98,11 @@ One tool (`atlas`), 10 verbs, single string input.
 | #66 | Create module bundle: languages/go | ✅ `modules/languages/go/` |
 | #67 | Create module bundle: linters/ruff | ✅ `modules/linters/ruff/` |
 | #68 | Create module bundle: linters/eslint | ✅ `modules/linters/eslint/` |
+| #69 | Create module bundle: linters/biome | ✅ `modules/linters/biome/` |
 
 ### Not yet started (next up)
 
-Continue: #69, #70 … through #114.
+Continue: #70, #71 … through #114.
 
 ```bash
 # See all open Phase 1 issues
