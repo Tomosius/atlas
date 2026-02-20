@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #65 — Create module bundle: languages/rust
+**Current Issue:** #66 — Create module bundle: languages/go
 
 ### Completed so far
 
@@ -94,10 +94,11 @@ One tool (`atlas`), 10 verbs, single string input.
 | #62 | Create modules/registry.json with all fields | ✅ 69 modules, `modules/registry.json` |
 | #63 | Create module bundle: languages/python | ✅ `modules/languages/python/` |
 | #64 | Create module bundle: languages/typescript | ✅ `modules/languages/typescript/` |
+| #65 | Create module bundle: languages/rust | ✅ `modules/languages/rust/` |
 
 ### Not yet started (next up)
 
-Continue: #65, #66 … through #114.
+Continue: #66, #67 … through #114.
 
 ```bash
 # See all open Phase 1 issues
