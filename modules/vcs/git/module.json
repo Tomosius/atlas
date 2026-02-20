@@ -1,0 +1,38 @@
+{
+  "id": "git",
+  "name": "Git",
+  "version": "1.0.0",
+  "category": "vcs",
+  "description": "Git version control",
+
+  "detect_files": [".git"],
+  "detect_in_config": {},
+
+  "for_languages": [],
+
+  "requires": [],
+  "combines_with": ["commit-rules", "github", "gitlab"],
+  "conflicts_with": ["svn", "mercurial", "fossil", "perforce", "plastic-scm"],
+
+  "commands": {
+    "status": "git status",
+    "commit": "git commit",
+    "diff": "git diff",
+    "log": "git log --oneline -20"
+  },
+
+  "config_locations": [
+    {"file": ".gitconfig", "format": "ini", "section": null, "priority": 1},
+    {"file": ".git/config", "format": "ini", "section": null, "priority": 2}
+  ],
+
+  "config_keys": {
+    "user.name": "git.user_name",
+    "user.email": "git.user_email",
+    "core.defaultBranch": "git.default_branch"
+  },
+
+  "system_tool": "git",
+  "unlocks_verb": "vcs",
+  "health_check": "git --version"
+}
