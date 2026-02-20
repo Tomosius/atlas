@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #45 — Create runtime.py: Atlas class with lazy properties
+**Current Issue:** #53 — Create server.py: MCP Server instance with single atlas tool
 
 ### Completed so far
 
@@ -74,9 +74,18 @@ One tool (`atlas`), 10 verbs, single string input.
 | #43 | Create parser.py: parse_input() | ✅ `src/atlas/parser.py` |
 | #44 | Write tests for parser | ✅ 68 tests, `tests/test_parser.py` |
 
+| #45 | Create runtime.py: Atlas class with lazy properties | ✅ `src/atlas/runtime.py` |
+| #46 | Create runtime.py: warehouse path resolution | ✅ `_find_warehouse` in `runtime.py` |
+| #47 | Create runtime.py: invalidate() method | ✅ `runtime.py` |
+| #48 | Create runtime.py: verb handlers | ✅ `add_modules`, `remove_module`, `just` in `runtime.py` |
+| #49 | Create runtime.py: query handler | ✅ `query()` in `runtime.py` |
+| #50 | Create runtime.py: notes management | ✅ `add_note`, `remove_note` in `runtime.py` |
+| #51 | Create runtime.py: save helpers | ✅ `save_manifest`, `save_notes`, `save_config` |
+| #52 | Write tests for Atlas runtime | ✅ 62 tests, `tests/test_runtime.py` |
+
 ### Not yet started (next up)
 
-Continue: #45, #46 … through #114.
+Continue: #53, #54 … through #114.
 
 ```bash
 # See all open Phase 1 issues
