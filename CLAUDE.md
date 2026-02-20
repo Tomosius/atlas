@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #39 — Create runner.py: execute tasks via subprocess, capture output
+**Current Issue:** #42 — Create parser.py: ParsedInput dataclass
 
 ### Completed so far
 
@@ -67,10 +67,13 @@ One tool (`atlas`), 10 verbs, single string input.
 | #36 | Port config hierarchy (project > global > defaults) | ✅ `src/atlas/core/config.py` |
 | #37 | Create AtlasConfig dataclass | ✅ implemented as part of #36 |
 | #38 | Write tests for config hierarchy and merge logic | ✅ 31 tests, `tests/test_config.py` |
+| #39 | Create runner.py: execute tasks via subprocess | ✅ `src/atlas/core/runner.py` |
+| #40 | Create runner.py: tool resolution cascade | ✅ `resolve_tool` in `runner.py` |
+| #41 | Write tests for runner | ✅ 21 tests, `tests/test_runner.py` |
 
 ### Not yet started (next up)
 
-Continue: #39, #40 … through #114.
+Continue: #42, #43 … through #114.
 
 ```bash
 # See all open Phase 1 issues
