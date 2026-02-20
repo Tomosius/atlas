@@ -1,0 +1,179 @@
+"""Build pre-computed retrieve files from module rules and warehouse content."""
+
+from __future__ import annotations
+
+import json
+import os
+
+from atlas.core.registry import find_module, load_module_rules_md
+
+
+def build_retrieve_file(
+    module_name: str,
+    atlas_dir: str,
+    registry: dict,
+    warehouse_dir: str,
+    installed_modules: dict,
+    config: dict | None = None,
+) -> str:
+    """Build a single retrieve .md file for a module.
+
+    Combines:
+    1. rules.md from warehouse (base content)
+    2. Extracted config values from .atlas/modules/<name>.json
+    3. Linked module summaries (if configured in retrieve_links)
+
+    Returns the built Markdown content.
+    """
+    config = config or {}
+
+    # Read base rules from warehouse
+    content = load_module_rules_md(module_name, registry, warehouse_dir)
+
+    # Read extracted values from installed module rules
+    module_rules = _load_module_rules(module_name, atlas_dir)
+
+    # Inject extracted values into content (replace {{key}} placeholders)
+    if module_rules:
+        rules_data = module_rules.get("rules", {})
+        content = _inject_values(content, rules_data)
+
+        # Add config source info
+        config_file = module_rules.get("config_file", "")
+        if config_file:
+            content += f"\n\n> Config source: `{config_file}`\n"
+
+    # Append linked module summaries
+    retrieve_links = config.get("retrieve_links", {})
+    linked = retrieve_links.get(module_name, [])
+    for linked_name in linked:
+        if linked_name in installed_modules and linked_name != module_name:
+            linked_content = load_module_rules_md(linked_name, registry, warehouse_dir)
+            if linked_content:
+                summary = _condense(linked_content, max_sections=2)
+                content += f"\n\n---\n\n## Linked: {linked_name}\n\n{summary}"
+
+    return content
+
+
+def build_status_file(manifest: dict, installed_modules: dict) -> str:
+    """Build the _status.md overview file.
+
+    This is the first thing agents read at session start. It contains:
+    - Project type, languages, stack
+    - Installed modules grouped by category
+    - Available commands
+    - Retrieval hints
+    """
+    detected = manifest.get("detected", {})
+    languages = detected.get("languages", [])
+    stack = detected.get("stack", "")
+    pkg_mgr = detected.get("package_manager", "")
+
+    lines = ["# Atlas Project Status", ""]
+
+    # Project overview
+    if languages:
+        lines.append(f"**Languages:** {', '.join(languages)}")
+    if stack:
+        lines.append(f"**Stack:** {stack}")
+    if pkg_mgr and pkg_mgr != "none":
+        lines.append(f"**Package Manager:** {pkg_mgr}")
+    lines.append("")
+
+    # Installed modules by category
+    by_category: dict[str, list[str]] = {}
+    for mod_name, mod_info in installed_modules.items():
+        cat = mod_info.get("category", "other")
+        by_category.setdefault(cat, []).append(mod_name)
+
+    if by_category:
+        lines.append("## Installed Modules")
+        for cat in sorted(by_category):
+            mods = ", ".join(sorted(by_category[cat]))
+            lines.append(f"- **{cat}:** {mods}")
+        lines.append("")
+
+    # Available retrieve targets
+    retrievable = sorted(list(installed_modules.keys()) + ["structure", "project"])
+    lines.append(f"## Retrievable: {', '.join(retrievable)}")
+    lines.append("")
+
+    return "\n".join(lines)
+
+
+def build_all_retrieve_files(
+    atlas_dir: str,
+    registry: dict,
+    warehouse_dir: str,
+    manifest: dict,
+    config: dict | None = None,
+) -> list[str]:
+    """Build all retrieve files for all installed modules + auto-modules.
+
+    Returns list of module names that were built.
+    """
+    config = config or {}
+    installed = manifest.get("installed_modules", {})
+    retrieve_dir = os.path.join(atlas_dir, "retrieve")
+    os.makedirs(retrieve_dir, exist_ok=True)
+    built = []
+
+    for mod_name in installed:
+        content = build_retrieve_file(
+            mod_name, atlas_dir, registry, warehouse_dir, installed, config
+        )
+        if content:
+            path = os.path.join(retrieve_dir, f"{mod_name}.md")
+            with open(path, "w") as f:
+                f.write(content)
+            built.append(mod_name)
+
+    # Build status file
+    status_content = build_status_file(manifest, installed)
+    with open(os.path.join(retrieve_dir, "_status.md"), "w") as f:
+        f.write(status_content)
+    built.append("_status")
+
+    return built
+
+
+# --- Internal helpers ---
+
+
+def _load_module_rules(module_name: str, atlas_dir: str) -> dict:
+    """Load enriched module rules from .atlas/modules/<name>.json."""
+    path = os.path.join(atlas_dir, "modules", f"{module_name}.json")
+    if not os.path.isfile(path):
+        return {}
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+
+def _inject_values(content: str, rules_data: dict, prefix: str = "") -> str:
+    """Replace {{key}} placeholders in content with values from rules_data."""
+    for key, value in rules_data.items():
+        full_key = f"{prefix}.{key}" if prefix else key
+        if isinstance(value, dict):
+            content = _inject_values(content, value, full_key)
+        else:
+            placeholder = "{{" + full_key + "}}"
+            content = content.replace(placeholder, str(value))
+    return content
+
+
+def _condense(markdown: str, max_sections: int = 2) -> str:
+    """Condense markdown to the first N sections (## headers)."""
+    lines = markdown.split("\n")
+    sections_seen = 0
+    result = []
+    for line in lines:
+        if line.startswith("## "):
+            sections_seen += 1
+            if sections_seen > max_sections:
+                break
+        result.append(line)
+    return "\n".join(result).strip()
