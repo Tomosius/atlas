@@ -1,0 +1,41 @@
+{
+  "id": "prettier",
+  "name": "Prettier",
+  "version": "1.0.0",
+  "category": "formatter",
+  "description": "Opinionated code formatter for JS/TS/HTML/CSS",
+
+  "detect_files": [".prettierrc", ".prettierrc.json", ".prettierrc.js", ".prettierrc.yaml", ".prettierrc.yml", "prettier.config.js", "prettier.config.mjs"],
+  "detect_in_config": {"package.json": "\"prettier\""},
+
+  "for_languages": ["typescript", "html", "css"],
+
+  "requires": [],
+  "combines_with": ["typescript", "eslint", "html", "css"],
+  "conflicts_with": ["biome"],
+
+  "commands": {
+    "fix": "{{pkg_run}} prettier --write .",
+    "check": "{{pkg_run}} prettier --check ."
+  },
+
+  "config_locations": [
+    {"file": ".prettierrc", "format": "json", "section": null, "priority": 1},
+    {"file": ".prettierrc.json", "format": "json", "section": null, "priority": 2},
+    {"file": ".prettierrc.js", "format": "js", "section": null, "priority": 3},
+    {"file": "prettier.config.js", "format": "js", "section": null, "priority": 4},
+    {"file": "package.json", "format": "json", "section": "prettier", "priority": 5}
+  ],
+
+  "config_keys": {
+    "printWidth": "style.print_width",
+    "tabWidth": "style.tab_width",
+    "useTabs": "style.use_tabs",
+    "semi": "style.semi",
+    "singleQuote": "style.single_quote",
+    "trailingComma": "style.trailing_comma"
+  },
+
+  "system_tool": "prettier",
+  "health_check": "prettier --version"
+}
