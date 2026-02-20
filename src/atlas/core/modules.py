@@ -85,3 +85,95 @@ def resolve_pkg_variables(text: str, package_manager: str) -> str:
     for var_name, replacement in variables.items():
         text = text.replace("{{" + var_name + "}}", replacement)
     return text
+
+
+# ---------------------------------------------------------------------------
+# Module lifecycle
+# ---------------------------------------------------------------------------
+
+
+def install_module(
+    module_name: str,
+    registry: dict,
+    warehouse_dir: str,
+    atlas_dir: str,
+    manifest: dict,
+    package_manager: str = "",
+) -> dict:
+    """Install a module from the warehouse into the project.
+
+    Steps:
+    1. Validate — exists in registry, not already installed, no conflicts.
+    2. Load bundle from warehouse (``module.json``).
+    3. Scan project config to extract current values.
+    4. Enrich rules with extracted values.
+    5. Resolve package manager variables in commands.
+    6. Write to ``.atlas/modules/<name>.json``.
+    7. Update manifest in-place.
+
+    Returns ``ok_result(installed=name, warnings=[])`` on success,
+    or an ``error_result`` on the first validation failure.
+    """
+    # 1. Validate
+    installed = list(manifest.get("installed_modules", {}).keys())
+
+    reg_entry = find_module(registry, module_name)
+    if not reg_entry:
+        return error_result("MODULE_NOT_FOUND", module_name)
+
+    if module_name in installed:
+        return error_result("MODULE_ALREADY_INSTALLED", module_name)
+
+    conflicts = check_conflicts(registry, module_name, installed)
+    if conflicts:
+        return error_result(
+            "MODULE_CONFLICT",
+            f"{module_name} conflicts with {', '.join(conflicts)}",
+        )
+
+    # 2. Load bundle — fall back to a minimal dict when warehouse has no file.
+    bundle = load_module_bundle(module_name, registry, warehouse_dir)
+    if not bundle:
+        bundle = {
+            "id": module_name,
+            "category": reg_entry.get("category", ""),
+            "version": reg_entry.get("version", "1.0.0"),
+        }
+
+    # 3. Scan project config for extracted values.
+    project_dir = os.path.dirname(os.path.abspath(atlas_dir))
+    scan_result = scan_module_config(module_name, project_dir)
+
+    # 4. Enrich — merge extracted config values into the bundle copy.
+    rules = dict(bundle)
+    if scan_result.get("found"):
+        rules["config_file"] = scan_result.get("config_file", "")
+        rules["config_section"] = scan_result.get("config_section", "")
+        extracted = scan_result.get("extracted", {})
+        if extracted:
+            rules.setdefault("rules", {}).update(extracted)
+
+    # 5. Resolve package manager variables in every command string.
+    if package_manager:
+        commands = rules.get("commands", {})
+        if commands:
+            rules["commands"] = {
+                cmd_name: resolve_pkg_variables(str(cmd_str), package_manager)
+                for cmd_name, cmd_str in commands.items()
+            }
+
+    # 6. Write to .atlas/modules/<name>.json.
+    modules_dir = os.path.join(atlas_dir, "modules")
+    os.makedirs(modules_dir, exist_ok=True)
+    module_path = os.path.join(modules_dir, f"{module_name}.json")
+    with open(module_path, "w") as f:
+        json.dump(rules, f, indent=2, ensure_ascii=False)
+        f.write("\n")
+
+    # 7. Update manifest.
+    manifest.setdefault("installed_modules", {})[module_name] = {
+        "version": bundle.get("version", "1.0.0"),
+        "category": reg_entry.get("category", ""),
+    }
+
+    return ok_result(installed=module_name, warnings=[])
