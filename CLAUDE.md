@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #60 — Create cli.py: thin CLI wrapper
+**Current Issue:** #62 — Create modules/registry.json with all fields
 
 ### Completed so far
 
@@ -89,10 +89,12 @@ One tool (`atlas`), 10 verbs, single string input.
 | #57 | Create server.py: list_resources handler | ✅ implemented as part of #53 |
 | #58 | Create server.py: main_sync() entry point | ✅ implemented as part of #53 |
 | #59 | Write tests for server | ✅ 28 tests, `tests/test_server.py` |
+| #60 | Create cli.py: thin CLI wrapper | ✅ `src/atlas/cli.py` |
+| #61 | Write tests for CLI | ✅ 24 tests, `tests/test_cli.py` |
 
 ### Not yet started (next up)
 
-Continue: #60, #61 … through #114.
+Continue: #62, #63 … through #114.
 
 ```bash
 # See all open Phase 1 issues
