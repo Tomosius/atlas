@@ -1,0 +1,38 @@
+{
+  "id": "eslint",
+  "name": "ESLint",
+  "version": "1.0.0",
+  "category": "linter",
+  "description": "TypeScript/JavaScript linter",
+
+  "detect_files": [".eslintrc.js", ".eslintrc.cjs", ".eslintrc.json", "eslint.config.js", "eslint.config.mjs"],
+  "detect_in_config": {"package.json": "\"eslint\""},
+
+  "for_languages": ["typescript"],
+
+  "requires": [],
+  "combines_with": ["typescript", "prettier"],
+  "conflicts_with": ["biome"],
+
+  "commands": {
+    "check": "{{pkg_run}} eslint .",
+    "fix": "{{pkg_run}} eslint . --fix"
+  },
+
+  "config_locations": [
+    {"file": "eslint.config.js", "format": "js", "section": null, "priority": 1},
+    {"file": "eslint.config.mjs", "format": "js", "section": null, "priority": 2},
+    {"file": ".eslintrc.json", "format": "json", "section": null, "priority": 3},
+    {"file": ".eslintrc.js", "format": "js", "section": null, "priority": 4},
+    {"file": ".eslintrc.cjs", "format": "js", "section": null, "priority": 5}
+  ],
+
+  "config_keys": {
+    "rules": "linter.rules",
+    "extends": "linter.extends",
+    "env": "linter.env"
+  },
+
+  "system_tool": "eslint",
+  "health_check": "eslint --version"
+}
