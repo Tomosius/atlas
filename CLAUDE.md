@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #73 — Create module bundle: testing/pytest
+**Current Issue:** #74 — Create module bundle: testing/vitest
 
 ### Completed so far
 
@@ -102,10 +102,11 @@ One tool (`atlas`), 10 verbs, single string input.
 | #70 | Create module bundle: linters/clippy | ✅ `modules/linters/clippy/` |
 | #71 | Create module bundle: formatters/prettier | ✅ `modules/formatters/prettier/` |
 | #72 | Create module bundle: formatters/rustfmt | ✅ `modules/formatters/rustfmt/` |
+| #73 | Create module bundle: testing/pytest | ✅ `modules/testing/pytest/` |
 
 ### Not yet started (next up)
 
-Continue: #73, #74 … through #114.
+Continue: #74, #75 … through #114.
 
 ```bash
 # See all open Phase 1 issues
