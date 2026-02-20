@@ -1,0 +1,37 @@
+{
+  "id": "biome",
+  "name": "Biome",
+  "version": "1.0.0",
+  "category": "linter",
+  "description": "Fast TypeScript/JavaScript linter and formatter",
+
+  "detect_files": ["biome.json", "biome.jsonc"],
+  "detect_in_config": {},
+
+  "for_languages": ["typescript"],
+
+  "requires": [],
+  "combines_with": ["typescript"],
+  "conflicts_with": ["eslint"],
+
+  "commands": {
+    "check": "{{pkg_run}} biome check .",
+    "fix": "{{pkg_run}} biome check --write .",
+    "format": "{{pkg_run}} biome format --write ."
+  },
+
+  "config_locations": [
+    {"file": "biome.json", "format": "json", "section": null, "priority": 1},
+    {"file": "biome.jsonc", "format": "json", "section": null, "priority": 2}
+  ],
+
+  "config_keys": {
+    "linter.rules": "linter.rules",
+    "formatter.indentWidth": "style.indent_width",
+    "formatter.lineWidth": "style.line_width",
+    "formatter.indentStyle": "style.indent_style"
+  },
+
+  "system_tool": "biome",
+  "health_check": "biome --version"
+}
