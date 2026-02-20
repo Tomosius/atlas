@@ -1,0 +1,37 @@
+{
+  "id": "rust",
+  "name": "Rust",
+  "version": "1.0.0",
+  "category": "language",
+  "description": "Rust development standards and conventions",
+
+  "detect_files": ["Cargo.toml"],
+  "detect_in_config": {},
+
+  "for_languages": [],
+
+  "requires": [],
+  "combines_with": ["clippy", "rustfmt", "cargo-test", "cargo", "docker"],
+  "conflicts_with": [],
+
+  "commands": {
+    "build": "cargo build",
+    "test": "cargo test",
+    "check": "cargo clippy -- -D warnings"
+  },
+
+  "config_locations": [
+    {"file": "Cargo.toml", "format": "toml", "section": "[package]", "priority": 1},
+    {"file": "rust-toolchain.toml", "format": "toml", "section": "[toolchain]", "priority": 2}
+  ],
+
+  "config_keys": {
+    "name": "project.name",
+    "version": "project.version",
+    "edition": "project.edition",
+    "channel": "toolchain.channel"
+  },
+
+  "system_tool": "rustc",
+  "health_check": "rustc --version"
+}
