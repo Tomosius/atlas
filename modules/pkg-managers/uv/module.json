@@ -1,0 +1,38 @@
+{
+  "id": "uv",
+  "name": "uv",
+  "version": "1.0.0",
+  "category": "pkg_manager",
+  "description": "Fast Python package manager (uv)",
+
+  "detect_files": ["uv.lock", "uv.toml"],
+  "detect_in_config": {},
+
+  "for_languages": ["python"],
+
+  "requires": [],
+  "combines_with": ["python"],
+  "conflicts_with": ["pip"],
+
+  "commands": {
+    "install": "uv sync",
+    "add": "uv add",
+    "remove": "uv remove",
+    "run": "uv run",
+    "lock": "uv lock",
+    "update": "uv lock --upgrade"
+  },
+
+  "config_locations": [
+    {"file": "pyproject.toml", "format": "toml", "section": "[tool.uv]", "priority": 1},
+    {"file": "uv.toml", "format": "toml", "section": null, "priority": 2}
+  ],
+
+  "config_keys": {
+    "python": "uv.python_version",
+    "dev-dependencies": "uv.dev_dependencies"
+  },
+
+  "system_tool": "uv",
+  "health_check": "uv --version"
+}
