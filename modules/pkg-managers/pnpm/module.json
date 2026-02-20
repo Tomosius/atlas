@@ -1,0 +1,38 @@
+{
+  "id": "pnpm",
+  "name": "pnpm",
+  "version": "1.0.0",
+  "category": "pkg_manager",
+  "description": "Fast Node.js package manager (pnpm)",
+
+  "detect_files": ["pnpm-lock.yaml"],
+  "detect_in_config": {},
+
+  "for_languages": ["typescript"],
+
+  "requires": [],
+  "combines_with": ["typescript"],
+  "conflicts_with": ["npm", "yarn", "bun"],
+
+  "commands": {
+    "install": "pnpm install",
+    "add": "pnpm add",
+    "remove": "pnpm remove",
+    "run": "pnpm run",
+    "update": "pnpm update"
+  },
+
+  "config_locations": [
+    {"file": "package.json", "format": "json", "section": "packageManager", "priority": 1},
+    {"file": ".npmrc", "format": "ini", "section": null, "priority": 2},
+    {"file": "pnpm-workspace.yaml", "format": "yaml", "section": null, "priority": 3}
+  ],
+
+  "config_keys": {
+    "packageManager": "pnpm.version",
+    "engines.node": "pnpm.node_version"
+  },
+
+  "system_tool": "pnpm",
+  "health_check": "pnpm --version"
+}
