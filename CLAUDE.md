@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #21 — Create registry.py: load_registry, find_module, check_conflicts
+**Current Issue:** #22 — Create registry.py: load_module_bundle, load_module_rules_md
 
 ### Completed so far
 
@@ -49,10 +49,11 @@ One tool (`atlas`), 10 verbs, single string input.
 | #18 | Port CategoryRouter class | ✅ `CategoryRouter` in `src/atlas/core/categories.py` |
 | #19 | Port validate_module_against_contract and validate_registry_integrity | ✅ `src/atlas/core/categories.py` |
 | #20 | Write tests for categories (port 67 existing tests) | ✅ 73 tests, `tests/test_categories.py` |
+| #21 | Create registry.py: load_registry, find_module, check_conflicts | ✅ `src/atlas/core/registry.py` |
 
 ### Not yet started (next up)
 
-Continue: #21, #22 … through #114.
+Continue: #22, #23 … through #114.
 
 ```bash
 # See all open Phase 1 issues
