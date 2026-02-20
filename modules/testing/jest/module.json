@@ -1,0 +1,40 @@
+{
+  "id": "jest",
+  "name": "Jest",
+  "version": "1.0.0",
+  "category": "testing",
+  "description": "JavaScript/TypeScript testing framework",
+
+  "detect_files": ["jest.config.js", "jest.config.ts", "jest.config.mjs"],
+  "detect_in_config": {"package.json": "\"jest\""},
+
+  "for_languages": ["typescript"],
+
+  "requires": [],
+  "combines_with": ["typescript", "prettier", "eslint"],
+  "conflicts_with": ["vitest"],
+
+  "commands": {
+    "test": "{{pkg_run}} jest",
+    "test-watch": "{{pkg_run}} jest --watch",
+    "test-cov": "{{pkg_run}} jest --coverage"
+  },
+
+  "config_locations": [
+    {"file": "jest.config.ts", "format": "js", "section": null, "priority": 1},
+    {"file": "jest.config.js", "format": "js", "section": null, "priority": 2},
+    {"file": "jest.config.mjs", "format": "js", "section": null, "priority": 3},
+    {"file": "package.json", "format": "json", "section": "jest", "priority": 4}
+  ],
+
+  "config_keys": {
+    "testMatch": "test.match",
+    "testEnvironment": "test.environment",
+    "transform": "test.transform",
+    "coverageThreshold": "test.coverage_threshold",
+    "setupFilesAfterFramework": "test.setup_files"
+  },
+
+  "system_tool": null,
+  "health_check": null
+}
