@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #62 — Create modules/registry.json with all fields
+**Current Issue:** #63 — Create module bundle: languages/python
 
 ### Completed so far
 
@@ -91,10 +91,11 @@ One tool (`atlas`), 10 verbs, single string input.
 | #59 | Write tests for server | ✅ 28 tests, `tests/test_server.py` |
 | #60 | Create cli.py: thin CLI wrapper | ✅ `src/atlas/cli.py` |
 | #61 | Write tests for CLI | ✅ 24 tests, `tests/test_cli.py` |
+| #62 | Create modules/registry.json with all fields | ✅ 69 modules, `modules/registry.json` |
 
 ### Not yet started (next up)
 
-Continue: #62, #63 … through #114.
+Continue: #63, #64 … through #114.
 
 ```bash
 # See all open Phase 1 issues
