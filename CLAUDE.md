@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #27 — Create modules.py: remove_module
+**Current Issue:** #28 — Write tests for modules.py
 
 ### Completed so far
 
@@ -55,10 +55,11 @@ One tool (`atlas`), 10 verbs, single string input.
 | #24 | Write tests for registry | ✅ 53 tests, `tests/test_registry.py` |
 | #25 | Port PKG_VARIABLES (8 package managers) | ✅ `src/atlas/core/modules.py` |
 | #26 | Create modules.py: install_module | ✅ `src/atlas/core/modules.py` |
+| #27 | Create modules.py: remove_module | ✅ `src/atlas/core/modules.py` |
 
 ### Not yet started (next up)
 
-Continue: #27, #28 … through #114.
+Continue: #28, #29 … through #114.
 
 ```bash
 # See all open Phase 1 issues
