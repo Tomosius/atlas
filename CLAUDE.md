@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #30 — Create retrieve.py: build_retrieve_file
+**Current Issue:** #36 — Port config hierarchy (project > global > defaults)
 
 ### Completed so far
 
@@ -58,10 +58,16 @@ One tool (`atlas`), 10 verbs, single string input.
 | #27 | Create modules.py: remove_module | ✅ `src/atlas/core/modules.py` |
 | #28 | Create modules.py: update_modules | ✅ `src/atlas/core/modules.py` |
 | #29 | Write tests for module lifecycle | ✅ 45 tests, `tests/test_modules.py` |
+| #30 | Create retrieve.py: build_retrieve_file | ✅ `src/atlas/core/retrieve.py` |
+| #31 | Create retrieve.py: build_status_file | ✅ implemented as part of #30 |
+| #32 | Create retrieve.py: build_all_retrieve_files | ✅ implemented as part of #30 |
+| #33 | Create retrieve.py: value injection | ✅ `_inject_values` in `retrieve.py` |
+| #34 | Create retrieve.py: section filtering | ✅ `filter_sections` in `retrieve.py` |
+| #35 | Write tests for retrieve builder | ✅ 59 tests, `tests/test_retrieve.py` |
 
 ### Not yet started (next up)
 
-Continue: #30, #31 … through #114.
+Continue: #36, #37 … through #114.
 
 ```bash
 # See all open Phase 1 issues
