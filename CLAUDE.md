@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #67 — Create module bundle: linters/ruff
+**Current Issue:** #68 — Create module bundle: linters/eslint
 
 ### Completed so far
 
@@ -96,10 +96,11 @@ One tool (`atlas`), 10 verbs, single string input.
 | #64 | Create module bundle: languages/typescript | ✅ `modules/languages/typescript/` |
 | #65 | Create module bundle: languages/rust | ✅ `modules/languages/rust/` |
 | #66 | Create module bundle: languages/go | ✅ `modules/languages/go/` |
+| #67 | Create module bundle: linters/ruff | ✅ `modules/linters/ruff/` |
 
 ### Not yet started (next up)
 
-Continue: #67, #68 … through #114.
+Continue: #68, #69 … through #114.
 
 ```bash
 # See all open Phase 1 issues
