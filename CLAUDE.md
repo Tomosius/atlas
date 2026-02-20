@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #36 — Port config hierarchy (project > global > defaults)
+**Current Issue:** #39 — Create runner.py: execute tasks via subprocess, capture output
 
 ### Completed so far
 
@@ -64,10 +64,13 @@ One tool (`atlas`), 10 verbs, single string input.
 | #33 | Create retrieve.py: value injection | ✅ `_inject_values` in `retrieve.py` |
 | #34 | Create retrieve.py: section filtering | ✅ `filter_sections` in `retrieve.py` |
 | #35 | Write tests for retrieve builder | ✅ 59 tests, `tests/test_retrieve.py` |
+| #36 | Port config hierarchy (project > global > defaults) | ✅ `src/atlas/core/config.py` |
+| #37 | Create AtlasConfig dataclass | ✅ implemented as part of #36 |
+| #38 | Write tests for config hierarchy and merge logic | ✅ 31 tests, `tests/test_config.py` |
 
 ### Not yet started (next up)
 
-Continue: #36, #37 … through #114.
+Continue: #39, #40 … through #114.
 
 ```bash
 # See all open Phase 1 issues
