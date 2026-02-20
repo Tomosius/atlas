@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #79 — Create module bundle: pkg-managers/pnpm
+**Current Issue:** #80 — Create module bundle: pkg-managers/npm
 
 ### Completed so far
 
@@ -108,10 +108,11 @@ One tool (`atlas`), 10 verbs, single string input.
 | #76 | Create module bundle: vcs/git | ✅ `modules/vcs/git/` |
 | #77 | Create module bundle: platforms/github | ✅ `modules/platforms/github/` |
 | #78 | Create module bundle: pkg-managers/uv | ✅ `modules/pkg-managers/uv/` |
+| #79 | Create module bundle: pkg-managers/pnpm | ✅ `modules/pkg-managers/pnpm/` |
 
 ### Not yet started (next up)
 
-Continue: #79, #80 … through #114.
+Continue: #80, #81 … through #114.
 
 ```bash
 # See all open Phase 1 issues
