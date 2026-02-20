@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #76 — Create module bundle: vcs/git
+**Current Issue:** #77 — Create module bundle: platforms/github
 
 ### Completed so far
 
@@ -105,10 +105,11 @@ One tool (`atlas`), 10 verbs, single string input.
 | #73 | Create module bundle: testing/pytest | ✅ `modules/testing/pytest/` |
 | #74 | Create module bundle: testing/vitest | ✅ `modules/testing/vitest/` |
 | #75 | Create module bundle: testing/jest | ✅ `modules/testing/jest/` |
+| #76 | Create module bundle: vcs/git | ✅ `modules/vcs/git/` |
 
 ### Not yet started (next up)
 
-Continue: #76, #77 … through #114.
+Continue: #77, #78 … through #114.
 
 ```bash
 # See all open Phase 1 issues
