@@ -165,6 +165,52 @@ def _inject_values(content: str, rules_data: dict, prefix: str = "") -> str:
     return content
 
 
+def filter_sections(content: str, filter_words: list[str]) -> str:
+    """Return only the sections of *content* whose headers match any filter word.
+
+    A section begins at any line starting with ``#`` and ends just before the
+    next same-or-higher-level header (or at end-of-string).  Filter words are
+    matched case-insensitively against the header text.
+
+    If *filter_words* is empty or nothing matches, the original *content* is
+    returned unchanged.
+    """
+    if not filter_words:
+        return content
+
+    lines = content.split("\n")
+    # Collect sections: each entry is (header_line_index, header_level, [lines])
+    sections: list[tuple[int, int, list[str]]] = []
+    preamble: list[str] = []
+    current_section: list[str] | None = None
+    current_level = 0
+
+    for line in lines:
+        stripped = line.lstrip("#")
+        level = len(line) - len(stripped)
+        if level > 0 and line.startswith("#"):
+            current_section = [line]
+            current_level = level
+            sections.append((level, current_section))
+        elif current_section is not None:
+            current_section.append(line)
+        else:
+            preamble.append(line)
+
+    lower_filters = [w.lower() for w in filter_words]
+
+    matching: list[str] = []
+    for level, section_lines in sections:
+        header = section_lines[0].lstrip("#").strip().lower()
+        if any(f in header for f in lower_filters):
+            matching.extend(section_lines)
+
+    if not matching:
+        return content
+
+    return "\n".join(matching).strip()
+
+
 def _condense(markdown: str, max_sections: int = 2) -> str:
     """Condense markdown to the first N sections (## headers)."""
     lines = markdown.split("\n")
