@@ -1,0 +1,35 @@
+{
+  "id": "github",
+  "name": "GitHub",
+  "version": "1.0.0",
+  "category": "platform",
+  "description": "GitHub project management",
+
+  "detect_files": [".github"],
+  "detect_in_config": {},
+
+  "for_languages": [],
+
+  "requires": [],
+  "combines_with": ["git", "github-actions"],
+  "conflicts_with": ["gitlab", "bitbucket"],
+
+  "commands": {
+    "sync": "gh repo sync",
+    "issues": "gh issue list",
+    "prs": "gh pr list",
+    "status": "gh repo view"
+  },
+
+  "config_locations": [],
+
+  "config_keys": {
+    "repo": "github.repo",
+    "owner": "github.owner",
+    "default_branch": "github.default_branch"
+  },
+
+  "system_tool": "gh",
+  "unlocks_verb": "crud",
+  "health_check": "gh --version"
+}
