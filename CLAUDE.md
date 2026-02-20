@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #71 — Create module bundle: formatters/prettier
+**Current Issue:** #72 — Create module bundle: formatters/rustfmt
 
 ### Completed so far
 
@@ -100,10 +100,11 @@ One tool (`atlas`), 10 verbs, single string input.
 | #68 | Create module bundle: linters/eslint | ✅ `modules/linters/eslint/` |
 | #69 | Create module bundle: linters/biome | ✅ `modules/linters/biome/` |
 | #70 | Create module bundle: linters/clippy | ✅ `modules/linters/clippy/` |
+| #71 | Create module bundle: formatters/prettier | ✅ `modules/formatters/prettier/` |
 
 ### Not yet started (next up)
 
-Continue: #71, #72 … through #114.
+Continue: #72, #73 … through #114.
 
 ```bash
 # See all open Phase 1 issues
