@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #24 — Write tests for registry
+**Current Issue:** #25 — Create modules.py: PKG_VARIABLES and install_module
 
 ### Completed so far
 
@@ -52,10 +52,11 @@ One tool (`atlas`), 10 verbs, single string input.
 | #21 | Create registry.py: load_registry, find_module, check_conflicts | ✅ `src/atlas/core/registry.py` |
 | #22 | Create registry.py: load_module_bundle, load_module_rules_md | ✅ `src/atlas/core/registry.py` |
 | #23 | Create registry.py: get_recommendations | ✅ `src/atlas/core/registry.py` |
+| #24 | Write tests for registry | ✅ 53 tests, `tests/test_registry.py` |
 
 ### Not yet started (next up)
 
-Continue: #24, #25 … through #114.
+Continue: #25, #26 … through #114.
 
 ```bash
 # See all open Phase 1 issues
