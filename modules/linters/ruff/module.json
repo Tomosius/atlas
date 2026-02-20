@@ -1,0 +1,39 @@
+{
+  "id": "ruff",
+  "name": "Ruff",
+  "version": "1.0.0",
+  "category": "linter",
+  "description": "Fast Python linter and formatter",
+
+  "detect_files": ["ruff.toml", ".ruff.toml"],
+  "detect_in_config": {"pyproject.toml": "[tool.ruff]"},
+
+  "for_languages": ["python"],
+
+  "requires": [],
+  "combines_with": ["python"],
+  "conflicts_with": ["flake8"],
+
+  "commands": {
+    "check": "{{pkg_run}} ruff check .",
+    "fix": "{{pkg_run}} ruff check --fix . && {{pkg_run}} ruff format .",
+    "format": "{{pkg_run}} ruff format ."
+  },
+
+  "config_locations": [
+    {"file": "ruff.toml", "format": "toml", "section": null, "priority": 1},
+    {"file": ".ruff.toml", "format": "toml", "section": null, "priority": 2},
+    {"file": "pyproject.toml", "format": "toml", "section": "[tool.ruff]", "priority": 3}
+  ],
+
+  "config_keys": {
+    "line-length": "style.line_length",
+    "target-version": "style.target_version",
+    "select": "linter.rules",
+    "ignore": "linter.ignored",
+    "fix": "linter.auto_fix"
+  },
+
+  "system_tool": "ruff",
+  "health_check": "ruff --version"
+}
