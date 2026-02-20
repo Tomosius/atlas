@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #28 — Write tests for modules.py
+**Current Issue:** #29 — Write tests for modules.py
 
 ### Completed so far
 
@@ -56,10 +56,11 @@ One tool (`atlas`), 10 verbs, single string input.
 | #25 | Port PKG_VARIABLES (8 package managers) | ✅ `src/atlas/core/modules.py` |
 | #26 | Create modules.py: install_module | ✅ `src/atlas/core/modules.py` |
 | #27 | Create modules.py: remove_module | ✅ `src/atlas/core/modules.py` |
+| #28 | Create modules.py: update_modules | ✅ `src/atlas/core/modules.py` |
 
 ### Not yet started (next up)
 
-Continue: #28, #29 … through #114.
+Continue: #29, #30 … through #114.
 
 ```bash
 # See all open Phase 1 issues
