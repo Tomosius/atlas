@@ -1,0 +1,39 @@
+{
+  "id": "vitest",
+  "name": "Vitest",
+  "version": "1.0.0",
+  "category": "testing",
+  "description": "Vite-native TypeScript testing framework",
+
+  "detect_files": ["vitest.config.ts", "vitest.config.js"],
+  "detect_in_config": {"package.json": "\"vitest\""},
+
+  "for_languages": ["typescript"],
+
+  "requires": [],
+  "combines_with": ["typescript", "prettier", "eslint"],
+  "conflicts_with": ["jest"],
+
+  "commands": {
+    "test": "{{pkg_run}} vitest run",
+    "test-watch": "{{pkg_run}} vitest",
+    "test-cov": "{{pkg_run}} vitest run --coverage"
+  },
+
+  "config_locations": [
+    {"file": "vitest.config.ts", "format": "js", "section": null, "priority": 1},
+    {"file": "vitest.config.js", "format": "js", "section": null, "priority": 2},
+    {"file": "vite.config.ts", "format": "js", "section": "test", "priority": 3}
+  ],
+
+  "config_keys": {
+    "include": "test.include",
+    "exclude": "test.exclude",
+    "globals": "test.globals",
+    "environment": "test.environment",
+    "coverage.provider": "test.coverage_provider"
+  },
+
+  "system_tool": null,
+  "health_check": null
+}
