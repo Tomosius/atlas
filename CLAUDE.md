@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #53 — Create server.py: MCP Server instance with single atlas tool
+**Current Issue:** #60 — Create cli.py: thin CLI wrapper
 
 ### Completed so far
 
@@ -82,10 +82,17 @@ One tool (`atlas`), 10 verbs, single string input.
 | #50 | Create runtime.py: notes management | ✅ `add_note`, `remove_note` in `runtime.py` |
 | #51 | Create runtime.py: save helpers | ✅ `save_manifest`, `save_notes`, `save_config` |
 | #52 | Write tests for Atlas runtime | ✅ 62 tests, `tests/test_runtime.py` |
+| #53 | Create server.py: MCP Server instance with single atlas tool | ✅ `src/atlas/server.py` |
+| #54 | Create server.py: build_description() | ✅ implemented as part of #53 |
+| #55 | Create server.py: build_input_help() | ✅ implemented as part of #53 |
+| #56 | Create server.py: call_tool handler | ✅ implemented as part of #53 |
+| #57 | Create server.py: list_resources handler | ✅ implemented as part of #53 |
+| #58 | Create server.py: main_sync() entry point | ✅ implemented as part of #53 |
+| #59 | Write tests for server | ✅ 28 tests, `tests/test_server.py` |
 
 ### Not yet started (next up)
 
-Continue: #53, #54 … through #114.
+Continue: #60, #61 … through #114.
 
 ```bash
 # See all open Phase 1 issues
