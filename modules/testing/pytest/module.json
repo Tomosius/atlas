@@ -1,0 +1,40 @@
+{
+  "id": "pytest",
+  "name": "pytest",
+  "version": "1.0.0",
+  "category": "testing",
+  "description": "Python testing framework",
+
+  "detect_files": ["pytest.ini", "conftest.py"],
+  "detect_in_config": {"pyproject.toml": "[tool.pytest"},
+
+  "for_languages": ["python"],
+
+  "requires": [],
+  "combines_with": ["python", "ruff"],
+  "conflicts_with": [],
+
+  "commands": {
+    "test": "{{pkg_run}} pytest",
+    "test-v": "{{pkg_run}} pytest -v",
+    "test-cov": "{{pkg_run}} pytest --cov"
+  },
+
+  "config_locations": [
+    {"file": "pyproject.toml", "format": "toml", "section": "[tool.pytest.ini_options]", "priority": 1},
+    {"file": "pytest.ini", "format": "ini", "section": "[pytest]", "priority": 2},
+    {"file": "setup.cfg", "format": "ini", "section": "[tool:pytest]", "priority": 3}
+  ],
+
+  "config_keys": {
+    "testpaths": "pytest.testpaths",
+    "addopts": "pytest.addopts",
+    "python_files": "pytest.python_files",
+    "python_classes": "pytest.python_classes",
+    "python_functions": "pytest.python_functions",
+    "filterwarnings": "pytest.filterwarnings"
+  },
+
+  "system_tool": "pytest",
+  "health_check": "pytest --version"
+}
