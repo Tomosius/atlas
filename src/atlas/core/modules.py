@@ -219,6 +219,89 @@ def remove_module(
     return ok_result(removed=module_name)
 
 
+def update_modules(
+    registry: dict,
+    warehouse_dir: str,
+    atlas_dir: str,
+    manifest: dict,
+    package_manager: str = "",
+) -> dict:
+    """Re-enrich installed modules whose warehouse version is newer.
+
+    For each installed module:
+    1. Look up the warehouse version from the registry entry.
+    2. Skip if versions match or warehouse has no version.
+    3. Re-load bundle, re-scan config, re-enrich, resolve pkg variables.
+    4. Overwrite ``.atlas/modules/<name>.json``.
+    5. Update manifest version in-place.
+
+    Returns ``ok_result(updated=[...], skipped=[...])`` listing both groups.
+    """
+    installed = manifest.get("installed_modules", {})
+    updated: list[str] = []
+    skipped: list[str] = []
+
+    project_dir = os.path.dirname(os.path.abspath(atlas_dir))
+    modules_dir = os.path.join(atlas_dir, "modules")
+    os.makedirs(modules_dir, exist_ok=True)
+
+    for module_name, meta in installed.items():
+        reg_entry = find_module(registry, module_name)
+        if not reg_entry:
+            skipped.append(module_name)
+            continue
+
+        warehouse_version = reg_entry.get("version", "")
+        installed_version = meta.get("version", "")
+
+        if not warehouse_version or warehouse_version == installed_version:
+            skipped.append(module_name)
+            continue
+
+        # Re-load bundle.
+        bundle = load_module_bundle(module_name, registry, warehouse_dir)
+        if not bundle:
+            bundle = {
+                "id": module_name,
+                "category": reg_entry.get("category", ""),
+                "version": warehouse_version,
+            }
+
+        # Re-scan config.
+        scan_result = scan_module_config(module_name, project_dir)
+
+        # Re-enrich.
+        rules = dict(bundle)
+        if scan_result.get("found"):
+            rules["config_file"] = scan_result.get("config_file", "")
+            rules["config_section"] = scan_result.get("config_section", "")
+            extracted = scan_result.get("extracted", {})
+            if extracted:
+                rules.setdefault("rules", {}).update(extracted)
+
+        # Resolve pkg variables.
+        if package_manager:
+            commands = rules.get("commands", {})
+            if commands:
+                rules["commands"] = {
+                    cmd_name: resolve_pkg_variables(str(cmd_str), package_manager)
+                    for cmd_name, cmd_str in commands.items()
+                }
+
+        # Overwrite module file.
+        module_path = os.path.join(modules_dir, f"{module_name}.json")
+        with open(module_path, "w") as f:
+            json.dump(rules, f, indent=2, ensure_ascii=False)
+            f.write("\n")
+
+        # Update manifest version.
+        manifest["installed_modules"][module_name]["version"] = warehouse_version
+
+        updated.append(module_name)
+
+    return ok_result(updated=updated, skipped=skipped)
+
+
 def _find_dependents(
     module_name: str, registry: dict, installed: list[str]
 ) -> list[str]:
