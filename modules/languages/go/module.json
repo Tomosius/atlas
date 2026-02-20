@@ -1,0 +1,34 @@
+{
+  "id": "go",
+  "name": "Go",
+  "version": "1.0.0",
+  "category": "language",
+  "description": "Go development standards and conventions",
+
+  "detect_files": ["go.mod"],
+  "detect_in_config": {},
+
+  "for_languages": [],
+
+  "requires": [],
+  "combines_with": ["golangci-lint", "gofmt", "go-test", "docker"],
+  "conflicts_with": [],
+
+  "commands": {
+    "build": "go build ./...",
+    "test": "go test ./...",
+    "check": "go vet ./..."
+  },
+
+  "config_locations": [
+    {"file": "go.mod", "format": "gomod", "section": null, "priority": 1}
+  ],
+
+  "config_keys": {
+    "module": "project.module",
+    "go": "project.go_version"
+  },
+
+  "system_tool": "go",
+  "health_check": "go version"
+}
