@@ -1,0 +1,34 @@
+{
+  "id": "typescript",
+  "name": "TypeScript",
+  "version": "1.0.0",
+  "category": "language",
+  "description": "TypeScript development standards and conventions",
+
+  "detect_files": ["tsconfig.json"],
+  "detect_in_config": {"package.json": "\"typescript\""},
+
+  "for_languages": [],
+
+  "requires": [],
+  "combines_with": ["eslint", "biome", "prettier", "vitest", "jest", "react", "next-js", "svelte", "vue", "angular", "express", "nestjs", "pnpm", "npm", "yarn", "bun", "playwright"],
+  "conflicts_with": [],
+
+  "commands": {},
+
+  "config_locations": [
+    {"file": "tsconfig.json", "format": "json", "section": null, "priority": 1},
+    {"file": "package.json", "format": "json", "section": "scripts", "priority": 2}
+  ],
+
+  "config_keys": {
+    "target": "compiler.target",
+    "module": "compiler.module",
+    "strict": "compiler.strict",
+    "outDir": "compiler.outDir",
+    "rootDir": "compiler.rootDir"
+  },
+
+  "system_tool": null,
+  "health_check": null
+}
