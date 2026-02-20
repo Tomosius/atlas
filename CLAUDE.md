@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #63 — Create module bundle: languages/python
+**Current Issue:** #64 — Create module bundle: languages/typescript
 
 ### Completed so far
 
@@ -92,10 +92,11 @@ One tool (`atlas`), 10 verbs, single string input.
 | #60 | Create cli.py: thin CLI wrapper | ✅ `src/atlas/cli.py` |
 | #61 | Write tests for CLI | ✅ 24 tests, `tests/test_cli.py` |
 | #62 | Create modules/registry.json with all fields | ✅ 69 modules, `modules/registry.json` |
+| #63 | Create module bundle: languages/python | ✅ `modules/languages/python/` |
 
 ### Not yet started (next up)
 
-Continue: #63, #64 … through #114.
+Continue: #64, #65 … through #114.
 
 ```bash
 # See all open Phase 1 issues
