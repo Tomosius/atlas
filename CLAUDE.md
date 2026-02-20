@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #29 — Write tests for modules.py
+**Current Issue:** #30 — Create retrieve.py: build_retrieve_file
 
 ### Completed so far
 
@@ -57,10 +57,11 @@ One tool (`atlas`), 10 verbs, single string input.
 | #26 | Create modules.py: install_module | ✅ `src/atlas/core/modules.py` |
 | #27 | Create modules.py: remove_module | ✅ `src/atlas/core/modules.py` |
 | #28 | Create modules.py: update_modules | ✅ `src/atlas/core/modules.py` |
+| #29 | Write tests for module lifecycle | ✅ 45 tests, `tests/test_modules.py` |
 
 ### Not yet started (next up)
 
-Continue: #29, #30 … through #114.
+Continue: #30, #31 … through #114.
 
 ```bash
 # See all open Phase 1 issues
