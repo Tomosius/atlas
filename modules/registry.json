@@ -1,0 +1,981 @@
+{
+  "version": "1.0.0",
+  "modules": {
+
+    "python": {
+      "category": "language",
+      "path": "languages/python",
+      "detect_files": ["pyproject.toml", "setup.py", "requirements.txt", "Pipfile"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": ["ruff", "flake8", "pytest", "mypy", "uv", "pip", "django", "fastapi", "flask", "postgresql", "sqlite", "redis", "mongodb", "docker", "commit-rules", "python-backend", "python-cli", "python-library"],
+      "conflicts_with": [],
+      "for_languages": [],
+      "links": {"linter": ["ruff"], "testing": ["pytest"], "pkg_manager": ["uv", "pip"]},
+      "system_tool": null,
+      "brief": "Python development standards and conventions"
+    },
+
+    "typescript": {
+      "category": "language",
+      "path": "languages/typescript",
+      "detect_files": ["tsconfig.json"],
+      "detect_in_config": {"package.json": "\"typescript\""},
+      "requires": [],
+      "combines_with": ["eslint", "biome", "prettier", "vitest", "jest", "react", "next-js", "svelte", "vue", "angular", "express", "nestjs", "pnpm", "npm", "yarn", "bun", "playwright"],
+      "conflicts_with": [],
+      "for_languages": [],
+      "links": {"linter": ["eslint"], "testing": ["vitest"], "pkg_manager": ["pnpm", "npm"]},
+      "system_tool": null,
+      "brief": "TypeScript development standards and conventions"
+    },
+
+    "rust": {
+      "category": "language",
+      "path": "languages/rust",
+      "detect_files": ["Cargo.toml"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": ["clippy", "rustfmt", "cargo-test", "cargo"],
+      "conflicts_with": [],
+      "for_languages": [],
+      "links": {"linter": ["clippy"], "testing": ["cargo-test"], "pkg_manager": ["cargo"]},
+      "system_tool": "rustc",
+      "brief": "Rust development standards and conventions"
+    },
+
+    "go": {
+      "category": "language",
+      "path": "languages/go",
+      "detect_files": ["go.mod"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": ["golangci-lint", "gofmt", "go-test"],
+      "conflicts_with": [],
+      "for_languages": [],
+      "links": {"linter": ["golangci-lint"], "testing": ["go-test"]},
+      "system_tool": "go",
+      "brief": "Go development standards and conventions"
+    },
+
+    "java": {
+      "category": "language",
+      "path": "languages/java",
+      "detect_files": ["pom.xml", "build.gradle", "build.gradle.kts"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": [],
+      "conflicts_with": [],
+      "for_languages": [],
+      "links": {},
+      "system_tool": "java",
+      "brief": "Java development standards and conventions"
+    },
+
+    "ruby": {
+      "category": "language",
+      "path": "languages/ruby",
+      "detect_files": ["Gemfile", "Rakefile"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": [],
+      "conflicts_with": [],
+      "for_languages": [],
+      "links": {},
+      "system_tool": "ruby",
+      "brief": "Ruby development standards and conventions"
+    },
+
+    "cpp": {
+      "category": "language",
+      "path": "languages/cpp",
+      "detect_files": ["CMakeLists.txt", "Makefile"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": [],
+      "conflicts_with": [],
+      "for_languages": [],
+      "links": {},
+      "system_tool": null,
+      "brief": "C++ development standards and conventions"
+    },
+
+    "csharp": {
+      "category": "language",
+      "path": "languages/csharp",
+      "detect_files": [],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": [],
+      "conflicts_with": [],
+      "for_languages": [],
+      "links": {},
+      "system_tool": "dotnet",
+      "brief": "C# development standards and conventions"
+    },
+
+    "html": {
+      "category": "language",
+      "path": "languages/html",
+      "detect_files": ["index.html"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": ["prettier"],
+      "conflicts_with": [],
+      "for_languages": [],
+      "links": {},
+      "system_tool": null,
+      "brief": "HTML standards and conventions"
+    },
+
+    "css": {
+      "category": "language",
+      "path": "languages/css",
+      "detect_files": [],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": ["prettier"],
+      "conflicts_with": [],
+      "for_languages": [],
+      "links": {},
+      "system_tool": null,
+      "brief": "CSS standards and conventions"
+    },
+
+    "ruff": {
+      "category": "linter",
+      "path": "linters/ruff",
+      "detect_files": ["ruff.toml", ".ruff.toml"],
+      "detect_in_config": {"pyproject.toml": "[tool.ruff]"},
+      "requires": [],
+      "combines_with": ["python"],
+      "conflicts_with": ["flake8"],
+      "for_languages": ["python"],
+      "links": {},
+      "system_tool": "ruff",
+      "brief": "Fast Python linter and formatter"
+    },
+
+    "eslint": {
+      "category": "linter",
+      "path": "linters/eslint",
+      "detect_files": [".eslintrc.js", ".eslintrc.cjs", ".eslintrc.json", "eslint.config.js", "eslint.config.mjs"],
+      "detect_in_config": {"package.json": "\"eslint\""},
+      "requires": [],
+      "combines_with": ["typescript"],
+      "conflicts_with": ["biome"],
+      "for_languages": ["typescript"],
+      "links": {},
+      "system_tool": "eslint",
+      "brief": "TypeScript/JavaScript linter"
+    },
+
+    "biome": {
+      "category": "linter",
+      "path": "linters/biome",
+      "detect_files": ["biome.json", "biome.jsonc"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": ["typescript"],
+      "conflicts_with": ["eslint"],
+      "for_languages": ["typescript"],
+      "links": {},
+      "system_tool": "biome",
+      "brief": "Fast TypeScript/JavaScript linter and formatter"
+    },
+
+    "clippy": {
+      "category": "linter",
+      "path": "linters/clippy",
+      "detect_files": [],
+      "detect_in_config": {},
+      "requires": ["rust"],
+      "combines_with": ["rust"],
+      "conflicts_with": [],
+      "for_languages": ["rust"],
+      "links": {},
+      "system_tool": "cargo",
+      "brief": "Rust linter (cargo clippy)"
+    },
+
+    "flake8": {
+      "category": "linter",
+      "path": "linters/flake8",
+      "detect_files": [".flake8"],
+      "detect_in_config": {"setup.cfg": "[flake8]", "tox.ini": "[flake8]"},
+      "requires": [],
+      "combines_with": ["python"],
+      "conflicts_with": ["ruff"],
+      "for_languages": ["python"],
+      "links": {},
+      "system_tool": "flake8",
+      "brief": "Python linter (flake8)"
+    },
+
+    "golangci-lint": {
+      "category": "linter",
+      "path": "linters/golangci-lint",
+      "detect_files": [".golangci.yml", ".golangci.yaml", ".golangci.json", ".golangci.toml"],
+      "detect_in_config": {},
+      "requires": ["go"],
+      "combines_with": ["go"],
+      "conflicts_with": [],
+      "for_languages": ["go"],
+      "links": {},
+      "system_tool": "golangci-lint",
+      "brief": "Go linter runner"
+    },
+
+    "prettier": {
+      "category": "formatter",
+      "path": "formatters/prettier",
+      "detect_files": [".prettierrc", ".prettierrc.json", ".prettierrc.js", "prettier.config.js", ".prettierrc.yaml"],
+      "detect_in_config": {"package.json": "\"prettier\""},
+      "requires": [],
+      "combines_with": ["typescript", "html", "css"],
+      "conflicts_with": [],
+      "for_languages": ["typescript", "html", "css"],
+      "links": {},
+      "system_tool": "prettier",
+      "brief": "Opinionated code formatter for JS/TS/HTML/CSS"
+    },
+
+    "rustfmt": {
+      "category": "formatter",
+      "path": "formatters/rustfmt",
+      "detect_files": ["rustfmt.toml", ".rustfmt.toml"],
+      "detect_in_config": {},
+      "requires": ["rust"],
+      "combines_with": ["rust"],
+      "conflicts_with": [],
+      "for_languages": ["rust"],
+      "links": {},
+      "system_tool": "rustfmt",
+      "brief": "Rust code formatter"
+    },
+
+    "gofmt": {
+      "category": "formatter",
+      "path": "formatters/gofmt",
+      "detect_files": [],
+      "detect_in_config": {},
+      "requires": ["go"],
+      "combines_with": ["go"],
+      "conflicts_with": [],
+      "for_languages": ["go"],
+      "links": {},
+      "system_tool": "gofmt",
+      "brief": "Go code formatter"
+    },
+
+    "pytest": {
+      "category": "testing",
+      "path": "testing/pytest",
+      "detect_files": ["pytest.ini", "conftest.py"],
+      "detect_in_config": {"pyproject.toml": "[tool.pytest"},
+      "requires": [],
+      "combines_with": ["python"],
+      "conflicts_with": [],
+      "for_languages": ["python"],
+      "links": {},
+      "system_tool": "pytest",
+      "brief": "Python testing framework"
+    },
+
+    "vitest": {
+      "category": "testing",
+      "path": "testing/vitest",
+      "detect_files": ["vitest.config.ts", "vitest.config.js"],
+      "detect_in_config": {"package.json": "\"vitest\""},
+      "requires": [],
+      "combines_with": ["typescript"],
+      "conflicts_with": ["jest"],
+      "for_languages": ["typescript"],
+      "links": {},
+      "system_tool": null,
+      "brief": "Vite-native TypeScript testing framework"
+    },
+
+    "jest": {
+      "category": "testing",
+      "path": "testing/jest",
+      "detect_files": ["jest.config.js", "jest.config.ts", "jest.config.mjs"],
+      "detect_in_config": {"package.json": "\"jest\""},
+      "requires": [],
+      "combines_with": ["typescript"],
+      "conflicts_with": ["vitest"],
+      "for_languages": ["typescript"],
+      "links": {},
+      "system_tool": null,
+      "brief": "JavaScript/TypeScript testing framework"
+    },
+
+    "playwright": {
+      "category": "testing",
+      "path": "testing/playwright",
+      "detect_files": ["playwright.config.ts", "playwright.config.js"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": ["typescript"],
+      "conflicts_with": [],
+      "for_languages": ["typescript"],
+      "links": {},
+      "system_tool": null,
+      "brief": "End-to-end browser testing framework"
+    },
+
+    "cargo-test": {
+      "category": "testing",
+      "path": "testing/cargo-test",
+      "detect_files": [],
+      "detect_in_config": {},
+      "requires": ["rust"],
+      "combines_with": ["rust"],
+      "conflicts_with": [],
+      "for_languages": ["rust"],
+      "links": {},
+      "system_tool": "cargo",
+      "brief": "Rust built-in test runner (cargo test)"
+    },
+
+    "go-test": {
+      "category": "testing",
+      "path": "testing/go-test",
+      "detect_files": [],
+      "detect_in_config": {},
+      "requires": ["go"],
+      "combines_with": ["go"],
+      "conflicts_with": [],
+      "for_languages": ["go"],
+      "links": {},
+      "system_tool": "go",
+      "brief": "Go built-in test runner (go test)"
+    },
+
+    "react": {
+      "category": "framework",
+      "path": "frameworks/react",
+      "detect_files": [],
+      "detect_in_config": {"package.json": "\"react\""},
+      "requires": ["typescript"],
+      "combines_with": ["typescript", "prettier", "eslint", "vitest", "jest"],
+      "conflicts_with": [],
+      "for_languages": ["typescript"],
+      "links": {},
+      "system_tool": null,
+      "brief": "React UI framework conventions"
+    },
+
+    "next-js": {
+      "category": "framework",
+      "path": "frameworks/next-js",
+      "detect_files": ["next.config.js", "next.config.mjs", "next.config.ts"],
+      "detect_in_config": {"package.json": "\"next\""},
+      "requires": ["typescript"],
+      "combines_with": ["typescript", "react", "prettier", "eslint"],
+      "conflicts_with": [],
+      "for_languages": ["typescript"],
+      "links": {},
+      "system_tool": null,
+      "brief": "Next.js full-stack React framework"
+    },
+
+    "django": {
+      "category": "framework",
+      "path": "frameworks/django",
+      "detect_files": ["manage.py"],
+      "detect_in_config": {"requirements.txt": "django", "pyproject.toml": "django"},
+      "requires": ["python"],
+      "combines_with": ["python", "postgresql", "redis"],
+      "conflicts_with": ["fastapi", "flask"],
+      "for_languages": ["python"],
+      "links": {},
+      "system_tool": null,
+      "brief": "Django web framework conventions"
+    },
+
+    "fastapi": {
+      "category": "framework",
+      "path": "frameworks/fastapi",
+      "detect_files": [],
+      "detect_in_config": {"requirements.txt": "fastapi", "pyproject.toml": "fastapi"},
+      "requires": ["python"],
+      "combines_with": ["python", "postgresql", "redis"],
+      "conflicts_with": ["django", "flask"],
+      "for_languages": ["python"],
+      "links": {},
+      "system_tool": null,
+      "brief": "FastAPI async web framework conventions"
+    },
+
+    "flask": {
+      "category": "framework",
+      "path": "frameworks/flask",
+      "detect_files": [],
+      "detect_in_config": {"requirements.txt": "flask", "pyproject.toml": "flask"},
+      "requires": ["python"],
+      "combines_with": ["python", "postgresql", "sqlite"],
+      "conflicts_with": ["django", "fastapi"],
+      "for_languages": ["python"],
+      "links": {},
+      "system_tool": null,
+      "brief": "Flask micro web framework conventions"
+    },
+
+    "svelte": {
+      "category": "framework",
+      "path": "frameworks/svelte",
+      "detect_files": ["svelte.config.js"],
+      "detect_in_config": {"package.json": "\"svelte\""},
+      "requires": ["typescript"],
+      "combines_with": ["typescript", "prettier", "vitest"],
+      "conflicts_with": [],
+      "for_languages": ["typescript"],
+      "links": {},
+      "system_tool": null,
+      "brief": "Svelte framework conventions"
+    },
+
+    "vue": {
+      "category": "framework",
+      "path": "frameworks/vue",
+      "detect_files": ["vue.config.js"],
+      "detect_in_config": {"package.json": "\"vue\""},
+      "requires": ["typescript"],
+      "combines_with": ["typescript", "prettier", "vitest"],
+      "conflicts_with": [],
+      "for_languages": ["typescript"],
+      "links": {},
+      "system_tool": null,
+      "brief": "Vue.js framework conventions"
+    },
+
+    "angular": {
+      "category": "framework",
+      "path": "frameworks/angular",
+      "detect_files": ["angular.json"],
+      "detect_in_config": {"package.json": "\"@angular/core\""},
+      "requires": ["typescript"],
+      "combines_with": ["typescript", "prettier"],
+      "conflicts_with": [],
+      "for_languages": ["typescript"],
+      "links": {},
+      "system_tool": null,
+      "brief": "Angular framework conventions"
+    },
+
+    "express": {
+      "category": "framework",
+      "path": "frameworks/express",
+      "detect_files": [],
+      "detect_in_config": {"package.json": "\"express\""},
+      "requires": ["typescript"],
+      "combines_with": ["typescript", "prettier", "eslint"],
+      "conflicts_with": ["nestjs"],
+      "for_languages": ["typescript"],
+      "links": {},
+      "system_tool": null,
+      "brief": "Express.js Node server conventions"
+    },
+
+    "nestjs": {
+      "category": "framework",
+      "path": "frameworks/nestjs",
+      "detect_files": ["nest-cli.json"],
+      "detect_in_config": {"package.json": "\"@nestjs/core\""},
+      "requires": ["typescript"],
+      "combines_with": ["typescript", "prettier", "eslint"],
+      "conflicts_with": ["express"],
+      "for_languages": ["typescript"],
+      "links": {},
+      "system_tool": null,
+      "brief": "NestJS framework conventions"
+    },
+
+    "postgresql": {
+      "category": "database",
+      "path": "databases/postgresql",
+      "detect_files": [],
+      "detect_in_config": {"requirements.txt": "psycopg", "pyproject.toml": "psycopg"},
+      "requires": [],
+      "combines_with": ["python", "django", "fastapi", "flask", "docker"],
+      "conflicts_with": [],
+      "for_languages": [],
+      "links": {},
+      "system_tool": "psql",
+      "brief": "PostgreSQL database conventions"
+    },
+
+    "sqlite": {
+      "category": "database",
+      "path": "databases/sqlite",
+      "detect_files": [],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": ["python", "flask"],
+      "conflicts_with": [],
+      "for_languages": [],
+      "links": {},
+      "system_tool": "sqlite3",
+      "brief": "SQLite database conventions"
+    },
+
+    "redis": {
+      "category": "database",
+      "path": "databases/redis",
+      "detect_files": [],
+      "detect_in_config": {"requirements.txt": "redis", "pyproject.toml": "redis"},
+      "requires": [],
+      "combines_with": ["python", "django", "fastapi", "docker"],
+      "conflicts_with": [],
+      "for_languages": [],
+      "links": {},
+      "system_tool": "redis-cli",
+      "brief": "Redis cache/store conventions"
+    },
+
+    "mongodb": {
+      "category": "database",
+      "path": "databases/mongodb",
+      "detect_files": [],
+      "detect_in_config": {"requirements.txt": "pymongo", "pyproject.toml": "pymongo"},
+      "requires": [],
+      "combines_with": ["python", "docker"],
+      "conflicts_with": [],
+      "for_languages": [],
+      "links": {},
+      "system_tool": "mongosh",
+      "brief": "MongoDB database conventions"
+    },
+
+    "git": {
+      "category": "vcs",
+      "path": "vcs/git",
+      "detect_files": [".git"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": ["commit-rules", "github", "gitlab"],
+      "conflicts_with": ["svn", "mercurial", "fossil", "perforce", "plastic-scm"],
+      "for_languages": [],
+      "links": {},
+      "system_tool": "git",
+      "unlocks_verb": "vcs",
+      "brief": "Git version control"
+    },
+
+    "svn": {
+      "category": "vcs",
+      "path": "vcs/svn",
+      "detect_files": [".svn"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": [],
+      "conflicts_with": ["git", "mercurial", "fossil", "perforce", "plastic-scm"],
+      "for_languages": [],
+      "links": {},
+      "system_tool": "svn",
+      "unlocks_verb": "vcs",
+      "brief": "Subversion version control"
+    },
+
+    "mercurial": {
+      "category": "vcs",
+      "path": "vcs/mercurial",
+      "detect_files": [".hg"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": [],
+      "conflicts_with": ["git", "svn", "fossil", "perforce", "plastic-scm"],
+      "for_languages": [],
+      "links": {},
+      "system_tool": "hg",
+      "unlocks_verb": "vcs",
+      "brief": "Mercurial version control"
+    },
+
+    "fossil": {
+      "category": "vcs",
+      "path": "vcs/fossil",
+      "detect_files": [".fslckout", "_FOSSIL_"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": [],
+      "conflicts_with": ["git", "svn", "mercurial", "perforce", "plastic-scm"],
+      "for_languages": [],
+      "links": {},
+      "system_tool": "fossil",
+      "unlocks_verb": "vcs",
+      "brief": "Fossil distributed VCS"
+    },
+
+    "perforce": {
+      "category": "vcs",
+      "path": "vcs/perforce",
+      "detect_files": [".p4config"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": [],
+      "conflicts_with": ["git", "svn", "mercurial", "fossil", "plastic-scm"],
+      "for_languages": [],
+      "links": {},
+      "system_tool": "p4",
+      "unlocks_verb": "vcs",
+      "brief": "Perforce Helix Core version control"
+    },
+
+    "plastic-scm": {
+      "category": "vcs",
+      "path": "vcs/plastic-scm",
+      "detect_files": [".plastic"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": [],
+      "conflicts_with": ["git", "svn", "mercurial", "fossil", "perforce"],
+      "for_languages": [],
+      "links": {},
+      "system_tool": "cm",
+      "unlocks_verb": "vcs",
+      "brief": "Plastic SCM version control"
+    },
+
+    "github": {
+      "category": "platform",
+      "path": "platforms/github",
+      "detect_files": [".github"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": ["git", "github-actions"],
+      "conflicts_with": ["gitlab", "bitbucket"],
+      "for_languages": [],
+      "links": {},
+      "system_tool": "gh",
+      "unlocks_verb": "crud",
+      "brief": "GitHub project management"
+    },
+
+    "gitlab": {
+      "category": "platform",
+      "path": "platforms/gitlab",
+      "detect_files": [".gitlab-ci.yml"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": ["git", "gitlab-ci"],
+      "conflicts_with": ["github", "bitbucket"],
+      "for_languages": [],
+      "links": {},
+      "system_tool": "glab",
+      "unlocks_verb": "crud",
+      "brief": "GitLab project management"
+    },
+
+    "bitbucket": {
+      "category": "platform",
+      "path": "platforms/bitbucket",
+      "detect_files": ["bitbucket-pipelines.yml"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": ["git"],
+      "conflicts_with": ["github", "gitlab"],
+      "for_languages": [],
+      "links": {},
+      "system_tool": "bb",
+      "unlocks_verb": "crud",
+      "brief": "Bitbucket project management"
+    },
+
+    "uv": {
+      "category": "pkg_manager",
+      "path": "pkg-managers/uv",
+      "detect_files": ["uv.lock", "uv.toml"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": ["python"],
+      "conflicts_with": ["pip"],
+      "for_languages": ["python"],
+      "links": {},
+      "system_tool": "uv",
+      "brief": "Fast Python package manager (uv)"
+    },
+
+    "pip": {
+      "category": "pkg_manager",
+      "path": "pkg-managers/pip",
+      "detect_files": ["requirements.txt"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": ["python"],
+      "conflicts_with": ["uv"],
+      "for_languages": ["python"],
+      "links": {},
+      "system_tool": "pip",
+      "brief": "Python pip package manager"
+    },
+
+    "pnpm": {
+      "category": "pkg_manager",
+      "path": "pkg-managers/pnpm",
+      "detect_files": ["pnpm-lock.yaml"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": ["typescript"],
+      "conflicts_with": ["npm", "yarn", "bun"],
+      "for_languages": ["typescript"],
+      "links": {},
+      "system_tool": "pnpm",
+      "brief": "Fast Node.js package manager (pnpm)"
+    },
+
+    "npm": {
+      "category": "pkg_manager",
+      "path": "pkg-managers/npm",
+      "detect_files": ["package-lock.json"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": ["typescript"],
+      "conflicts_with": ["pnpm", "yarn", "bun"],
+      "for_languages": ["typescript"],
+      "links": {},
+      "system_tool": "npm",
+      "brief": "Node.js package manager (npm)"
+    },
+
+    "yarn": {
+      "category": "pkg_manager",
+      "path": "pkg-managers/yarn",
+      "detect_files": ["yarn.lock"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": ["typescript"],
+      "conflicts_with": ["pnpm", "npm", "bun"],
+      "for_languages": ["typescript"],
+      "links": {},
+      "system_tool": "yarn",
+      "brief": "Yarn package manager"
+    },
+
+    "bun": {
+      "category": "pkg_manager",
+      "path": "pkg-managers/bun",
+      "detect_files": ["bun.lockb"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": ["typescript"],
+      "conflicts_with": ["pnpm", "npm", "yarn"],
+      "for_languages": ["typescript"],
+      "links": {},
+      "system_tool": "bun",
+      "brief": "Bun JavaScript runtime and package manager"
+    },
+
+    "cargo": {
+      "category": "pkg_manager",
+      "path": "pkg-managers/cargo",
+      "detect_files": ["Cargo.lock"],
+      "detect_in_config": {},
+      "requires": ["rust"],
+      "combines_with": ["rust"],
+      "conflicts_with": [],
+      "for_languages": ["rust"],
+      "links": {},
+      "system_tool": "cargo",
+      "brief": "Rust package manager (cargo)"
+    },
+
+    "docker": {
+      "category": "environment",
+      "path": "environments/docker",
+      "detect_files": ["Dockerfile"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": ["docker-compose", "postgresql", "redis", "mongodb"],
+      "conflicts_with": [],
+      "for_languages": [],
+      "links": {},
+      "system_tool": "docker",
+      "brief": "Docker containerization conventions"
+    },
+
+    "docker-compose": {
+      "category": "environment",
+      "path": "environments/docker-compose",
+      "detect_files": ["docker-compose.yml", "docker-compose.yaml", "compose.yml", "compose.yaml"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": ["docker", "postgresql", "redis"],
+      "conflicts_with": [],
+      "for_languages": [],
+      "links": {},
+      "system_tool": "docker",
+      "brief": "Docker Compose multi-container conventions"
+    },
+
+    "venv": {
+      "category": "environment",
+      "path": "environments/venv",
+      "detect_files": [".venv", "venv"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": ["python"],
+      "conflicts_with": [],
+      "for_languages": ["python"],
+      "links": {},
+      "system_tool": null,
+      "brief": "Python virtual environment conventions"
+    },
+
+    "node": {
+      "category": "environment",
+      "path": "environments/node",
+      "detect_files": [".nvmrc", ".node-version"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": ["typescript"],
+      "conflicts_with": [],
+      "for_languages": ["typescript"],
+      "links": {},
+      "system_tool": "node",
+      "brief": "Node.js runtime environment conventions"
+    },
+
+    "github-actions": {
+      "category": "ci_cd",
+      "path": "ci-cd/github-actions",
+      "detect_files": [".github/workflows"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": ["github", "git"],
+      "conflicts_with": [],
+      "for_languages": [],
+      "links": {},
+      "system_tool": null,
+      "brief": "GitHub Actions CI/CD conventions"
+    },
+
+    "gitlab-ci": {
+      "category": "ci_cd",
+      "path": "ci-cd/gitlab-ci",
+      "detect_files": [".gitlab-ci.yml"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": ["gitlab", "git"],
+      "conflicts_with": [],
+      "for_languages": [],
+      "links": {},
+      "system_tool": null,
+      "brief": "GitLab CI/CD conventions"
+    },
+
+    "circleci": {
+      "category": "ci_cd",
+      "path": "ci-cd/circleci",
+      "detect_files": [".circleci/config.yml"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": ["git"],
+      "conflicts_with": [],
+      "for_languages": [],
+      "links": {},
+      "system_tool": null,
+      "brief": "CircleCI CI/CD conventions"
+    },
+
+    "python-backend": {
+      "category": "stack",
+      "path": "stacks/python-backend",
+      "detect_files": [],
+      "detect_in_config": {},
+      "requires": ["python"],
+      "combines_with": ["python", "fastapi", "django", "flask", "postgresql", "redis", "docker"],
+      "conflicts_with": [],
+      "for_languages": ["python"],
+      "links": {},
+      "system_tool": null,
+      "brief": "Python backend stack conventions (FastAPI/Django/Flask)"
+    },
+
+    "python-cli": {
+      "category": "stack",
+      "path": "stacks/python-cli",
+      "detect_files": [],
+      "detect_in_config": {},
+      "requires": ["python"],
+      "combines_with": ["python", "uv", "pytest", "ruff"],
+      "conflicts_with": [],
+      "for_languages": ["python"],
+      "links": {},
+      "system_tool": null,
+      "brief": "Python CLI application conventions"
+    },
+
+    "python-library": {
+      "category": "stack",
+      "path": "stacks/python-library",
+      "detect_files": [],
+      "detect_in_config": {},
+      "requires": ["python"],
+      "combines_with": ["python", "uv", "pytest", "ruff"],
+      "conflicts_with": [],
+      "for_languages": ["python"],
+      "links": {},
+      "system_tool": null,
+      "brief": "Python library/package conventions"
+    },
+
+    "ts-frontend": {
+      "category": "stack",
+      "path": "stacks/ts-frontend",
+      "detect_files": [],
+      "detect_in_config": {},
+      "requires": ["typescript"],
+      "combines_with": ["typescript", "react", "svelte", "vue", "prettier", "vitest"],
+      "conflicts_with": [],
+      "for_languages": ["typescript"],
+      "links": {},
+      "system_tool": null,
+      "brief": "TypeScript frontend stack conventions"
+    },
+
+    "ts-backend": {
+      "category": "stack",
+      "path": "stacks/ts-backend",
+      "detect_files": [],
+      "detect_in_config": {},
+      "requires": ["typescript"],
+      "combines_with": ["typescript", "express", "nestjs", "prettier", "vitest"],
+      "conflicts_with": [],
+      "for_languages": ["typescript"],
+      "links": {},
+      "system_tool": null,
+      "brief": "TypeScript backend stack conventions"
+    },
+
+    "fullstack": {
+      "category": "stack",
+      "path": "stacks/fullstack",
+      "detect_files": [],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": ["python", "typescript", "docker", "postgresql"],
+      "conflicts_with": [],
+      "for_languages": [],
+      "links": {},
+      "system_tool": null,
+      "brief": "Full-stack project conventions"
+    },
+
+    "commit-rules": {
+      "category": "tool",
+      "path": "tools/commit-rules",
+      "detect_files": ["COMMIT_RULES.md"],
+      "detect_in_config": {},
+      "requires": [],
+      "combines_with": ["git"],
+      "conflicts_with": [],
+      "for_languages": [],
+      "links": {},
+      "system_tool": null,
+      "brief": "Commit message conventions and rules"
+    }
+
+  }
+}
