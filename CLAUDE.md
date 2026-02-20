@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #42 — Create parser.py: ParsedInput dataclass
+**Current Issue:** #45 — Create runtime.py: Atlas class with lazy properties
 
 ### Completed so far
 
@@ -70,10 +70,13 @@ One tool (`atlas`), 10 verbs, single string input.
 | #39 | Create runner.py: execute tasks via subprocess | ✅ `src/atlas/core/runner.py` |
 | #40 | Create runner.py: tool resolution cascade | ✅ `resolve_tool` in `runner.py` |
 | #41 | Write tests for runner | ✅ 21 tests, `tests/test_runner.py` |
+| #42 | Create parser.py: ParsedInput dataclass | ✅ `src/atlas/parser.py` |
+| #43 | Create parser.py: parse_input() | ✅ `src/atlas/parser.py` |
+| #44 | Write tests for parser | ✅ 68 tests, `tests/test_parser.py` |
 
 ### Not yet started (next up)
 
-Continue: #42, #43 … through #114.
+Continue: #45, #46 … through #114.
 
 ```bash
 # See all open Phase 1 issues
