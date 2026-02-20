@@ -177,3 +177,57 @@ def install_module(
     }
 
     return ok_result(installed=module_name, warnings=[])
+
+
+def remove_module(
+    module_name: str,
+    registry: dict,
+    atlas_dir: str,
+    manifest: dict,
+) -> dict:
+    """Remove a module from the project.
+
+    Steps:
+    1. Validate — is installed, no other installed module requires it.
+    2. Delete ``.atlas/modules/<name>.json`` (if present).
+    3. Delete ``.atlas/retrieve/<name>.md`` (if present).
+    4. Remove from manifest in-place.
+
+    Returns ``ok_result(removed=name)`` on success,
+    or an ``error_result`` on validation failure.
+    """
+    installed = manifest.get("installed_modules", {})
+
+    if module_name not in installed:
+        return error_result("MODULE_NOT_INSTALLED", module_name)
+
+    dependents = _find_dependents(module_name, registry, list(installed.keys()))
+    if dependents:
+        return error_result(
+            "MODULE_REQUIRED",
+            f"Required by: {', '.join(dependents)}",
+        )
+
+    # Delete associated files — silently skip if absent.
+    for subdir, ext in (("modules", ".json"), ("retrieve", ".md")):
+        path = os.path.join(atlas_dir, subdir, f"{module_name}{ext}")
+        if os.path.isfile(path):
+            os.remove(path)
+
+    del manifest["installed_modules"][module_name]
+
+    return ok_result(removed=module_name)
+
+
+def _find_dependents(
+    module_name: str, registry: dict, installed: list[str]
+) -> list[str]:
+    """Return names of installed modules that list *module_name* in their
+    ``requires`` field."""
+    modules = registry.get("modules", {})
+    return [
+        name
+        for name in installed
+        if name != module_name
+        and module_name in modules.get(name, {}).get("requires", [])
+    ]
