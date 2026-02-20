@@ -362,3 +362,165 @@ class TestCategoryRouter:
     def test_find_module_for_category_not_found(self):
         router = CategoryRouter(self._manifest(), self._registry())
         assert router.find_module_for_category("platform") is None
+
+
+# ---------------------------------------------------------------------------
+# Category contract shapes — allows_multiple and expected_commands
+# ---------------------------------------------------------------------------
+
+
+class TestCategoryContractShapes:
+    """Verify allows_multiple and expected_commands for every category."""
+
+    # --- installable categories ---
+
+    def test_formatter_does_not_allow_multiple(self):
+        assert CATEGORY_CONTRACTS["formatter"]["allows_multiple"] is False
+
+    def test_formatter_requires_fix_command(self):
+        assert "fix" in CATEGORY_CONTRACTS["formatter"]["expected_commands"]
+
+    def test_testing_does_not_allow_multiple(self):
+        assert CATEGORY_CONTRACTS["testing"]["allows_multiple"] is False
+
+    def test_framework_allows_multiple(self):
+        assert CATEGORY_CONTRACTS["framework"]["allows_multiple"] is True
+
+    def test_framework_has_no_expected_commands(self):
+        assert CATEGORY_CONTRACTS["framework"]["expected_commands"] == []
+
+    def test_database_allows_multiple(self):
+        assert CATEGORY_CONTRACTS["database"]["allows_multiple"] is True
+
+    def test_database_has_no_expected_commands(self):
+        assert CATEGORY_CONTRACTS["database"]["expected_commands"] == []
+
+    def test_vcs_does_not_allow_multiple(self):
+        assert CATEGORY_CONTRACTS["vcs"]["allows_multiple"] is False
+
+    def test_platform_does_not_allow_multiple(self):
+        assert CATEGORY_CONTRACTS["platform"]["allows_multiple"] is False
+
+    def test_platform_has_no_expected_commands(self):
+        assert CATEGORY_CONTRACTS["platform"]["expected_commands"] == []
+
+    def test_pkg_manager_does_not_allow_multiple(self):
+        assert CATEGORY_CONTRACTS["pkg_manager"]["allows_multiple"] is False
+
+    def test_environment_allows_multiple(self):
+        assert CATEGORY_CONTRACTS["environment"]["allows_multiple"] is True
+
+    def test_ci_cd_allows_multiple(self):
+        assert CATEGORY_CONTRACTS["ci_cd"]["allows_multiple"] is True
+
+    def test_stack_does_not_allow_multiple(self):
+        assert CATEGORY_CONTRACTS["stack"]["allows_multiple"] is False
+
+    def test_tool_allows_multiple(self):
+        assert CATEGORY_CONTRACTS["tool"]["allows_multiple"] is True
+
+    # --- auto categories ---
+
+    def test_prompt_auto_category_allows_multiple(self):
+        assert AUTO_CATEGORIES["prompt"]["allows_multiple"] is True
+
+    def test_runtime_auto_category_allows_multiple(self):
+        assert AUTO_CATEGORIES["runtime"]["allows_multiple"] is True
+
+    def test_prompt_has_no_expected_commands(self):
+        assert AUTO_CATEGORIES["prompt"]["expected_commands"] == []
+
+    def test_runtime_has_no_expected_commands(self):
+        assert AUTO_CATEGORIES["runtime"]["expected_commands"] == []
+
+
+# ---------------------------------------------------------------------------
+# validate_module_against_contract — auto categories
+# ---------------------------------------------------------------------------
+
+
+class TestValidateAutoCategories:
+    """validate_module_against_contract with prompt and runtime entries."""
+
+    def _valid_prompt(self):
+        return {
+            "id": "king-mode",
+            "name": "King Mode",
+            "version": "1.0",
+            "category": "prompt",
+            "description": "Sets an expert persona.",
+            "brief": "Expert persona prompt.",
+        }
+
+    def _valid_runtime(self):
+        return {
+            "id": "atlas-core",
+            "name": "Atlas Core",
+            "version": "0.1.0",
+            "category": "runtime",
+            "description": "Internal Atlas runtime module.",
+            "brief": "Atlas runtime.",
+        }
+
+    def test_valid_prompt_module_returns_empty_list(self):
+        errors = validate_module_against_contract("king-mode", self._valid_prompt())
+        assert errors == []
+
+    def test_valid_runtime_module_returns_empty_list(self):
+        errors = validate_module_against_contract("atlas-core", self._valid_runtime())
+        assert errors == []
+
+    def test_prompt_missing_brief_returns_error(self):
+        entry = self._valid_prompt()
+        del entry["brief"]
+        errors = validate_module_against_contract("king-mode", entry)
+        assert len(errors) == 1
+        assert "brief" in errors[0]["error"]
+
+    def test_runtime_missing_description_returns_error(self):
+        entry = self._valid_runtime()
+        del entry["description"]
+        errors = validate_module_against_contract("atlas-core", entry)
+        assert len(errors) == 1
+        assert "description" in errors[0]["error"]
+
+
+# ---------------------------------------------------------------------------
+# CategoryRouter — edge cases
+# ---------------------------------------------------------------------------
+
+
+class TestCategoryRouterEdgeCases:
+    def test_empty_manifest_has_no_category_installed(self):
+        router = CategoryRouter({}, {"modules": {}})
+        assert router.has_category_installed("vcs") is False
+
+    def test_empty_manifest_find_all_with_command_returns_empty(self):
+        router = CategoryRouter({}, {"modules": {}})
+        assert router.find_all_with_command("check") == []
+
+    def test_empty_manifest_find_module_for_category_returns_none(self):
+        router = CategoryRouter({}, {"modules": {}})
+        assert router.find_module_for_category("linter") is None
+
+    def test_module_in_manifest_but_not_in_registry_skipped(self):
+        manifest = {"installed_modules": {"ghost": {"category": "linter"}}}
+        registry = {"modules": {}}  # ghost not present
+        router = CategoryRouter(manifest, registry)
+        # has_category_installed checks manifest only
+        assert router.has_category_installed("linter") is True
+        # find_all_with_command looks up registry — ghost not found, no results
+        results = router.find_all_with_command("check")
+        assert results == []
+
+    def test_find_module_for_category_returns_first_match(self):
+        manifest = {
+            "installed_modules": {
+                "docker": {"category": "environment"},
+                "venv": {"category": "environment"},
+            }
+        }
+        registry = {"modules": {}}
+        router = CategoryRouter(manifest, registry)
+        result = router.find_module_for_category("environment")
+        assert result in ("docker", "venv")
