@@ -1,0 +1,33 @@
+{
+  "id": "python",
+  "name": "Python",
+  "version": "1.0.0",
+  "category": "language",
+  "description": "Python development standards and conventions",
+
+  "detect_files": ["pyproject.toml", "setup.py", "requirements.txt", "Pipfile"],
+  "detect_in_config": {},
+
+  "for_languages": [],
+
+  "requires": [],
+  "combines_with": ["ruff", "flake8", "pytest", "mypy", "uv", "pip", "django", "fastapi", "flask", "postgresql", "sqlite", "redis", "mongodb", "docker", "commit-rules"],
+  "conflicts_with": [],
+
+  "commands": {},
+
+  "config_locations": [
+    {"file": "pyproject.toml", "format": "toml", "section": "[tool]", "priority": 1},
+    {"file": "setup.cfg", "format": "ini", "section": "[metadata]", "priority": 2},
+    {"file": "setup.py", "format": "python", "section": null, "priority": 3}
+  ],
+
+  "config_keys": {
+    "name": "project.name",
+    "version": "project.version",
+    "requires-python": "project.python_version"
+  },
+
+  "system_tool": null,
+  "health_check": null
+}
