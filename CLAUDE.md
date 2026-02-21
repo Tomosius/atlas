@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #81 — Create module bundle: databases/postgresql
+**Current Issue:** #82 — Create module bundle: environments/docker
 
 ### Completed so far
 
@@ -110,10 +110,11 @@ One tool (`atlas`), 10 verbs, single string input.
 | #78 | Create module bundle: pkg-managers/uv | ✅ `modules/pkg-managers/uv/` |
 | #79 | Create module bundle: pkg-managers/pnpm | ✅ `modules/pkg-managers/pnpm/` |
 | #80 | Create module bundle: pkg-managers/npm | ✅ `modules/pkg-managers/npm/` |
+| #81 | Create module bundle: databases/postgresql | ✅ `modules/databases/postgresql/` |
 
 ### Not yet started (next up)
 
-Continue: #81, #82 … through #114.
+Continue: #82, #83 … through #114.
 
 ```bash
 # See all open Phase 1 issues
