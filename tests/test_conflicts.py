@@ -214,3 +214,140 @@ class TestType2InitDetectionConflicts:
         detected_tools = ["ruff", "pytest"]
         conflicts = find_init_conflicts(self._registry(), detected_tools)
         assert conflicts == []
+
+
+# ---------------------------------------------------------------------------
+# Type 3 — Config file drift on sync
+# ---------------------------------------------------------------------------
+
+
+class TestType3ConfigDrift:
+    """Type 3: Config file changed after init — Atlas stored values are stale.
+    Three sub-types: value changed (auto-fix), new tool (suggest), removed tool (warn).
+
+    Spec: plan/05-ATLAS-API.md §27 Type 3
+    """
+
+    def _registry(self):
+        return {
+            "modules": {
+                "ruff": {
+                    "category": "linter",
+                    "detect_files": ["ruff.toml"],
+                    "detect_in_config": {"pyproject.toml": "[tool.ruff]"},
+                    "config_keys": {"pyproject.toml": {"tool.ruff": ["line-length"]}},
+                },
+                "mypy": {
+                    "category": "linter",
+                    "detect_files": [],
+                    "detect_in_config": {"pyproject.toml": "mypy"},
+                },
+            }
+        }
+
+    # -- unit: value drift auto-updates the stored snapshot --
+
+    def test_value_drift_detected_when_config_changes(self, tmp_path):
+        """detect_value_drift finds a changed line-length value."""
+        atlas_dir = tmp_path / ".atlas"
+        mods_dir = atlas_dir / "modules"
+        mods_dir.mkdir(parents=True)
+        (mods_dir / "ruff.json").write_text(
+            json.dumps({"id": "ruff", "rules": {"line_length": 120}})
+        )
+        (tmp_path / "pyproject.toml").write_text(
+            "[tool.ruff]\nline-length = 100\n"
+        )
+        installed = {"ruff": {}}
+        result = detect_value_drift(installed, str(atlas_dir), str(tmp_path))
+        drifted_names = [item["module"] for item in result["drifted"]]
+        assert "ruff" in drifted_names
+
+    def test_no_value_drift_when_config_unchanged(self, tmp_path):
+        """detect_value_drift returns empty when nothing changed."""
+        atlas_dir = tmp_path / ".atlas"
+        mods_dir = atlas_dir / "modules"
+        mods_dir.mkdir(parents=True)
+        (mods_dir / "ruff.json").write_text(json.dumps({"id": "ruff", "rules": {}}))
+        result = detect_value_drift(
+            {"ruff": {}}, str(atlas_dir), str(tmp_path)
+        )
+        drifted_names = [item["module"] for item in result["drifted"]]
+        assert "ruff" not in drifted_names
+
+    def test_apply_drift_updates_rewrites_snapshot(self, tmp_path):
+        """apply_drift_updates rewrites the module snapshot file."""
+        atlas_dir = tmp_path / ".atlas"
+        mods_dir = atlas_dir / "modules"
+        mods_dir.mkdir(parents=True)
+        (mods_dir / "ruff.json").write_text(
+            json.dumps({"id": "ruff", "rules": {"line_length": 120}})
+        )
+        (tmp_path / "pyproject.toml").write_text(
+            "[tool.ruff]\nline-length = 100\n"
+        )
+        installed = {"ruff": {}}
+        result = detect_value_drift(installed, str(atlas_dir), str(tmp_path))
+        apply_drift_updates(result["drifted"], str(atlas_dir), str(tmp_path))
+        assert (mods_dir / "ruff.json").exists()
+
+    # -- unit: new tool detection suggests add --
+
+    def test_new_tool_detected_suggests_module(self, tmp_path):
+        """detect_new_tools returns the new tool when its config appears."""
+        (tmp_path / "pyproject.toml").write_text("[tool.mypy]\nstrict = true\n")
+        result = detect_new_tools(self._registry(), {}, str(tmp_path))
+        assert "mypy" in result
+
+    def test_already_installed_not_re_suggested(self, tmp_path):
+        """detect_new_tools skips modules already in installed."""
+        (tmp_path / "pyproject.toml").write_text("[tool.mypy]\nstrict = true\n")
+        result = detect_new_tools(self._registry(), {"mypy": {}}, str(tmp_path))
+        assert "mypy" not in result
+
+    # -- unit: removed tool detection warns --
+
+    def test_removed_tool_config_flagged(self, tmp_path):
+        """detect_removed_tools flags a module whose config file is gone."""
+        result = detect_removed_tools(self._registry(), {"ruff": {}}, str(tmp_path))
+        assert "ruff" in result
+
+    def test_present_tool_config_not_flagged(self, tmp_path):
+        """detect_removed_tools does not flag a module whose config still exists."""
+        (tmp_path / "ruff.toml").write_text("[tool.ruff]\n")
+        result = detect_removed_tools(self._registry(), {"ruff": {}}, str(tmp_path))
+        assert "ruff" not in result
+
+    # -- integration: combined drift flow --
+
+    def test_drift_detect_and_apply_cycle(self, tmp_path):
+        """Full drift cycle: detect value change, apply update, snapshot is refreshed."""
+        atlas_dir = tmp_path / ".atlas"
+        mods_dir = atlas_dir / "modules"
+        mods_dir.mkdir(parents=True)
+        (mods_dir / "ruff.json").write_text(
+            json.dumps({"id": "ruff", "rules": {"line_length": 88}})
+        )
+        (tmp_path / "pyproject.toml").write_text("[tool.ruff]\nline-length = 120\n")
+        installed = {"ruff": {}}
+        result = detect_value_drift(installed, str(atlas_dir), str(tmp_path))
+        drifted_names = [item["module"] for item in result["drifted"]]
+        assert "ruff" in drifted_names, "drift should be detected"
+        apply_drift_updates(result["drifted"], str(atlas_dir), str(tmp_path))
+        assert (mods_dir / "ruff.json").exists()
+
+    def test_new_tool_and_removed_tool_independent(self, tmp_path):
+        """New tool detection and removed tool detection are independent operations."""
+        (tmp_path / "pyproject.toml").write_text("[tool.mypy]\nstrict = true\n")
+        installed = {"ruff": {}}
+        new = detect_new_tools(self._registry(), installed, str(tmp_path))
+        removed = detect_removed_tools(self._registry(), installed, str(tmp_path))
+        assert "mypy" in new
+        assert "ruff" in removed
+
+
+# ---------------------------------------------------------------------------
+# Type 4 — Task orphaning on remove
+# ---------------------------------------------------------------------------
+
+
