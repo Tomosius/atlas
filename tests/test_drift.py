@@ -13,6 +13,7 @@ from atlas.core.drift import (
     _flatten,
     apply_drift_updates,
     detect_new_tools,
+    detect_removed_tools,
     detect_value_drift,
 )
 
@@ -296,4 +297,77 @@ class TestDetectNewTools:
         (tmp_path / "ruff.toml").write_text("")
         (tmp_path / ".git").mkdir()
         result = detect_new_tools(self._registry(), {}, str(tmp_path))
+        assert result == sorted(result)
+
+
+# ---------------------------------------------------------------------------
+# detect_removed_tools
+# ---------------------------------------------------------------------------
+
+
+class TestDetectRemovedTools:
+    def _registry(self):
+        return {
+            "modules": {
+                "ruff": {
+                    "detect_files": ["ruff.toml"],
+                    "detect_in_config": {"pyproject.toml": "[tool.ruff]"},
+                },
+                "mypy": {
+                    "detect_files": [],
+                    "detect_in_config": {"pyproject.toml": "mypy"},
+                },
+                "git": {
+                    "detect_files": [".git"],
+                    "detect_in_config": {},
+                },
+                # clippy has no detection criteria — always considered present
+                "clippy": {
+                    "detect_files": [],
+                    "detect_in_config": {},
+                },
+            }
+        }
+
+    def test_module_with_missing_config_file_flagged(self, tmp_path):
+        # ruff.toml gone, no [tool.ruff] in pyproject.toml
+        installed = {"ruff": {}}
+        result = detect_removed_tools(self._registry(), installed, str(tmp_path))
+        assert "ruff" in result
+
+    def test_module_with_present_config_file_not_flagged(self, tmp_path):
+        (tmp_path / "ruff.toml").write_text("")
+        installed = {"ruff": {}}
+        result = detect_removed_tools(self._registry(), installed, str(tmp_path))
+        assert "ruff" not in result
+
+    def test_module_detectable_via_config_content_not_flagged(self, tmp_path):
+        (tmp_path / "pyproject.toml").write_text("[tool.ruff]\nline-length = 88\n")
+        installed = {"ruff": {}}
+        result = detect_removed_tools(self._registry(), installed, str(tmp_path))
+        assert "ruff" not in result
+
+    def test_module_with_no_detection_criteria_not_flagged(self, tmp_path):
+        # clippy has no detect_files or detect_in_config — skip it
+        installed = {"clippy": {}}
+        result = detect_removed_tools(self._registry(), installed, str(tmp_path))
+        assert "clippy" not in result
+
+    def test_empty_installed_returns_empty(self, tmp_path):
+        result = detect_removed_tools(self._registry(), {}, str(tmp_path))
+        assert result == []
+
+    def test_module_not_in_registry_not_flagged(self, tmp_path):
+        # unknown module has no registry entry — treated as no detection criteria
+        result = detect_removed_tools(self._registry(), {"unknown": {}}, str(tmp_path))
+        assert result == []
+
+    def test_multiple_removed_all_returned(self, tmp_path):
+        installed = {"ruff": {}, "mypy": {}}
+        result = detect_removed_tools(self._registry(), installed, str(tmp_path))
+        assert set(result) == {"ruff", "mypy"}
+
+    def test_result_is_sorted(self, tmp_path):
+        installed = {"ruff": {}, "mypy": {}}
+        result = detect_removed_tools(self._registry(), installed, str(tmp_path))
         assert result == sorted(result)

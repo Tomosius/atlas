@@ -229,6 +229,58 @@ def _config_matches(detect_in_config: dict, project_dir: str) -> bool:
     return False
 
 
+def detect_removed_tools(
+    registry: dict,
+    installed_modules: dict,
+    project_dir: str,
+) -> list[str]:
+    """Return names of installed modules whose config is no longer detectable.
+
+    On ``atlas sync``, an installed module's config file may have been
+    removed or moved since ``atlas init`` (e.g. user deleted ``ruff.toml``).
+    This function checks every installed module to see if it is still
+    detectable.  Modules with no ``detect_files`` and no
+    ``detect_in_config`` are always considered present (they cannot be
+    detected by file presence — e.g. ``git`` or ``clippy``).
+
+    The caller should warn the user but NOT auto-remove — the user may have
+    simply moved the config to another file.
+
+    Args:
+        registry: The loaded registry dict.
+        installed_modules: Dict of ``{name: meta}`` from the manifest.
+        project_dir: Path to the project root.
+
+    Returns:
+        Sorted list of module names whose config is no longer found.
+    """
+    all_modules = registry.get("modules", {})
+    gone: list[str] = []
+
+    for module_name in installed_modules:
+        mod_info = all_modules.get(module_name, {})
+        detect_files = mod_info.get("detect_files", [])
+        detect_in_config = mod_info.get("detect_in_config", {})
+
+        # Modules with no detection criteria cannot be checked — skip
+        if not detect_files and not detect_in_config:
+            continue
+
+        # If any detect_files exist, still present
+        if any(
+            os.path.exists(os.path.join(project_dir, f)) for f in detect_files
+        ):
+            continue
+
+        # If any detect_in_config matches, still present
+        if _config_matches(detect_in_config, project_dir):
+            continue
+
+        gone.append(module_name)
+
+    return sorted(gone)
+
+
 def _diff_values(stored: dict, fresh: dict) -> list[dict]:
     """Return list of ``{key, old, new}`` for values that changed or appeared."""
     changes: list[dict] = []
