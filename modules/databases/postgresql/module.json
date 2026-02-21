@@ -1,0 +1,40 @@
+{
+  "id": "postgresql",
+  "name": "PostgreSQL",
+  "version": "1.0.0",
+  "category": "database",
+  "description": "PostgreSQL database conventions",
+
+  "detect_files": [],
+  "detect_in_config": {
+    "requirements.txt": "psycopg",
+    "pyproject.toml": "psycopg"
+  },
+
+  "for_languages": [],
+
+  "requires": [],
+  "combines_with": ["python", "django", "fastapi", "flask", "docker"],
+  "conflicts_with": [],
+
+  "commands": {
+    "connect": "psql $DATABASE_URL",
+    "dump": "pg_dump $DATABASE_URL",
+    "restore": "psql $DATABASE_URL < dump.sql"
+  },
+
+  "config_locations": [
+    {"file": ".env", "format": "ini", "section": null, "priority": 1}
+  ],
+
+  "config_keys": {
+    "DATABASE_URL": "postgresql.database_url",
+    "PGHOST": "postgresql.host",
+    "PGPORT": "postgresql.port",
+    "PGDATABASE": "postgresql.database",
+    "PGUSER": "postgresql.user"
+  },
+
+  "system_tool": "psql",
+  "health_check": "psql --version"
+}
