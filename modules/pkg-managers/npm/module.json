@@ -1,0 +1,37 @@
+{
+  "id": "npm",
+  "name": "npm",
+  "version": "1.0.0",
+  "category": "pkg_manager",
+  "description": "Node.js package manager (npm)",
+
+  "detect_files": ["package-lock.json"],
+  "detect_in_config": {},
+
+  "for_languages": ["typescript"],
+
+  "requires": [],
+  "combines_with": ["typescript"],
+  "conflicts_with": ["pnpm", "yarn", "bun"],
+
+  "commands": {
+    "install": "npm install",
+    "add": "npm install",
+    "remove": "npm uninstall",
+    "run": "npm run",
+    "update": "npm update"
+  },
+
+  "config_locations": [
+    {"file": "package.json", "format": "json", "section": "engines", "priority": 1},
+    {"file": ".npmrc", "format": "ini", "section": null, "priority": 2}
+  ],
+
+  "config_keys": {
+    "engines.node": "npm.node_version",
+    "packageManager": "npm.version"
+  },
+
+  "system_tool": "npm",
+  "health_check": "npm --version"
+}
