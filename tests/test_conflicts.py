@@ -516,3 +516,86 @@ class TestType5DependencyConflicts:
 # ---------------------------------------------------------------------------
 
 
+class TestType6WarehouseUpdate:
+    """Type 6: sync update pulls new module rules but must never overwrite
+    notes.json, config.json (tasks/scopes), or custom prompts.
+
+    Spec: plan/05-ATLAS-API.md §27 Type 6
+    """
+
+    def _setup(self, tmp_path):
+        atlas_dir = tmp_path / ".atlas"
+        (atlas_dir / "modules").mkdir(parents=True)
+        return atlas_dir
+
+    # -- unit gaps: notes and config survive update --
+
+    def test_notes_file_untouched_after_update(self, tmp_path):
+        """update_modules does not touch notes.json."""
+        atlas_dir = self._setup(tmp_path)
+        notes_path = atlas_dir / "notes.json"
+        notes_path.write_text(json.dumps({"python": [{"text": "use async"}]}))
+        registry = {"modules": {"ruff": {"category": "linter", "version": "0.5.0"}}}
+        manifest = {"installed_modules": {"ruff": {"version": "0.4.0"}}}
+        update_modules(registry, str(tmp_path), str(atlas_dir), manifest)
+        assert notes_path.exists()
+        notes = json.loads(notes_path.read_text())
+        assert notes["python"][0]["text"] == "use async"
+
+    def test_config_file_untouched_after_update(self, tmp_path):
+        """update_modules does not touch config.json."""
+        atlas_dir = self._setup(tmp_path)
+        config_path = atlas_dir / "config.json"
+        config_path.write_text(json.dumps({"tasks": {"lint": "uv run ruff check ."}}))
+        registry = {"modules": {"ruff": {"category": "linter", "version": "0.5.0"}}}
+        manifest = {"installed_modules": {"ruff": {"version": "0.4.0"}}}
+        update_modules(registry, str(tmp_path), str(atlas_dir), manifest)
+        assert config_path.exists()
+        config = json.loads(config_path.read_text())
+        assert config["tasks"]["lint"] == "uv run ruff check ."
+
+    def test_module_version_updated_in_manifest(self, tmp_path):
+        """After update, the manifest reflects the new warehouse version."""
+        atlas_dir = self._setup(tmp_path)
+        registry = {"modules": {"ruff": {"category": "linter", "version": "0.5.0"}}}
+        manifest = {"installed_modules": {"ruff": {"version": "0.4.0"}}}
+        update_modules(registry, str(tmp_path), str(atlas_dir), manifest)
+        assert manifest["installed_modules"]["ruff"]["version"] == "0.5.0"
+
+    def test_custom_prompts_directory_untouched_after_update(self, tmp_path):
+        """update_modules does not delete or overwrite custom prompt files."""
+        atlas_dir = self._setup(tmp_path)
+        prompts_dir = atlas_dir / "prompts"
+        prompts_dir.mkdir()
+        custom_prompt = prompts_dir / "my-security.md"
+        custom_prompt.write_text("# My security prompt")
+        registry = {"modules": {"ruff": {"category": "linter", "version": "0.5.0"}}}
+        manifest = {"installed_modules": {"ruff": {"version": "0.4.0"}}}
+        update_modules(registry, str(tmp_path), str(atlas_dir), manifest)
+        assert custom_prompt.exists()
+        assert custom_prompt.read_text() == "# My security prompt"
+
+    # -- integration: full update cycle --
+
+    def test_update_cycle_older_version_updates_module_json(self, tmp_path):
+        """Full update: old version in manifest → update_modules → module JSON written."""
+        atlas_dir = self._setup(tmp_path)
+        (atlas_dir / "modules" / "ruff.json").write_text(
+            json.dumps({"id": "ruff", "version": "0.4.0", "rules": {}})
+        )
+        registry = {"modules": {"ruff": {"id": "ruff", "category": "linter", "version": "0.5.0"}}}
+        manifest = {"installed_modules": {"ruff": {"version": "0.4.0"}}}
+        result = update_modules(registry, str(tmp_path), str(atlas_dir), manifest)
+        assert result["ok"] is True
+        assert "ruff" in result["updated"]
+        written = json.loads((atlas_dir / "modules" / "ruff.json").read_text())
+        assert written["version"] == "0.5.0"
+
+    def test_update_cycle_same_version_not_updated(self, tmp_path):
+        """Module at current version is skipped, not re-written."""
+        atlas_dir = self._setup(tmp_path)
+        registry = {"modules": {"ruff": {"category": "linter", "version": "0.4.0"}}}
+        manifest = {"installed_modules": {"ruff": {"version": "0.4.0"}}}
+        result = update_modules(registry, str(tmp_path), str(atlas_dir), manifest)
+        assert "ruff" in result["skipped"]
+        assert "ruff" not in result["updated"]
