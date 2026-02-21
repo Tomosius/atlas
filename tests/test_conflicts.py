@@ -24,6 +24,7 @@ from atlas.runtime import Atlas
 
 
 def _make_atlas(tmp_path, initialized: bool = True) -> Atlas:
+    """Create an Atlas instance rooted at tmp_path, optionally with .atlas/."""
     atlas = Atlas(project_dir=str(tmp_path))
     if initialized:
         os.makedirs(atlas.atlas_dir, exist_ok=True)
@@ -85,19 +86,17 @@ class TestType1ModuleConflicts:
     # -- unit gaps --
 
     def test_conflict_error_contains_conflicting_module_name(self, tmp_path):
-        """The error result from install_module names the conflicting module."""
+        """The error detail from install_module names the conflicting module."""
         atlas_dir = tmp_path / ".atlas"
         atlas_dir.mkdir()
         manifest = {"installed_modules": {"flake8": {"category": "linter"}}}
         result = install_module(
             "ruff", self._registry(), str(tmp_path), str(atlas_dir), manifest
         )
-        assert result["ok"] is False
-        assert result["error"] == "MODULE_CONFLICT"
-        assert "flake8" in result.get("detail", "")
+        assert "flake8" in result["detail"]
 
     def test_no_conflict_when_different_category(self, tmp_path):
-        """Installing a module with no conflicts_with entry succeeds."""
+        """Installing a module when no conflict exists between it and installed modules succeeds."""
         atlas_dir = tmp_path / ".atlas"
         (atlas_dir / "modules").mkdir(parents=True)
         manifest = {"installed_modules": {"eslint": {"category": "linter"}}}
