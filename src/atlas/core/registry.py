@@ -31,15 +31,26 @@ def check_conflicts(
 ) -> list[str]:
     """Return names of *installed* modules that conflict with *module_name*.
 
-    Looks up the ``conflicts_with`` list in the registry entry and
-    returns only the entries that appear in *installed*.
-    An empty list means no conflicts.
+    Checks both directions:
+    1. ``module_name``'s own ``conflicts_with`` list (new module declares conflict)
+    2. Each installed module's ``conflicts_with`` list (existing module declares conflict)
+
+    Returns deduplicated conflicting names. An empty list means no conflicts.
     """
+    modules = registry.get("modules", {})
+
+    # Direction 1: new module's own conflicts_with
     mod_info = find_module(registry, module_name)
-    if not mod_info:
-        return []
-    conflicts = mod_info.get("conflicts_with", [])
-    return [c for c in conflicts if c in installed]
+    forward = set(mod_info.get("conflicts_with", [])) if mod_info else set()
+
+    # Direction 2: installed modules that list module_name in their conflicts_with
+    reverse = {
+        name
+        for name in installed
+        if module_name in modules.get(name, {}).get("conflicts_with", [])
+    }
+
+    return [c for c in installed if c in (forward | reverse)]
 
 
 def get_dependencies(registry: dict, module_name: str) -> list[str]:

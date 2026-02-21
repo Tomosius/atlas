@@ -132,6 +132,28 @@ class TestCheckConflicts:
         result = check_conflicts(self._registry(), "ruff", ["flake8"])
         assert isinstance(result, list)
 
+    def test_reverse_conflict_detected(self):
+        # black.conflicts_with includes ruff — installing ruff with black installed
+        # should detect the conflict even though ruff.conflicts_with doesn't list black
+        result = check_conflicts(self._registry(), "ruff", ["black"])
+        assert "black" in result
+
+    def test_bidirectional_conflict_not_duplicated(self):
+        # If both sides list each other the result has no duplicates
+        reg = {
+            "modules": {
+                "eslint": {"category": "linter", "conflicts_with": ["biome"]},
+                "biome": {"category": "linter", "conflicts_with": ["eslint"]},
+            }
+        }
+        result = check_conflicts(reg, "biome", ["eslint"])
+        assert result.count("eslint") == 1
+
+    def test_reverse_conflict_only_installed_modules_returned(self):
+        # black conflicts with ruff but ruff is not installed — no conflict
+        result = check_conflicts(self._registry(), "ruff", ["pytest"])
+        assert result == []
+
 
 # ---------------------------------------------------------------------------
 # get_dependencies
