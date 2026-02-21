@@ -148,7 +148,7 @@ def _load_stored_values(module_name: str, atlas_dir: str) -> dict:
         "detect_in_config", "for_languages", "requires",
         "combines_with", "conflicts_with", "config_locations",
         "config_keys", "system_tool", "health_check", "unlocks_verb",
-        "commands", "rules",
+        "commands", "rules", "synced_at",
     }
     path = os.path.join(atlas_dir, "modules", f"{module_name}.json")
     snapshot = _load_snapshot(path)

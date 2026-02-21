@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+from datetime import datetime, timezone
 
 from atlas.core.errors import error_result, ok_result
 from atlas.core.registry import (
@@ -167,6 +168,7 @@ def install_module(
     modules_dir = os.path.join(atlas_dir, "modules")
     os.makedirs(modules_dir, exist_ok=True)
     module_path = os.path.join(modules_dir, f"{module_name}.json")
+    rules["synced_at"] = datetime.now(tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     with open(module_path, "w") as f:
         json.dump(rules, f, indent=2, ensure_ascii=False)
         f.write("\n")
@@ -321,6 +323,7 @@ def update_modules(
 
         # Overwrite module file.
         module_path = os.path.join(modules_dir, f"{module_name}.json")
+        rules["synced_at"] = datetime.now(tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         with open(module_path, "w") as f:
             json.dump(rules, f, indent=2, ensure_ascii=False)
             f.write("\n")

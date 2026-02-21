@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+from datetime import datetime, timezone
 
 from atlas.core.registry import find_module, load_module_rules_md
 
@@ -44,6 +45,7 @@ def build_retrieve_file(
             "detect_in_config", "for_languages", "requires",
             "combines_with", "conflicts_with", "config_locations",
             "config_keys", "system_tool", "health_check", "unlocks_verb",
+            "synced_at",
         }
         for key, value in module_rules.items():
             if key in _META_KEYS:
@@ -57,6 +59,12 @@ def build_retrieve_file(
         config_file = module_rules.get("config_file", "")
         if config_file:
             content += f"\n\n> Config source: `{config_file}`\n"
+
+        # Add freshness timestamp
+        synced_at = module_rules.get("synced_at", "")
+        if synced_at:
+            freshness = _format_freshness(synced_at)
+            content += f"\n\n> {freshness}\n"
 
     # Append linked module summaries
     retrieve_links = config.get("retrieve_links", {})
@@ -238,3 +246,33 @@ def _condense(markdown: str, max_sections: int = 2) -> str:
                 break
         result.append(line)
     return "\n".join(result).strip()
+
+
+def _format_freshness(synced_at: str) -> str:
+    """Return a human-readable freshness string for *synced_at* ISO timestamp.
+
+    Format: ``synced: 2025-01-15T10:30:00Z — 2 hours ago``
+
+    Falls back to just the raw timestamp if parsing fails.
+    """
+    try:
+        synced = datetime.fromisoformat(synced_at.replace("Z", "+00:00"))
+        now = datetime.now(tz=timezone.utc)
+        delta = now - synced
+        total_seconds = int(delta.total_seconds())
+
+        if total_seconds < 60:
+            ago = f"{total_seconds} seconds ago"
+        elif total_seconds < 3600:
+            minutes = total_seconds // 60
+            ago = f"{minutes} minute{'s' if minutes != 1 else ''} ago"
+        elif total_seconds < 86400:
+            hours = total_seconds // 3600
+            ago = f"{hours} hour{'s' if hours != 1 else ''} ago"
+        else:
+            days = total_seconds // 86400
+            ago = f"{days} day{'s' if days != 1 else ''} ago"
+
+        return f"synced: {synced_at} — {ago}"
+    except (ValueError, AttributeError):
+        return f"synced: {synced_at}"

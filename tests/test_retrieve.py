@@ -4,11 +4,14 @@ from __future__ import annotations
 
 import json
 import os
+from unittest.mock import patch
+from datetime import datetime, timezone, timedelta
 
 import pytest
 
 from atlas.core.retrieve import (
     _condense,
+    _format_freshness,
     _inject_values,
     _load_module_rules,
     build_all_retrieve_files,
@@ -530,3 +533,131 @@ class TestFilterSections:
     def test_returns_string(self):
         result = filter_sections(self._CONTENT, ["linting"])
         assert isinstance(result, str)
+
+
+# ---------------------------------------------------------------------------
+# _format_freshness
+# ---------------------------------------------------------------------------
+
+
+class TestFormatFreshness:
+    def _fixed_now(self, ts: str):
+        """Return a datetime matching *ts* offset by 0 for mock patching."""
+        return datetime.fromisoformat(ts.replace("Z", "+00:00"))
+
+    def test_seconds_ago(self):
+        ts = "2025-01-15T10:30:00Z"
+        now = self._fixed_now(ts) + timedelta(seconds=45)
+        with patch("atlas.core.retrieve.datetime") as mock_dt:
+            mock_dt.fromisoformat.side_effect = datetime.fromisoformat
+            mock_dt.now.return_value = now
+            result = _format_freshness(ts)
+        assert "45 seconds ago" in result
+        assert ts in result
+
+    def test_minutes_ago(self):
+        ts = "2025-01-15T10:30:00Z"
+        now = self._fixed_now(ts) + timedelta(minutes=5)
+        with patch("atlas.core.retrieve.datetime") as mock_dt:
+            mock_dt.fromisoformat.side_effect = datetime.fromisoformat
+            mock_dt.now.return_value = now
+            result = _format_freshness(ts)
+        assert "5 minutes ago" in result
+
+    def test_one_minute_singular(self):
+        ts = "2025-01-15T10:30:00Z"
+        now = self._fixed_now(ts) + timedelta(minutes=1)
+        with patch("atlas.core.retrieve.datetime") as mock_dt:
+            mock_dt.fromisoformat.side_effect = datetime.fromisoformat
+            mock_dt.now.return_value = now
+            result = _format_freshness(ts)
+        assert "1 minute ago" in result
+
+    def test_hours_ago(self):
+        ts = "2025-01-15T10:30:00Z"
+        now = self._fixed_now(ts) + timedelta(hours=2)
+        with patch("atlas.core.retrieve.datetime") as mock_dt:
+            mock_dt.fromisoformat.side_effect = datetime.fromisoformat
+            mock_dt.now.return_value = now
+            result = _format_freshness(ts)
+        assert "2 hours ago" in result
+
+    def test_one_hour_singular(self):
+        ts = "2025-01-15T10:30:00Z"
+        now = self._fixed_now(ts) + timedelta(hours=1)
+        with patch("atlas.core.retrieve.datetime") as mock_dt:
+            mock_dt.fromisoformat.side_effect = datetime.fromisoformat
+            mock_dt.now.return_value = now
+            result = _format_freshness(ts)
+        assert "1 hour ago" in result
+
+    def test_days_ago(self):
+        ts = "2025-01-15T10:30:00Z"
+        now = self._fixed_now(ts) + timedelta(days=3)
+        with patch("atlas.core.retrieve.datetime") as mock_dt:
+            mock_dt.fromisoformat.side_effect = datetime.fromisoformat
+            mock_dt.now.return_value = now
+            result = _format_freshness(ts)
+        assert "3 days ago" in result
+
+    def test_one_day_singular(self):
+        ts = "2025-01-15T10:30:00Z"
+        now = self._fixed_now(ts) + timedelta(days=1)
+        with patch("atlas.core.retrieve.datetime") as mock_dt:
+            mock_dt.fromisoformat.side_effect = datetime.fromisoformat
+            mock_dt.now.return_value = now
+            result = _format_freshness(ts)
+        assert "1 day ago" in result
+
+    def test_contains_synced_prefix(self):
+        ts = "2025-01-15T10:30:00Z"
+        now = self._fixed_now(ts) + timedelta(hours=1)
+        with patch("atlas.core.retrieve.datetime") as mock_dt:
+            mock_dt.fromisoformat.side_effect = datetime.fromisoformat
+            mock_dt.now.return_value = now
+            result = _format_freshness(ts)
+        assert result.startswith("synced: ")
+
+    def test_invalid_timestamp_falls_back_gracefully(self):
+        result = _format_freshness("not-a-timestamp")
+        assert "synced: not-a-timestamp" == result
+
+
+# ---------------------------------------------------------------------------
+# build_retrieve_file — freshness appended
+# ---------------------------------------------------------------------------
+
+
+class TestBuildRetrieveFileFreshness:
+    def _setup(self, tmp_path):
+        atlas_dir = tmp_path / ".atlas"
+        (atlas_dir / "modules").mkdir(parents=True)
+        warehouse_dir = tmp_path / "warehouse"
+        warehouse_dir.mkdir()
+        return str(atlas_dir), str(warehouse_dir)
+
+    def test_freshness_line_appended_when_synced_at_present(self, tmp_path):
+        atlas_dir, warehouse_dir = self._setup(tmp_path)
+        reg = _registry({"ruff": {"category": "linter", "path": "linters/ruff"}})
+        _write_rules_md(warehouse_dir, "linters/ruff", "# Ruff Rules")
+        _write_module_json(atlas_dir, "ruff", {"synced_at": "2025-01-15T10:30:00Z"})
+        result = build_retrieve_file("ruff", atlas_dir, reg, warehouse_dir, {})
+        assert "synced:" in result
+        assert "2025-01-15T10:30:00Z" in result
+
+    def test_no_freshness_line_when_synced_at_absent(self, tmp_path):
+        atlas_dir, warehouse_dir = self._setup(tmp_path)
+        reg = _registry({"ruff": {"category": "linter", "path": "linters/ruff"}})
+        _write_rules_md(warehouse_dir, "linters/ruff", "# Ruff Rules")
+        _write_module_json(atlas_dir, "ruff", {"id": "ruff"})
+        result = build_retrieve_file("ruff", atlas_dir, reg, warehouse_dir, {})
+        assert "synced:" not in result
+
+    def test_synced_at_not_injected_as_placeholder(self, tmp_path):
+        atlas_dir, warehouse_dir = self._setup(tmp_path)
+        reg = _registry({"ruff": {"category": "linter", "path": "linters/ruff"}})
+        _write_rules_md(warehouse_dir, "linters/ruff", "Date: {{synced_at}}")
+        _write_module_json(atlas_dir, "ruff", {"synced_at": "2025-01-15T10:30:00Z"})
+        result = build_retrieve_file("ruff", atlas_dir, reg, warehouse_dir, {})
+        # synced_at is a meta-key — placeholder should remain unchanged
+        assert "{{synced_at}}" in result
