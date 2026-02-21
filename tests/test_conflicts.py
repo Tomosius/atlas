@@ -144,3 +144,73 @@ class TestType1ModuleConflicts:
         assert "pytest" in result["installed"]
         failed_names = [f["name"] for f in result["failed"]]
         assert "flake8" in failed_names
+
+
+# ---------------------------------------------------------------------------
+# Type 2 — Init detection conflicts
+# ---------------------------------------------------------------------------
+
+
+class TestType2InitDetectionConflicts:
+    """Type 2: Both conflicting tools detected during atlas init.
+
+    Spec: plan/05-ATLAS-API.md §27 Type 2
+    """
+
+    def _registry(self):
+        return {
+            "modules": {
+                "ruff": {"category": "linter", "conflicts_with": ["flake8"]},
+                "flake8": {"category": "linter", "conflicts_with": ["ruff"]},
+                "pytest": {"category": "testing"},
+                "eslint": {"category": "linter", "conflicts_with": ["biome"]},
+                "biome": {"category": "linter", "conflicts_with": ["eslint"]},
+            }
+        }
+
+    # -- unit gaps --
+
+    def test_single_tool_no_conflict(self):
+        """Only one of a conflicting pair detected → no conflict flagged."""
+        result = find_init_conflicts(self._registry(), ["ruff", "pytest"])
+        assert result == []
+
+    def test_non_conflicting_tools_no_conflict(self):
+        """Tools with no conflicts_with entries never produce conflicts."""
+        result = find_init_conflicts(self._registry(), ["pytest"])
+        assert result == []
+
+    def test_conflict_pair_result_contains_both_names(self):
+        """Each conflict entry lists both module names."""
+        result = find_init_conflicts(self._registry(), ["ruff", "flake8"])
+        assert len(result) == 1
+        pair = result[0]
+        assert "ruff" in pair
+        assert "flake8" in pair
+
+    def test_multiple_conflict_pairs_all_returned(self):
+        """Two independent conflicting pairs both appear in the result."""
+        result = find_init_conflicts(
+            self._registry(), ["ruff", "flake8", "eslint", "biome"]
+        )
+        assert len(result) == 2
+
+    # -- integration: verify conflict detection fires in realistic scenario --
+
+    def test_init_conflict_detection_combined_flow(self, tmp_path):
+        """Simulate the init detection step: given detected tools list with a
+        conflict pair, find_init_conflicts returns the pair."""
+        detected_tools = ["ruff", "flake8", "pytest"]
+        conflicts = find_init_conflicts(self._registry(), detected_tools)
+        # The proposal should flag the conflict — at least one pair returned
+        assert len(conflicts) >= 1
+        # ruff and flake8 should be in the flagged pair
+        all_names = [name for pair in conflicts for name in pair]
+        assert "ruff" in all_names
+        assert "flake8" in all_names
+
+    def test_no_conflict_when_only_one_installed(self, tmp_path):
+        """If only ruff is detected (flake8 absent), no conflict is raised."""
+        detected_tools = ["ruff", "pytest"]
+        conflicts = find_init_conflicts(self._registry(), detected_tools)
+        assert conflicts == []
