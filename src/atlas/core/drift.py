@@ -167,6 +167,68 @@ def _load_snapshot(path: str) -> dict:
         return {}
 
 
+def detect_new_tools(
+    registry: dict,
+    installed_modules: dict,
+    project_dir: str,
+) -> list[str]:
+    """Return names of registry modules that are now detectable but not installed.
+
+    On ``atlas sync``, the project may have gained new tool config files since
+    the last ``atlas init`` (e.g. the user added ``[tool.mypy]`` to
+    ``pyproject.toml``).  This function scans every *uninstalled* module in the
+    registry to see if its config is now present in the project, and returns
+    the names of modules that should be suggested for ``atlas add``.
+
+    Args:
+        registry: The loaded registry dict.
+        installed_modules: Dict of ``{name: meta}`` from the manifest.
+        project_dir: Path to the project root.
+
+    Returns:
+        Sorted list of module names that are newly detectable.
+    """
+    all_modules = registry.get("modules", {})
+    installed_names = set(installed_modules.keys())
+    suggestions: list[str] = []
+
+    for module_name, mod_info in all_modules.items():
+        if module_name in installed_names:
+            continue
+
+        # Check detect_files: any of these files exist in project_dir?
+        for filename in mod_info.get("detect_files", []):
+            if os.path.exists(os.path.join(project_dir, filename)):
+                suggestions.append(module_name)
+                break
+        else:
+            # Check detect_in_config: scan config for matching key/value
+            if _config_matches(mod_info.get("detect_in_config", {}), project_dir):
+                suggestions.append(module_name)
+
+    return sorted(suggestions)
+
+
+def _config_matches(detect_in_config: dict, project_dir: str) -> bool:
+    """Return True if any detect_in_config rule matches a file in project_dir.
+
+    ``detect_in_config`` maps ``{filename: substring}`` — if *substring*
+    appears anywhere in the named file, it's a match.
+    """
+    if not detect_in_config:
+        return False
+    for filename, substring in detect_in_config.items():
+        filepath = os.path.join(project_dir, filename)
+        if os.path.isfile(filepath):
+            try:
+                content = open(filepath).read()
+                if substring in content:
+                    return True
+            except OSError:
+                pass
+    return False
+
+
 def _diff_values(stored: dict, fresh: dict) -> list[dict]:
     """Return list of ``{key, old, new}`` for values that changed or appeared."""
     changes: list[dict] = []

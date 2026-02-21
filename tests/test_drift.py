@@ -8,9 +8,11 @@ import os
 import pytest
 
 from atlas.core.drift import (
+    _config_matches,
     _diff_values,
     _flatten,
     apply_drift_updates,
+    detect_new_tools,
     detect_value_drift,
 )
 
@@ -205,3 +207,93 @@ class TestApplyDriftUpdates:
         assert snap.get("id") == "ruff"
         assert snap.get("name") == "Ruff"
         assert snap.get("version") == "1.0.0"
+
+
+# ---------------------------------------------------------------------------
+# _config_matches
+# ---------------------------------------------------------------------------
+
+
+class TestConfigMatches:
+    def test_substring_in_file_returns_true(self, tmp_path):
+        f = tmp_path / "pyproject.toml"
+        f.write_text("[tool.mypy]\nstrict = true\n")
+        assert _config_matches({"pyproject.toml": "mypy"}, str(tmp_path)) is True
+
+    def test_substring_absent_returns_false(self, tmp_path):
+        f = tmp_path / "pyproject.toml"
+        f.write_text("[tool.ruff]\nline-length = 88\n")
+        assert _config_matches({"pyproject.toml": "mypy"}, str(tmp_path)) is False
+
+    def test_file_missing_returns_false(self, tmp_path):
+        assert _config_matches({"missing.toml": "mypy"}, str(tmp_path)) is False
+
+    def test_empty_detect_in_config_returns_false(self, tmp_path):
+        assert _config_matches({}, str(tmp_path)) is False
+
+    def test_multiple_files_any_match_returns_true(self, tmp_path):
+        (tmp_path / "requirements.txt").write_text("psycopg2\n")
+        assert _config_matches(
+            {"requirements.txt": "psycopg", "pyproject.toml": "psycopg"},
+            str(tmp_path),
+        ) is True
+
+
+# ---------------------------------------------------------------------------
+# detect_new_tools
+# ---------------------------------------------------------------------------
+
+
+class TestDetectNewTools:
+    def _registry(self):
+        return {
+            "modules": {
+                "mypy": {
+                    "detect_files": [],
+                    "detect_in_config": {"pyproject.toml": "mypy"},
+                },
+                "ruff": {
+                    "detect_files": ["ruff.toml"],
+                    "detect_in_config": {},
+                },
+                "git": {
+                    "detect_files": [".git"],
+                    "detect_in_config": {},
+                },
+            }
+        }
+
+    def test_new_tool_via_detect_files_suggested(self, tmp_path):
+        (tmp_path / "ruff.toml").write_text("[tool.ruff]\n")
+        result = detect_new_tools(self._registry(), {}, str(tmp_path))
+        assert "ruff" in result
+
+    def test_new_tool_via_detect_in_config_suggested(self, tmp_path):
+        (tmp_path / "pyproject.toml").write_text("[tool.mypy]\nstrict = true\n")
+        result = detect_new_tools(self._registry(), {}, str(tmp_path))
+        assert "mypy" in result
+
+    def test_already_installed_not_suggested(self, tmp_path):
+        (tmp_path / "ruff.toml").write_text("")
+        result = detect_new_tools(self._registry(), {"ruff": {}}, str(tmp_path))
+        assert "ruff" not in result
+
+    def test_undetectable_tool_not_suggested(self, tmp_path):
+        # No mypy config, no ruff.toml
+        result = detect_new_tools(self._registry(), {}, str(tmp_path))
+        assert "mypy" not in result
+        assert "ruff" not in result
+
+    def test_empty_project_returns_empty(self, tmp_path):
+        result = detect_new_tools(self._registry(), {}, str(tmp_path))
+        assert result == []
+
+    def test_empty_registry_returns_empty(self, tmp_path):
+        result = detect_new_tools({"modules": {}}, {}, str(tmp_path))
+        assert result == []
+
+    def test_result_is_sorted(self, tmp_path):
+        (tmp_path / "ruff.toml").write_text("")
+        (tmp_path / ".git").mkdir()
+        result = detect_new_tools(self._registry(), {}, str(tmp_path))
+        assert result == sorted(result)
