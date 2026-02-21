@@ -1,0 +1,35 @@
+{
+  "id": "docker",
+  "name": "Docker",
+  "version": "1.0.0",
+  "category": "environment",
+  "description": "Docker containerization conventions",
+
+  "detect_files": ["Dockerfile"],
+  "detect_in_config": {},
+
+  "for_languages": [],
+
+  "requires": [],
+  "combines_with": ["docker-compose", "postgresql", "redis", "mongodb"],
+  "conflicts_with": [],
+
+  "commands": {
+    "build": "docker build -t {{project.name}} .",
+    "run": "docker run --rm {{project.name}}",
+    "push": "docker push {{project.name}}",
+    "compose_up": "docker compose up -d",
+    "compose_down": "docker compose down"
+  },
+
+  "config_locations": [
+    {"file": "Dockerfile", "format": "dockerfile", "section": null, "priority": 1},
+    {"file": "docker-compose.yml", "format": "yaml", "section": null, "priority": 2},
+    {"file": ".dockerignore", "format": "text", "section": null, "priority": 3}
+  ],
+
+  "config_keys": {},
+
+  "system_tool": "docker",
+  "health_check": "docker --version"
+}
