@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #91 — Implement freshness timestamp in retrieve output (synced: 2h ago)
+**Current Issue:** #92 — (next up)
 
 ### Completed so far
 
@@ -120,10 +120,11 @@ One tool (`atlas`), 10 verbs, single string input.
 | #88 | Implement config value drift on sync (re-scan config files, compare with stored, auto-update) | ✅ `src/atlas/core/drift.py` |
 | #89 | Implement new tool detection on sync (tool config appeared since last init — suggest add) | ✅ `src/atlas/core/drift.py` |
 | #90 | Implement removed tool warning on sync (tool config gone — warn, don't auto-remove) | ✅ `src/atlas/core/drift.py` |
+| #91 | Implement freshness timestamp in retrieve output (synced: 2h ago) | ✅ `src/atlas/core/retrieve.py`, `modules.py` |
 
 ### Not yet started (next up)
 
-Continue: #91, #92 … through #114.
+Continue: #92 … through #114.
 
 ```bash
 # See all open Phase 1 issues
