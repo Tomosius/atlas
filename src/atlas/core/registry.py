@@ -82,6 +82,41 @@ def get_dependents(
     ]
 
 
+def find_init_conflicts(registry: dict, detected: list[str]) -> list[tuple[str, str]]:
+    """Return conflicting pairs among *detected* modules.
+
+    During ``init``, the detection engine may find multiple tools in the
+    project that cannot coexist (e.g. both ruff and flake8 detected).
+    This function returns all such pairs so the init proposal can flag
+    them for the agent / user to resolve.
+
+    Each returned tuple ``(a, b)`` means ``a`` and ``b`` conflict, where
+    ``a`` appears before ``b`` in *detected*.  Each pair is reported once.
+
+    Args:
+        registry: The loaded registry dict.
+        detected: Module names found in the project by the detection engine.
+
+    Returns:
+        List of ``(module_a, module_b)`` conflict tuples.
+    """
+    modules = registry.get("modules", {})
+    detected_set = set(detected)
+    seen: set[frozenset] = set()
+    conflicts: list[tuple[str, str]] = []
+
+    for name in detected:
+        mod_info = modules.get(name, {})
+        for other in mod_info.get("conflicts_with", []):
+            if other in detected_set:
+                pair = frozenset({name, other})
+                if pair not in seen:
+                    seen.add(pair)
+                    conflicts.append((name, other))
+
+    return conflicts
+
+
 # Category priority order used to sort recommendations.
 # Lower index = higher priority.
 _CATEGORY_PRIORITY: list[str] = [

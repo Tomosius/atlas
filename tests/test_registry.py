@@ -6,6 +6,7 @@ import pytest
 
 from atlas.core.registry import (
     check_conflicts,
+    find_init_conflicts,
     find_module,
     get_dependencies,
     get_dependents,
@@ -247,6 +248,63 @@ class TestGetDependents:
     def test_returns_list_type(self):
         result = get_dependents(self._registry(), "python", ["django"])
         assert isinstance(result, list)
+
+
+# ---------------------------------------------------------------------------
+# find_init_conflicts
+# ---------------------------------------------------------------------------
+
+
+class TestFindInitConflicts:
+    def _registry(self):
+        return {
+            "modules": {
+                "ruff": {"category": "linter", "conflicts_with": ["flake8"]},
+                "flake8": {"category": "linter", "conflicts_with": ["ruff"]},
+                "eslint": {"category": "linter", "conflicts_with": ["biome"]},
+                "biome": {"category": "linter", "conflicts_with": ["eslint"]},
+                "pytest": {"category": "testing"},
+            }
+        }
+
+    def test_conflicting_pair_detected(self):
+        result = find_init_conflicts(self._registry(), ["ruff", "flake8", "pytest"])
+        assert len(result) == 1
+        assert set(result[0]) == {"ruff", "flake8"}
+
+    def test_no_conflict_when_only_one_of_pair_detected(self):
+        result = find_init_conflicts(self._registry(), ["ruff", "pytest"])
+        assert result == []
+
+    def test_multiple_conflict_pairs_all_returned(self):
+        result = find_init_conflicts(
+            self._registry(), ["ruff", "flake8", "eslint", "biome"]
+        )
+        pairs = [frozenset(p) for p in result]
+        assert frozenset({"ruff", "flake8"}) in pairs
+        assert frozenset({"eslint", "biome"}) in pairs
+
+    def test_each_pair_reported_once(self):
+        # ruff and flake8 both list each other — should only appear once
+        result = find_init_conflicts(self._registry(), ["ruff", "flake8"])
+        assert len(result) == 1
+
+    def test_empty_detected_returns_empty(self):
+        assert find_init_conflicts(self._registry(), []) == []
+
+    def test_no_conflicts_in_registry_returns_empty(self):
+        result = find_init_conflicts(self._registry(), ["pytest"])
+        assert result == []
+
+    def test_module_not_in_registry_ignored(self):
+        result = find_init_conflicts(self._registry(), ["unknown", "pytest"])
+        assert result == []
+
+    def test_returns_list_of_tuples(self):
+        result = find_init_conflicts(self._registry(), ["ruff", "flake8"])
+        assert isinstance(result, list)
+        assert isinstance(result[0], tuple)
+        assert len(result[0]) == 2
 
 
 # ---------------------------------------------------------------------------
