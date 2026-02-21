@@ -287,6 +287,35 @@ class TestRemoveModule:
         result = remove_module("django", registry, str(atlas_dir), manifest)
         assert result["ok"] is True
 
+    def test_error_detail_names_the_dependent(self, tmp_path):
+        atlas_dir = self._setup(tmp_path)
+        registry = {"modules": {"django": {"requires": ["python"]}}}
+        manifest = {"installed_modules": {"python": {}, "django": {}}}
+        result = remove_module("python", registry, str(atlas_dir), manifest)
+        assert "django" in result["detail"]
+
+    def test_multiple_dependents_all_named_in_detail(self, tmp_path):
+        atlas_dir = self._setup(tmp_path)
+        registry = {
+            "modules": {
+                "clippy": {"requires": ["rust"]},
+                "rustfmt": {"requires": ["rust"]},
+            }
+        }
+        manifest = {"installed_modules": {"rust": {}, "clippy": {}, "rustfmt": {}}}
+        result = remove_module("rust", registry, str(atlas_dir), manifest)
+        assert result["ok"] is False
+        assert "clippy" in result["detail"]
+        assert "rustfmt" in result["detail"]
+
+    def test_remove_succeeds_after_dependent_removed(self, tmp_path):
+        atlas_dir = self._setup(tmp_path)
+        registry = {"modules": {"django": {"requires": ["python"]}}}
+        manifest = {"installed_modules": {"python": {}}}
+        # django already removed from manifest — python can now be removed
+        result = remove_module("python", registry, str(atlas_dir), manifest)
+        assert result["ok"] is True
+
 
 # ---------------------------------------------------------------------------
 # update_modules

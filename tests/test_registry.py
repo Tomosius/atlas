@@ -8,6 +8,7 @@ from atlas.core.registry import (
     check_conflicts,
     find_module,
     get_dependencies,
+    get_dependents,
     get_recommendations,
     load_module_bundle,
     load_module_rules_md,
@@ -192,6 +193,60 @@ class TestGetDependencies:
         result = get_dependencies(reg, "django")
         result.append("extra")
         assert reg["modules"]["django"]["requires"] == ["python"]
+
+
+# ---------------------------------------------------------------------------
+# get_dependents
+# ---------------------------------------------------------------------------
+
+
+class TestGetDependents:
+    def _registry(self):
+        return {
+            "modules": {
+                "python": {"category": "language"},
+                "django": {"category": "framework", "requires": ["python"]},
+                "clippy": {"category": "linter", "requires": ["rust"]},
+                "rust": {"category": "language"},
+                "pytest": {"category": "testing"},
+            }
+        }
+
+    def test_returns_dependent_when_present(self):
+        result = get_dependents(self._registry(), "python", ["python", "django"])
+        assert result == ["django"]
+
+    def test_multiple_dependents_all_returned(self):
+        reg = {
+            "modules": {
+                "rust": {"category": "language"},
+                "clippy": {"requires": ["rust"]},
+                "rustfmt": {"requires": ["rust"]},
+            }
+        }
+        result = get_dependents(reg, "rust", ["rust", "clippy", "rustfmt"])
+        assert set(result) == {"clippy", "rustfmt"}
+
+    def test_no_dependents_returns_empty(self):
+        result = get_dependents(self._registry(), "python", ["python", "pytest"])
+        assert result == []
+
+    def test_empty_installed_returns_empty(self):
+        result = get_dependents(self._registry(), "python", [])
+        assert result == []
+
+    def test_module_not_in_registry_returns_empty(self):
+        result = get_dependents(self._registry(), "unknown", ["django"])
+        assert result == []
+
+    def test_module_not_in_dependents_of_itself(self):
+        # python should not appear as its own dependent
+        result = get_dependents(self._registry(), "python", ["python", "django"])
+        assert "python" not in result
+
+    def test_returns_list_type(self):
+        result = get_dependents(self._registry(), "python", ["django"])
+        assert isinstance(result, list)
 
 
 # ---------------------------------------------------------------------------

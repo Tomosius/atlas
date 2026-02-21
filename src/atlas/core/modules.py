@@ -9,6 +9,7 @@ from atlas.core.errors import error_result, ok_result
 from atlas.core.registry import (
     check_conflicts,
     find_module,
+    get_dependents,
     load_module_bundle,
     load_module_rules_md,
 )
@@ -201,7 +202,7 @@ def remove_module(
     if module_name not in installed:
         return error_result("MODULE_NOT_INSTALLED", module_name)
 
-    dependents = _find_dependents(module_name, registry, list(installed.keys()))
+    dependents = get_dependents(registry, module_name, list(installed.keys()))
     if dependents:
         return error_result(
             "MODULE_REQUIRED",
@@ -302,15 +303,3 @@ def update_modules(
     return ok_result(updated=updated, skipped=skipped)
 
 
-def _find_dependents(
-    module_name: str, registry: dict, installed: list[str]
-) -> list[str]:
-    """Return names of installed modules that list *module_name* in their
-    ``requires`` field."""
-    modules = registry.get("modules", {})
-    return [
-        name
-        for name in installed
-        if name != module_name
-        and module_name in modules.get(name, {}).get("requires", [])
-    ]

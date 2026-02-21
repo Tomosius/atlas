@@ -65,6 +65,23 @@ def get_dependencies(registry: dict, module_name: str) -> list[str]:
     return list(mod_info.get("requires", []))
 
 
+def get_dependents(
+    registry: dict, module_name: str, installed: list[str]
+) -> list[str]:
+    """Return names of *installed* modules that require *module_name*.
+
+    Used on ``remove`` to block removal when other modules depend on the
+    target.  Returns an empty list when it is safe to remove.
+    """
+    modules = registry.get("modules", {})
+    return [
+        name
+        for name in installed
+        if name != module_name
+        and module_name in modules.get(name, {}).get("requires", [])
+    ]
+
+
 # Category priority order used to sort recommendations.
 # Lower index = higher priority.
 _CATEGORY_PRIORITY: list[str] = [
