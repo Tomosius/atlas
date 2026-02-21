@@ -7,6 +7,7 @@ import pytest
 
 from atlas.core.modules import (
     PKG_VARIABLES,
+    _find_orphaned_tasks,
     install_module,
     remove_module,
     resolve_pkg_variables,
@@ -315,6 +316,76 @@ class TestRemoveModule:
         # django already removed from manifest — python can now be removed
         result = remove_module("python", registry, str(atlas_dir), manifest)
         assert result["ok"] is True
+
+    def test_orphaned_task_warning_included_in_result(self, tmp_path):
+        atlas_dir = self._setup(tmp_path)
+        manifest = {"installed_modules": {"ruff": {}}}
+        config = {"tasks": {"lint": "uv run ruff check ."}}
+        result = remove_module("ruff", {}, str(atlas_dir), manifest, config=config)
+        assert result["ok"] is True
+        assert "lint" in result["warnings"]
+
+    def test_no_warning_when_task_does_not_reference_module(self, tmp_path):
+        atlas_dir = self._setup(tmp_path)
+        manifest = {"installed_modules": {"ruff": {}}}
+        config = {"tasks": {"test": "uv run pytest"}}
+        result = remove_module("ruff", {}, str(atlas_dir), manifest, config=config)
+        assert result["ok"] is True
+        assert result["warnings"] == []
+
+    def test_no_warning_when_no_tasks_in_config(self, tmp_path):
+        atlas_dir = self._setup(tmp_path)
+        manifest = {"installed_modules": {"ruff": {}}}
+        result = remove_module("ruff", {}, str(atlas_dir), manifest)
+        assert result["ok"] is True
+        assert result["warnings"] == []
+
+    def test_chain_task_with_module_reference_warns(self, tmp_path):
+        atlas_dir = self._setup(tmp_path)
+        manifest = {"installed_modules": {"ruff": {}}}
+        config = {"tasks": {"quality": ["lint", "uv run ruff format --check ."]}}
+        result = remove_module("ruff", {}, str(atlas_dir), manifest, config=config)
+        assert "quality" in result["warnings"]
+
+
+# ---------------------------------------------------------------------------
+# _find_orphaned_tasks
+# ---------------------------------------------------------------------------
+
+
+class TestFindOrphanedTasks:
+    def test_string_task_with_module_name_is_orphaned(self):
+        config = {"tasks": {"lint": "uv run ruff check ."}}
+        result = _find_orphaned_tasks("ruff", config)
+        assert result == ["lint"]
+
+    def test_string_task_without_module_name_not_orphaned(self):
+        config = {"tasks": {"test": "uv run pytest"}}
+        result = _find_orphaned_tasks("ruff", config)
+        assert result == []
+
+    def test_chain_task_with_module_in_command_is_orphaned(self):
+        config = {"tasks": {"quality": ["lint", "uv run ruff format --check ."]}}
+        result = _find_orphaned_tasks("ruff", config)
+        assert "quality" in result
+
+    def test_multiple_orphaned_tasks_all_returned(self):
+        config = {"tasks": {
+            "lint": "uv run ruff check .",
+            "fmt": "uv run ruff format .",
+            "test": "uv run pytest",
+        }}
+        result = _find_orphaned_tasks("ruff", config)
+        assert set(result) == {"lint", "fmt"}
+
+    def test_empty_tasks_returns_empty(self):
+        assert _find_orphaned_tasks("ruff", {"tasks": {}}) == []
+
+    def test_no_tasks_key_returns_empty(self):
+        assert _find_orphaned_tasks("ruff", {}) == []
+
+    def test_non_dict_tasks_returns_empty(self):
+        assert _find_orphaned_tasks("ruff", {"tasks": "bad"}) == []
 
 
 # ---------------------------------------------------------------------------

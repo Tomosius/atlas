@@ -185,17 +185,20 @@ def remove_module(
     registry: dict,
     atlas_dir: str,
     manifest: dict,
+    config: dict | None = None,
 ) -> dict:
     """Remove a module from the project.
 
     Steps:
     1. Validate — is installed, no other installed module requires it.
-    2. Delete ``.atlas/modules/<name>.json`` (if present).
-    3. Delete ``.atlas/retrieve/<name>.md`` (if present).
-    4. Remove from manifest in-place.
+    2. Scan custom tasks for references to the module (orphan detection).
+    3. Delete ``.atlas/modules/<name>.json`` (if present).
+    4. Delete ``.atlas/retrieve/<name>.md`` (if present).
+    5. Remove from manifest in-place.
 
-    Returns ``ok_result(removed=name)`` on success,
-    or an ``error_result`` on validation failure.
+    Returns ``ok_result(removed=name, warnings=[...])`` on success —
+    warnings list contains orphaned task names (if any).
+    Returns an ``error_result`` on validation failure.
     """
     installed = manifest.get("installed_modules", {})
 
@@ -209,6 +212,9 @@ def remove_module(
             f"Required by: {', '.join(dependents)}",
         )
 
+    # Scan custom tasks for references to the removed module.
+    warnings = _find_orphaned_tasks(module_name, config or {})
+
     # Delete associated files — silently skip if absent.
     for subdir, ext in (("modules", ".json"), ("retrieve", ".md")):
         path = os.path.join(atlas_dir, subdir, f"{module_name}{ext}")
@@ -217,7 +223,31 @@ def remove_module(
 
     del manifest["installed_modules"][module_name]
 
-    return ok_result(removed=module_name)
+    return ok_result(removed=module_name, warnings=warnings)
+
+
+def _find_orphaned_tasks(module_name: str, config: dict) -> list[str]:
+    """Return names of custom tasks whose commands reference *module_name*.
+
+    Tasks are stored in ``config["tasks"]`` as either a command string or
+    a list of task-name strings (chain).  A task is considered orphaned
+    when *module_name* appears as a substring of any command string in the
+    task's definition.
+    """
+    tasks = config.get("tasks", {})
+    if not isinstance(tasks, dict):
+        return []
+
+    orphaned: list[str] = []
+    for task_name, command in tasks.items():
+        if isinstance(command, str):
+            if module_name in command:
+                orphaned.append(task_name)
+        elif isinstance(command, list):
+            # Chain: list of command strings or task-name references
+            if any(module_name in str(c) for c in command):
+                orphaned.append(task_name)
+    return orphaned
 
 
 def update_modules(
