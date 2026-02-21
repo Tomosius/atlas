@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #82 — Create module bundle: environments/docker
+**Current Issue:** #83 — Implement truth hierarchy: config files > .atlas/modules > warehouse defaults
 
 ### Completed so far
 
@@ -111,10 +111,11 @@ One tool (`atlas`), 10 verbs, single string input.
 | #79 | Create module bundle: pkg-managers/pnpm | ✅ `modules/pkg-managers/pnpm/` |
 | #80 | Create module bundle: pkg-managers/npm | ✅ `modules/pkg-managers/npm/` |
 | #81 | Create module bundle: databases/postgresql | ✅ `modules/databases/postgresql/` |
+| #82 | Create module bundle: environments/docker | ✅ `modules/environments/docker/` |
 
 ### Not yet started (next up)
 
-Continue: #82, #83 … through #114.
+Continue: #83, #84 … through #114.
 
 ```bash
 # See all open Phase 1 issues
