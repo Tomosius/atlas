@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #83 — Implement truth hierarchy: config files > .atlas/modules > warehouse defaults
+**Current Issue:** #84 — Implement module conflict detection on add (check conflicts_with in registry)
 
 ### Completed so far
 
@@ -112,10 +112,11 @@ One tool (`atlas`), 10 verbs, single string input.
 | #80 | Create module bundle: pkg-managers/npm | ✅ `modules/pkg-managers/npm/` |
 | #81 | Create module bundle: databases/postgresql | ✅ `modules/databases/postgresql/` |
 | #82 | Create module bundle: environments/docker | ✅ `modules/environments/docker/` |
+| #83 | Implement truth hierarchy: config files > .atlas/modules > warehouse defaults | ✅ `src/atlas/core/retrieve.py` |
 
 ### Not yet started (next up)
 
-Continue: #83, #84 … through #114.
+Continue: #84, #85 … through #114.
 
 ```bash
 # See all open Phase 1 issues
