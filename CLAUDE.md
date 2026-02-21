@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #88 — Implement config value drift on sync (re-scan config files, compare with stored, auto-update)
+**Current Issue:** #89 — Implement new tool detection on sync (tool config appeared since last init — suggest add)
 
 ### Completed so far
 
@@ -117,10 +117,11 @@ One tool (`atlas`), 10 verbs, single string input.
 | #85 | Implement dependency check on remove (block if other module requires it) | ✅ `src/atlas/core/registry.py`, `modules.py` |
 | #86 | Implement task orphan warning on remove (warn if custom task references removed module) | ✅ `src/atlas/core/modules.py` |
 | #87 | Implement init conflict detection (both ruff AND flake8 detected — flag in proposal) | ✅ `src/atlas/core/registry.py` |
+| #88 | Implement config value drift on sync (re-scan config files, compare with stored, auto-update) | ✅ `src/atlas/core/drift.py` |
 
 ### Not yet started (next up)
 
-Continue: #88, #89 … through #114.
+Continue: #89, #90 … through #114.
 
 ```bash
 # See all open Phase 1 issues
