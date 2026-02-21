@@ -193,13 +193,36 @@ class TestBuildRetrieveFile:
         assert result == ""
 
     def test_injects_values_from_module_json(self, tmp_path):
+        # Extracted config values are stored at top level in the snapshot
+        # e.g. {"style": {"line_length": "120"}} → {{style.line_length}}
         atlas_dir, warehouse_dir = self._setup(tmp_path)
         reg = _registry({"ruff": {"category": "linter", "path": "linters/ruff"}})
-        _write_rules_md(warehouse_dir, "linters/ruff", "Line length: {{line_length}}")
-        _write_module_json(atlas_dir, "ruff", {"rules": {"line_length": "120"}})
+        _write_rules_md(warehouse_dir, "linters/ruff", "Line length: {{style.line_length}}")
+        _write_module_json(atlas_dir, "ruff", {"style": {"line_length": "120"}})
         result = build_retrieve_file("ruff", atlas_dir, reg, warehouse_dir, {})
         assert "120" in result
-        assert "{{line_length}}" not in result
+        assert "{{style.line_length}}" not in result
+
+    def test_injects_commands_from_snapshot(self, tmp_path):
+        # Commands stored in snapshot override warehouse template placeholders
+        atlas_dir, warehouse_dir = self._setup(tmp_path)
+        reg = _registry({"uv": {"category": "pkg_manager", "path": "pkg-managers/uv"}})
+        _write_rules_md(warehouse_dir, "pkg-managers/uv", "Install: {{commands.install}}")
+        _write_module_json(atlas_dir, "uv", {"commands": {"install": "uv sync"}})
+        result = build_retrieve_file("uv", atlas_dir, reg, warehouse_dir, {})
+        assert "uv sync" in result
+        assert "{{commands.install}}" not in result
+
+    def test_meta_keys_not_injected_as_placeholders(self, tmp_path):
+        # Fields like id, name, version should not be used for placeholder injection
+        atlas_dir, warehouse_dir = self._setup(tmp_path)
+        reg = _registry({"ruff": {"category": "linter", "path": "linters/ruff"}})
+        _write_rules_md(warehouse_dir, "linters/ruff", "Tool: {{id}} Version: {{version}}")
+        _write_module_json(atlas_dir, "ruff", {"id": "ruff", "version": "1.0.0", "style": {"line_length": "88"}})
+        result = build_retrieve_file("ruff", atlas_dir, reg, warehouse_dir, {})
+        # Meta-fields are not injected — placeholders remain unchanged
+        assert "{{id}}" in result
+        assert "{{version}}" in result
 
     def test_appends_config_source_when_config_file_set(self, tmp_path):
         atlas_dir, warehouse_dir = self._setup(tmp_path)

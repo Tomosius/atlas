@@ -33,10 +33,25 @@ def build_retrieve_file(
     # Read extracted values from installed module rules
     module_rules = _load_module_rules(module_name, atlas_dir)
 
-    # Inject extracted values into content (replace {{key}} placeholders)
+    # Inject values following the truth hierarchy:
+    #   Priority 1 — snapshot (.atlas/modules/<name>.json) overrides warehouse defaults
+    #   Priority 4 — warehouse rules.md provides the base template
+    # All non-meta keys are injected: extracted config values AND commands.
     if module_rules:
-        rules_data = module_rules.get("rules", {})
-        content = _inject_values(content, rules_data)
+        _META_KEYS = {
+            "id", "name", "version", "category", "description",
+            "config_file", "config_section", "detect_files",
+            "detect_in_config", "for_languages", "requires",
+            "combines_with", "conflicts_with", "config_locations",
+            "config_keys", "system_tool", "health_check", "unlocks_verb",
+        }
+        for key, value in module_rules.items():
+            if key in _META_KEYS:
+                continue
+            if isinstance(value, dict):
+                content = _inject_values(content, value, prefix=key)
+            else:
+                content = content.replace("{{" + key + "}}", str(value))
 
         # Add config source info
         config_file = module_rules.get("config_file", "")
