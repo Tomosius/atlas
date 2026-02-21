@@ -425,3 +425,94 @@ class TestType4TaskOrphaning:
 # ---------------------------------------------------------------------------
 
 
+class TestType5DependencyConflicts:
+    """Type 5: Removing a module that another installed module requires.
+    The removal must be blocked with a clear error.
+
+    Spec: plan/05-ATLAS-API.md §27 Type 5
+    """
+
+    def _setup(self, tmp_path):
+        atlas_dir = tmp_path / ".atlas"
+        (atlas_dir / "modules").mkdir(parents=True)
+        (atlas_dir / "retrieve").mkdir(parents=True)
+        return atlas_dir
+
+    # -- unit gaps --
+
+    def test_removal_blocked_when_dependent_present(self, tmp_path):
+        """remove_module returns error when another installed module requires it."""
+        atlas_dir = self._setup(tmp_path)
+        registry = {"modules": {"commit-rules": {"requires": ["git"]}}}
+        manifest = {"installed_modules": {"git": {}, "commit-rules": {}}}
+        result = remove_module("git", registry, str(atlas_dir), manifest)
+        assert result["ok"] is False
+
+    def test_error_detail_names_the_dependent(self, tmp_path):
+        """The error detail string names the dependent module."""
+        atlas_dir = self._setup(tmp_path)
+        registry = {"modules": {"commit-rules": {"requires": ["git"]}}}
+        manifest = {"installed_modules": {"git": {}, "commit-rules": {}}}
+        result = remove_module("git", registry, str(atlas_dir), manifest)
+        assert "commit-rules" in result["detail"]
+
+    def test_removal_succeeds_after_dependent_removed(self, tmp_path):
+        """Once the dependent is removed, the dependency can be removed."""
+        atlas_dir = self._setup(tmp_path)
+        registry = {"modules": {"commit-rules": {"requires": ["git"]}}}
+        manifest = {"installed_modules": {"git": {}}}
+        result = remove_module("git", registry, str(atlas_dir), manifest)
+        assert result["ok"] is True
+
+    # -- integration via Atlas.remove_module() --
+
+    def test_atlas_remove_blocked_by_dependency(self, tmp_path):
+        """Atlas.remove_module('git') with commit-rules installed → blocked."""
+        atlas = _make_atlas(tmp_path)
+        atlas._manifest = {
+            "installed_modules": {
+                "git": {"category": "vcs"},
+                "commit-rules": {"category": "tools"},
+            }
+        }
+        atlas._registry = {"modules": {"commit-rules": {"requires": ["git"]}}}
+        result = atlas.remove_module("git")
+        assert result["ok"] is False
+        assert "commit-rules" in result["detail"]
+
+    def test_atlas_remove_succeeds_when_no_dependents(self, tmp_path):
+        """Atlas.remove_module('git') with no dependents → succeeds."""
+        atlas = _make_atlas(tmp_path)
+        atlas._manifest = {"installed_modules": {"git": {"category": "vcs"}}}
+        atlas._registry = {"modules": {"commit-rules": {"requires": ["git"]}}}
+        result = atlas.remove_module("git")
+        assert result["ok"] is True
+        assert result["removed"] == "git"
+
+    def test_atlas_remove_multiple_dependents_all_named(self, tmp_path):
+        """Atlas.remove_module when multiple modules depend on target → all named."""
+        atlas = _make_atlas(tmp_path)
+        atlas._manifest = {
+            "installed_modules": {
+                "rust": {"category": "language"},
+                "clippy": {"category": "linter"},
+                "rustfmt": {"category": "formatter"},
+            }
+        }
+        atlas._registry = {
+            "modules": {
+                "clippy": {"requires": ["rust"]},
+                "rustfmt": {"requires": ["rust"]},
+            }
+        }
+        result = atlas.remove_module("rust")
+        assert result["ok"] is False
+        assert "clippy" in result["detail"]
+        assert "rustfmt" in result["detail"]
+
+
+# ---------------------------------------------------------------------------
+# Type 6 — Warehouse update preserves user data
+# ---------------------------------------------------------------------------
+
+
