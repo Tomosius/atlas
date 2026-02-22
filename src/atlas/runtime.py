@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import time
 
 from atlas.core.categories import CategoryRouter
@@ -411,8 +412,6 @@ class Atlas:
 
     def _quick_git_status(self) -> str:
         """Return a formatted git status string for the session brief."""
-        import subprocess
-
         def _run(cmd: list[str]) -> str:
             try:
                 return subprocess.check_output(
@@ -433,8 +432,8 @@ class Atlas:
         # Ahead/behind vs upstream
         counts = _run(["git", "rev-list", "--left-right", "--count", "HEAD...@{upstream}"])
         if counts:
-            parts = counts.split()
-            if len(parts) == 2:
+            try:
+                parts = counts.split()
                 ahead, behind = int(parts[0]), int(parts[1])
                 suffix = ""
                 if ahead and behind:
@@ -444,7 +443,7 @@ class Atlas:
                 elif behind:
                     suffix = f" ({behind} behind)"
                 lines.append(f"  Branch: {branch}{suffix}")
-            else:
+            except (ValueError, IndexError):
                 lines.append(f"  Branch: {branch}")
         else:
             lines.append(f"  Branch: {branch}")

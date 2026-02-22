@@ -16,13 +16,14 @@ def _make_atlas(tmp_path) -> Atlas:
 
 
 def _mock_git(responses: dict[str, str]):
-    """Return a mock for subprocess.check_output that maps git subcommands to outputs."""
+    """Return a mock for subprocess.check_output mapping git subcommands to outputs."""
     def _check_output(cmd, **kwargs):
-        # Use the second git subcommand as the key (e.g. "rev-parse", "diff")
-        key = cmd[1] if len(cmd) > 1 else ""
-        # For rev-list use a more specific key
         if cmd[1:3] == ["rev-list", "--left-right"]:
             key = "rev-list"
+        elif cmd[1] == "diff" and "--cached" in cmd:
+            key = "diff-cached"
+        else:
+            key = cmd[1] if len(cmd) > 1 else ""
         val = responses.get(key, "")
         if val is None:
             raise subprocess.CalledProcessError(128, cmd)
@@ -49,6 +50,7 @@ class TestQuickGitStatus:
             "rev-parse": "main",
             "rev-list": "",
             "diff": "",
+            "diff-cached": "",
         })):
             result = atlas._quick_git_status()
         assert "main" in result
@@ -59,6 +61,7 @@ class TestQuickGitStatus:
             "rev-parse": "feat/auth",
             "rev-list": "2\t0",
             "diff": "",
+            "diff-cached": "",
         })):
             result = atlas._quick_git_status()
         assert "2 ahead" in result
@@ -69,6 +72,7 @@ class TestQuickGitStatus:
             "rev-parse": "feat/auth",
             "rev-list": "0\t3",
             "diff": "",
+            "diff-cached": "",
         })):
             result = atlas._quick_git_status()
         assert "3 behind" in result
@@ -79,6 +83,7 @@ class TestQuickGitStatus:
             "rev-parse": "feat/auth",
             "rev-list": "1\t2",
             "diff": "",
+            "diff-cached": "",
         })):
             result = atlas._quick_git_status()
         assert "1 ahead" in result
@@ -90,27 +95,21 @@ class TestQuickGitStatus:
             "rev-parse": "main",
             "rev-list": "0\t0",
             "diff": "src/auth.py\nsrc/utils.py",
+            "diff-cached": "",
         })):
             result = atlas._quick_git_status()
         assert "Modified (unstaged)" in result
         assert "src/auth.py" in result
+        assert "Staged" not in result
 
     def test_staged_files_shown(self, tmp_path):
         atlas = _make_atlas(tmp_path)
-
-        call_count = [0]
-        def _staged_mock(cmd, **kwargs):
-            if cmd[1] == "rev-parse":
-                return b"main"
-            if cmd[1:3] == ["rev-list", "--left-right"]:
-                return b"0\t0"
-            if cmd[1] == "diff":
-                if "--cached" in cmd:
-                    return b"src/auth.py"
-                return b""
-            return b""
-
-        with patch("subprocess.check_output", side_effect=_staged_mock):
+        with patch("subprocess.check_output", side_effect=_mock_git({
+            "rev-parse": "main",
+            "rev-list": "0\t0",
+            "diff": "",
+            "diff-cached": "src/auth.py",
+        })):
             result = atlas._quick_git_status()
         assert "Staged" in result
         assert "src/auth.py" in result
@@ -121,6 +120,7 @@ class TestQuickGitStatus:
             "rev-parse": "main",
             "rev-list": "0\t0",
             "diff": "",
+            "diff-cached": "",
         })):
             result = atlas._quick_git_status()
         assert "ahead" not in result
@@ -133,6 +133,7 @@ class TestQuickGitStatus:
             "rev-parse": "feature/new",
             "rev-list": "",  # no upstream
             "diff": "",
+            "diff-cached": "",
         })):
             result = atlas._quick_git_status()
         assert "feature/new" in result
