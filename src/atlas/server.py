@@ -117,6 +117,7 @@ def build_prompt_list() -> list[Prompt]:
         Prompt(
             name="atlas-context",
             description="Project context — auto-injected at session start",
+            arguments=[],
         )
     ]
 
@@ -124,7 +125,7 @@ def build_prompt_list() -> list[Prompt]:
 def build_prompt_result(atlas: Atlas, name: str) -> GetPromptResult:
     """Build the GetPromptResult for the named prompt."""
     if name != "atlas-context":
-        return GetPromptResult(messages=[])
+        raise ValueError(f"Unknown prompt: {name!r}")
     if not atlas.is_initialized:
         text = "Atlas: project not initialized — run `atlas init`"
     else:

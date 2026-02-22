@@ -241,10 +241,10 @@ class TestPromptHandlers:
         assert len(result.messages) == 1
         assert "my-project" in result.messages[0].content.text
 
-    def test_get_prompt_unknown_name_returns_empty_messages(self):
+    def test_get_prompt_unknown_name_raises(self):
         atlas = _make_atlas(initialized=True)
-        result = build_prompt_result(atlas, "unknown-prompt")
-        assert result.messages == []
+        with pytest.raises(ValueError, match="unknown-prompt"):
+            build_prompt_result(atlas, "unknown-prompt")
 
     def test_get_prompt_result_has_user_role(self):
         atlas = _make_atlas(initialized=True)
