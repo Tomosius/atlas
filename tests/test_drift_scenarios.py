@@ -72,6 +72,7 @@ class TestDriftScenarioConfigChanged:
         result = detect_value_drift({"ruff": {}}, str(atlas_dir), str(project_dir))
         drifted_modules = [d["module"] for d in result["drifted"]]
         assert "ruff" in drifted_modules
+        assert "ruff" not in result["unchanged"]
 
     def test_changed_value_has_correct_old_and_new(self, tmp_path):
         """The change entry records both the old and new value."""
@@ -100,7 +101,8 @@ class TestDriftScenarioConfigChanged:
     def test_multiple_values_changed_all_reported(self, tmp_path):
         """Two changed keys on a single module both appear in drifted[0]['changes']."""
         atlas_dir, project_dir = self._setup(tmp_path)
-        # Snapshot has line_length=120 and select=["E501"] stored under 'style' and 'lint'
+        # Snapshot has style.line_length=120 and extra_setting=old_value.
+        # The scanner will never produce extra_setting, so it will appear as new=None.
         _write_snapshot(
             atlas_dir, "ruff",
             {"style": {"line_length": "120"}, "extra_setting": "old_value"}
@@ -117,7 +119,7 @@ class TestDriftScenarioConfigChanged:
         # Both the changed line_length and the missing extra_setting should be reported
         assert any("line_length" in k for k in change_keys)
         assert any("extra_setting" in k for k in change_keys)
-        assert len(ruff_entry["changes"]) >= 2
+        assert len(ruff_entry["changes"]) == 2
 
     def test_value_removed_from_config_reported(self, tmp_path):
         """A key in the snapshot but absent from the live config gets new=None."""
@@ -287,8 +289,8 @@ class TestDriftScenarioRemovedTool:
         result = detect_removed_tools(self._registry(), {"ruff": {}}, str(tmp_path))
         assert "ruff" in result
 
-    def test_config_section_removed_from_pyproject_flagged(self, tmp_path):
-        """Installed module whose pyproject.toml section is gone is flagged."""
+    def test_config_section_absent_from_existing_pyproject_flagged(self, tmp_path):
+        """An installed module whose section is absent from an existing pyproject.toml is flagged."""
         (tmp_path / "pyproject.toml").write_text("[tool.ruff]\nline-length = 88\n")
         result = detect_removed_tools(self._registry(), {"mypy": {}}, str(tmp_path))
         assert "mypy" in result
