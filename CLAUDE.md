@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #99 — Create error code → rule mapping for ruff, eslint, clippy, golangci-lint
+**Current Issue:** #100 — Include recent activity + git status + active task in atlas status output
 
 ### Completed so far
 
@@ -128,6 +128,7 @@ One tool (`atlas`), 10 verbs, single string input.
 | #96 | Read recent history from history.jsonl (last 5 entries with relative timestamps) | ✅ `src/atlas/runtime.py`, `tests/test_history.py` |
 | #97 | Quick git status for auto-brief (branch, modified files, ahead/behind — fast subprocess) | ✅ `src/atlas/runtime.py`, `tests/test_git_status.py` |
 | #98 | Implement error augmentation in just verb: scan output for error codes, append rule hints | ✅ `src/atlas/core/runner.py`, `src/atlas/runtime.py`, `tests/test_augmentation.py` |
+| #99 | Create error code → rule mapping for ruff, eslint, clippy, golangci-lint | ✅ `modules/linters/ruff/module.json`, `modules/linters/golangci-lint/` |
 
 ### Not yet started (next up)
 
