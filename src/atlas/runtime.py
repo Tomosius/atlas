@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 
 from atlas.core.categories import CategoryRouter
 from atlas.core.config import AtlasConfig, load_config
@@ -19,6 +20,18 @@ from atlas.core.retrieve import (
     filter_sections,
 )
 from atlas.core.runner import run_task
+
+
+def _relative_time(ts: float, now: float) -> str:
+    """Return a human-readable relative time string (e.g. '2h ago')."""
+    delta = int(now - ts)
+    if delta < 60:
+        return "just now"
+    if delta < 3600:
+        return f"{delta // 60}m ago"
+    if delta < 86400:
+        return f"{delta // 3600}h ago"
+    return f"{delta // 86400}d ago"
 
 
 class Atlas:
@@ -372,8 +385,29 @@ class Atlas:
         return "\n".join(parts)
 
     def _read_recent_history(self, limit: int = 5) -> list[dict]:
-        """Return recent history entries. Implemented in #96."""
-        return []
+        """Return the last *limit* entries from history.jsonl with relative timestamps."""
+        path = os.path.join(self.atlas_dir, "history.jsonl")
+        if not os.path.isfile(path):
+            return []
+        try:
+            with open(path) as f:
+                lines = [ln.strip() for ln in f if ln.strip()]
+        except OSError:
+            return []
+        now = time.time()
+        entries = []
+        for line in lines[-limit:]:
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            summary = record.get("summary", "")
+            if not summary:
+                continue
+            ts = record.get("ts")
+            ago = _relative_time(ts, now) if ts is not None else "?"
+            entries.append({"ago": ago, "summary": summary})
+        return entries
 
     def _quick_git_status(self) -> str:
         """Return a quick git status string. Implemented in #97."""
