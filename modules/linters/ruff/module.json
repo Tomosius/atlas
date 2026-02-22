@@ -38,9 +38,9 @@
   "health_check": "ruff --version",
 
   "error_codes": {
-    "E501": "Line too long — break at a logical point; don't truncate strings. Auto-fix: atlas just format",
+    "E501": "Line too long — break at a logical point; don't truncate strings. ruff format may fix some cases: atlas just format",
     "E302": "Expected 2 blank lines before top-level definition. Add blank lines above the def/class.",
-    "E303": "Too many blank lines — reduce to at most 2 between top-level definitions.",
+    "E303": "Too many blank lines — max 2 between top-level definitions, max 1 inside a function or class body.",
     "E711": "Comparison to None should use 'is' or 'is not', not '==' or '!='.",
     "E712": "Comparison to True/False should use 'is' or plain boolean check, not '=='.",
     "W291": "Trailing whitespace — remove spaces at end of line. Auto-fix: atlas just format",
