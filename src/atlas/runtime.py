@@ -349,7 +349,7 @@ class Atlas:
         if history:
             parts.append("\n## Recent Activity")
             for entry in history:
-                parts.append(f"  {entry['ago']}: {entry['summary']}")
+                parts.append(f"  {entry.get('ago', '?')}: {entry.get('summary', '')}")
 
         # Git status (quick subprocess if git installed)
         if self.router.has_category_installed("vcs"):
