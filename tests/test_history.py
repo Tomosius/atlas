@@ -89,6 +89,7 @@ class TestReadRecentHistory:
         atlas = _make_atlas(tmp_path)
         now = time.time()
         path = os.path.join(str(tmp_path / ".atlas"), "history.jsonl")
+        # _write_history only produces valid JSON, so we write directly here
         with open(path, "w") as f:
             f.write('{"ts": ' + str(now - 60) + ', "summary": "good op"}\n')
             f.write("not valid json\n")
@@ -116,3 +117,25 @@ class TestReadRecentHistory:
         assert len(result) == 1
         assert result[0]["ago"] == "2h ago"
         assert result[0]["summary"] == "ran tests"
+
+    def test_missing_ts_field_uses_question_mark(self, tmp_path):
+        atlas = _make_atlas(tmp_path)
+        _write_history(tmp_path / ".atlas", [{"summary": "op with no timestamp"}])
+        result = atlas._read_recent_history()
+        assert len(result) == 1
+        assert result[0]["ago"] == "?"
+        assert result[0]["summary"] == "op with no timestamp"
+
+    def test_returns_empty_when_file_unreadable(self, tmp_path, monkeypatch):
+        atlas = _make_atlas(tmp_path)
+        import builtins
+        real_open = builtins.open
+        def mock_open(path, *args, **kwargs):
+            if "history.jsonl" in str(path):
+                raise OSError("permission denied")
+            return real_open(path, *args, **kwargs)
+        # Create the file so the isfile() check passes
+        (tmp_path / ".atlas" / "history.jsonl").write_text('{"ts": 1.0, "summary": "x"}\n')
+        monkeypatch.setattr(builtins, "open", mock_open)
+        result = atlas._read_recent_history()
+        assert result == []
