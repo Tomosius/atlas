@@ -2,94 +2,118 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://tomosius.github.io/atlas/</loc>
-         <lastmod>2026-02-21</lastmod>
+         <lastmod>2026-02-22</lastmod>
     </url>
     <url>
          <loc>https://tomosius.github.io/atlas/commit-rules/</loc>
-         <lastmod>2026-02-21</lastmod>
+         <lastmod>2026-02-22</lastmod>
     </url>
     <url>
          <loc>https://tomosius.github.io/atlas/development/</loc>
-         <lastmod>2026-02-21</lastmod>
+         <lastmod>2026-02-22</lastmod>
     </url>
     <url>
          <loc>https://tomosius.github.io/atlas/api/categories/</loc>
-         <lastmod>2026-02-21</lastmod>
+         <lastmod>2026-02-22</lastmod>
     </url>
     <url>
          <loc>https://tomosius.github.io/atlas/api/cli/</loc>
-         <lastmod>2026-02-21</lastmod>
+         <lastmod>2026-02-22</lastmod>
     </url>
     <url>
          <loc>https://tomosius.github.io/atlas/api/config/</loc>
-         <lastmod>2026-02-21</lastmod>
+         <lastmod>2026-02-22</lastmod>
     </url>
     <url>
          <loc>https://tomosius.github.io/atlas/api/detection/</loc>
-         <lastmod>2026-02-21</lastmod>
+         <lastmod>2026-02-22</lastmod>
     </url>
     <url>
          <loc>https://tomosius.github.io/atlas/api/modules/</loc>
-         <lastmod>2026-02-21</lastmod>
+         <lastmod>2026-02-22</lastmod>
     </url>
     <url>
          <loc>https://tomosius.github.io/atlas/api/parser/</loc>
-         <lastmod>2026-02-21</lastmod>
+         <lastmod>2026-02-22</lastmod>
     </url>
     <url>
          <loc>https://tomosius.github.io/atlas/api/registry/</loc>
-         <lastmod>2026-02-21</lastmod>
+         <lastmod>2026-02-22</lastmod>
     </url>
     <url>
          <loc>https://tomosius.github.io/atlas/api/retrieve/</loc>
-         <lastmod>2026-02-21</lastmod>
+         <lastmod>2026-02-22</lastmod>
     </url>
     <url>
          <loc>https://tomosius.github.io/atlas/api/runner/</loc>
-         <lastmod>2026-02-21</lastmod>
+         <lastmod>2026-02-22</lastmod>
     </url>
     <url>
          <loc>https://tomosius.github.io/atlas/api/runtime/</loc>
-         <lastmod>2026-02-21</lastmod>
+         <lastmod>2026-02-22</lastmod>
     </url>
     <url>
          <loc>https://tomosius.github.io/atlas/api/scanner/</loc>
-         <lastmod>2026-02-21</lastmod>
+         <lastmod>2026-02-22</lastmod>
     </url>
     <url>
          <loc>https://tomosius.github.io/atlas/api/server/</loc>
-         <lastmod>2026-02-21</lastmod>
+         <lastmod>2026-02-22</lastmod>
     </url>
     <url>
          <loc>https://tomosius.github.io/atlas/guides/api/</loc>
-         <lastmod>2026-02-21</lastmod>
+         <lastmod>2026-02-22</lastmod>
     </url>
     <url>
          <loc>https://tomosius.github.io/atlas/guides/configuration/</loc>
-         <lastmod>2026-02-21</lastmod>
+         <lastmod>2026-02-22</lastmod>
     </url>
     <url>
          <loc>https://tomosius.github.io/atlas/guides/contributing/</loc>
-         <lastmod>2026-02-21</lastmod>
+         <lastmod>2026-02-22</lastmod>
     </url>
     <url>
          <loc>https://tomosius.github.io/atlas/guides/how-it-works/</loc>
-         <lastmod>2026-02-21</lastmod>
+         <lastmod>2026-02-22</lastmod>
     </url>
     <url>
          <loc>https://tomosius.github.io/atlas/guides/installation/</loc>
-         <lastmod>2026-02-21</lastmod>
+         <lastmod>2026-02-22</lastmod>
     </url>
     <url>
          <loc>https://tomosius.github.io/atlas/guides/modules/</loc>
-         <lastmod>2026-02-21</lastmod>
+         <lastmod>2026-02-22</lastmod>
     </url>
     <url>
          <loc>https://tomosius.github.io/atlas/guides/quickstart/</loc>
-         <lastmod>2026-02-21</lastmod>
+         <lastmod>2026-02-22</lastmod>
+    </url>
+    <url>
+         <loc>https://tomosius.github.io/atlas/plans/2026-02-21-conflict-tests-design/</loc>
+         <lastmod>2026-02-22</lastmod>
+    </url>
+    <url>
+         <loc>https://tomosius.github.io/atlas/plans/2026-02-21-conflict-tests-plan/</loc>
+         <lastmod>2026-02-22</lastmod>
+    </url>
+    <url>
+         <loc>https://tomosius.github.io/atlas/plans/2026-02-22-auto-brief-prompt-design/</loc>
+         <lastmod>2026-02-22</lastmod>
+    </url>
+    <url>
+         <loc>https://tomosius.github.io/atlas/plans/2026-02-22-auto-brief-prompt-plan/</loc>
+         <lastmod>2026-02-22</lastmod>
+    </url>
+    <url>
+         <loc>https://tomosius.github.io/atlas/plans/2026-02-22-drift-scenarios-design/</loc>
+         <lastmod>2026-02-22</lastmod>
+    </url>
+    <url>
+         <loc>https://tomosius.github.io/atlas/plans/2026-02-22-drift-scenarios-plan/</loc>
+         <lastmod>2026-02-22</lastmod>
     </url>
     <url>
          <loc>https://tomosius.github.io/atlas/reference/modules-overview/</loc>
-         <lastmod>2026-02-21</lastmod>
+         <lastmod>2026-02-22</lastmod>
     </url>
 </urlset>
