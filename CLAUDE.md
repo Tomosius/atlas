@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #96 — Read recent history from history.jsonl (last 5 entries with relative timestamps)
+**Current Issue:** #97 — Quick git status for auto-brief (branch, modified files, ahead/behind — fast subprocess)
 
 ### Completed so far
 
@@ -125,6 +125,7 @@ One tool (`atlas`), 10 verbs, single string input.
 | #93 | Write tests for drift detection (config changed, new tool, removed tool) | ✅ 18 tests, `tests/test_drift_scenarios.py` |
 | #94 | Implement MCP auto-brief prompt: list_prompts + get_prompt handlers | ✅ `src/atlas/server.py`, `tests/test_server.py` |
 | #95 | Build session brief content: project type + modules + active task + recent ops + git status + notes | ✅ `src/atlas/runtime.py`, `tests/test_runtime.py` |
+| #96 | Read recent history from history.jsonl (last 5 entries with relative timestamps) | ✅ `src/atlas/runtime.py`, `tests/test_history.py` |
 
 ### Not yet started (next up)
 
