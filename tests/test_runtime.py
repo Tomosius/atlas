@@ -548,3 +548,77 @@ class TestFindWarehouse:
         modules_dir = os.path.join(repo_root, "modules")
         if os.path.isdir(modules_dir):
             assert atlas.warehouse_dir == modules_dir
+
+
+# ---------------------------------------------------------------------------
+# just() — augmentation
+# ---------------------------------------------------------------------------
+
+
+class TestJustAugmentation:
+    def _setup(self, tmp_path):
+        atlas_dir = tmp_path / ".atlas"
+        (atlas_dir / "modules").mkdir(parents=True)
+        return Atlas(project_dir=str(tmp_path))
+
+    def test_just_augments_output_on_failure_with_error_codes(self, tmp_path):
+        atlas = self._setup(tmp_path)
+        # Write a manifest with one module
+        atlas._manifest = {
+            "installed_modules": {"ruff": {}},
+            "detected": {},
+        }
+        # Write module JSON with error_codes
+        import json, os
+        mod_path = os.path.join(str(tmp_path / ".atlas" / "modules"), "ruff.json")
+        with open(mod_path, "w") as f:
+            json.dump({
+                "commands": {"check": "exit 1"},
+                "error_codes": {"E501": "Line too long — break at logical point"},
+            }, f)
+        # Patch run_task to return a failed result with an E501 error line
+        from unittest.mock import patch
+        from atlas.core.errors import ok_result
+        fake_result = ok_result(task="check", output="file.py:1:80 E501 Line too long", returncode=1)
+        with patch("atlas.runtime.run_task", return_value=fake_result):
+            result = atlas.just("check")
+        assert result["ok"] is True
+        assert "📎" in result["output"]
+        assert "Line too long — break at logical point" in result["output"]
+
+    def test_just_does_not_augment_on_success(self, tmp_path):
+        atlas = self._setup(tmp_path)
+        atlas._manifest = {
+            "installed_modules": {"ruff": {}},
+            "detected": {},
+        }
+        import json, os
+        mod_path = os.path.join(str(tmp_path / ".atlas" / "modules"), "ruff.json")
+        with open(mod_path, "w") as f:
+            json.dump({
+                "commands": {"check": "exit 0"},
+                "error_codes": {"E501": "Line too long"},
+            }, f)
+        from unittest.mock import patch
+        from atlas.core.errors import ok_result
+        fake_result = ok_result(task="check", output="All checks passed!", returncode=0)
+        with patch("atlas.runtime.run_task", return_value=fake_result):
+            result = atlas.just("check")
+        assert "📎" not in result["output"]
+
+    def test_just_does_not_augment_when_no_error_codes_in_modules(self, tmp_path):
+        atlas = self._setup(tmp_path)
+        atlas._manifest = {
+            "installed_modules": {"ruff": {}},
+            "detected": {},
+        }
+        import json, os
+        mod_path = os.path.join(str(tmp_path / ".atlas" / "modules"), "ruff.json")
+        with open(mod_path, "w") as f:
+            json.dump({"commands": {"check": "exit 1"}}, f)  # no error_codes key
+        from unittest.mock import patch
+        from atlas.core.errors import ok_result
+        fake_result = ok_result(task="check", output="file.py:1:80 E501 Line too long", returncode=1)
+        with patch("atlas.runtime.run_task", return_value=fake_result):
+            result = atlas.just("check")
+        assert "📎" not in result["output"]

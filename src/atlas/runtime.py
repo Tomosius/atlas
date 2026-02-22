@@ -20,7 +20,7 @@ from atlas.core.retrieve import (
     build_retrieve_file,
     filter_sections,
 )
-from atlas.core.runner import run_task
+from atlas.core.runner import augment_errors, run_task
 
 
 def _relative_time(ts: float, now: float) -> str:
@@ -300,7 +300,20 @@ class Atlas:
                 f"Task '{task_name}' not found in any installed module",
             )
 
-        return run_task(task_name, command, self.project_dir)
+        result = run_task(task_name, command, self.project_dir)
+
+        # Augment output on failure with error code hints from installed modules
+        if result.get("ok") and result.get("returncode", 0) != 0:
+            merged_codes: dict[str, str] = {}
+            for mod_name in installed_mods:
+                mod_json = self._load_json(
+                    os.path.join(self.atlas_dir, "modules", f"{mod_name}.json"), {}
+                )
+                merged_codes.update(mod_json.get("error_codes", {}))
+            if merged_codes:
+                result["output"] = augment_errors(result["output"], merged_codes)
+
+        return result
 
     # ------------------------------------------------------------------
     # Notes management

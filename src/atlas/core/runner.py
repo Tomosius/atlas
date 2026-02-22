@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 import shlex
 import shutil
 import subprocess
@@ -78,3 +79,29 @@ def run_task(
             "INVALID_ARGUMENT",
             f"Task '{task_name}' timed out after {timeout}s",
         )
+
+
+def find_rule_hint(code: str, module_rules: dict) -> str:
+    """Return the rule hint for *code* from *module_rules*, or empty string."""
+    return module_rules.get(code, "")
+
+
+def augment_errors(output: str, module_rules: dict) -> str:
+    """Scan tool output for error codes and append relevant rule hints inline.
+
+    Looks for patterns like E501, F401, W291 (letter + 3-4 digits).
+    If a matching rule hint exists in *module_rules*, appends it on the
+    next line with a 📎 prefix.
+    """
+    if not module_rules:
+        return output
+    lines = output.split("\n")
+    augmented: list[str] = []
+    for line in lines:
+        augmented.append(line)
+        code_match = re.search(r'\b([A-Z]\d{3,4})\b', line)
+        if code_match:
+            hint = find_rule_hint(code_match.group(1), module_rules)
+            if hint:
+                augmented.append(f"    \U0001f4ce {hint}")
+    return "\n".join(augmented)
