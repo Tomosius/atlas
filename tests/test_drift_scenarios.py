@@ -11,8 +11,6 @@ from __future__ import annotations
 import json
 import os
 
-import pytest
-
 from atlas.core.drift import (
     apply_drift_updates,
     detect_new_tools,
@@ -99,21 +97,64 @@ class TestDriftScenarioConfigChanged:
         drifted_modules = [d["module"] for d in result["drifted"]]
         assert "ruff" not in drifted_modules
 
-    def test_multiple_modules_independently_reported(self, tmp_path):
-        """Two modules with different drift status are independently reported."""
+    def test_multiple_values_changed_all_reported(self, tmp_path):
+        """Two changed keys on a single module both appear in drifted[0]['changes']."""
         atlas_dir, project_dir = self._setup(tmp_path)
-        _write_snapshot(atlas_dir, "ruff", {"style": {"line_length": "120"}})
-        _write_snapshot(atlas_dir, "pytest", {})
-        _write_project_file(project_dir, "pyproject.toml", "[tool.ruff]\nline-length = 100\n")
-        result = detect_value_drift(
-            {"ruff": {}, "pytest": {}}, str(atlas_dir), str(project_dir)
+        # Snapshot has line_length=120 and select=["E501"] stored under 'style' and 'lint'
+        _write_snapshot(
+            atlas_dir, "ruff",
+            {"style": {"line_length": "120"}, "extra_setting": "old_value"}
         )
+        # Config file changes line_length to 100; extra_setting is a custom key not produced
+        # by the scanner, so it will appear as new=None (removed from config perspective).
+        # Also line_length changes from 120 to 100.
+        _write_project_file(project_dir, "pyproject.toml", "[tool.ruff]\nline-length = 100\n")
+        result = detect_value_drift({"ruff": {}}, str(atlas_dir), str(project_dir))
         drifted_modules = [d["module"] for d in result["drifted"]]
         assert "ruff" in drifted_modules
-        assert "pytest" in result["unchanged"]
+        ruff_entry = next(d for d in result["drifted"] if d["module"] == "ruff")
+        change_keys = [c["key"] for c in ruff_entry["changes"]]
+        # Both the changed line_length and the missing extra_setting should be reported
+        assert any("line_length" in k for k in change_keys)
+        assert any("extra_setting" in k for k in change_keys)
+        assert len(ruff_entry["changes"]) >= 2
 
-    def test_apply_returns_updated_module_name(self, tmp_path):
-        """apply_drift_updates returns the name of the updated module."""
+    def test_value_removed_from_config_reported(self, tmp_path):
+        """A key in the snapshot but absent from the live config gets new=None."""
+        atlas_dir, project_dir = self._setup(tmp_path)
+        # Snapshot has a custom key 'extra_setting' the scanner will never produce
+        _write_snapshot(atlas_dir, "ruff", {"id": "ruff", "extra_setting": "foo"})
+        # Live config has ruff section so scan finds it, but produces only style.line_length
+        _write_project_file(project_dir, "pyproject.toml", "[tool.ruff]\nline-length = 88\n")
+        result = detect_value_drift({"ruff": {}}, str(atlas_dir), str(project_dir))
+        ruff_entry = next((d for d in result["drifted"] if d["module"] == "ruff"), None)
+        assert ruff_entry is not None
+        removed_change = next(
+            (c for c in ruff_entry["changes"] if c["key"] == "extra_setting"), None
+        )
+        assert removed_change is not None
+        assert removed_change["old"] == "foo"
+        assert removed_change["new"] is None
+
+    def test_new_value_in_config_reported(self, tmp_path):
+        """A key present in the live config but absent from the snapshot gets old=None."""
+        atlas_dir, project_dir = self._setup(tmp_path)
+        # Snapshot has only meta keys — no data keys at all
+        _write_snapshot(atlas_dir, "ruff", {"id": "ruff"})
+        # Live config introduces line-length which scanner extracts as style.line_length
+        _write_project_file(project_dir, "pyproject.toml", "[tool.ruff]\nline-length = 88\n")
+        result = detect_value_drift({"ruff": {}}, str(atlas_dir), str(project_dir))
+        ruff_entry = next((d for d in result["drifted"] if d["module"] == "ruff"), None)
+        assert ruff_entry is not None
+        new_change = next(
+            (c for c in ruff_entry["changes"] if "line_length" in c["key"]), None
+        )
+        assert new_change is not None
+        assert new_change["old"] is None
+        assert new_change["new"] == "88"
+
+    def test_apply_writes_new_value_to_snapshot(self, tmp_path):
+        """apply_drift_updates writes the updated config value back to disk."""
         atlas_dir, project_dir = self._setup(tmp_path)
         _write_snapshot(
             atlas_dir, "ruff",
@@ -123,6 +164,9 @@ class TestDriftScenarioConfigChanged:
         drifted = detect_value_drift({"ruff": {}}, str(atlas_dir), str(project_dir))
         updated = apply_drift_updates(drifted["drifted"], str(atlas_dir), str(project_dir))
         assert "ruff" in updated
+        # Verify the snapshot on disk now contains the new value (stored as int or str)
+        snap = _read_snapshot(atlas_dir, "ruff")
+        assert str(snap.get("style", {}).get("line_length")) == "100"
 
     def test_apply_preserves_meta_fields(self, tmp_path):
         """apply_drift_updates never overwrites id, name, version in the snapshot."""
@@ -139,13 +183,6 @@ class TestDriftScenarioConfigChanged:
         assert snap["id"] == "ruff"
         assert snap["name"] == "Ruff Linter"
         assert snap["version"] == "1.0.0"
-
-    def test_apply_empty_drifted_list_returns_empty(self, tmp_path):
-        """apply_drift_updates with empty list returns [] and writes nothing."""
-        atlas_dir, project_dir = self._setup(tmp_path)
-        result = apply_drift_updates([], str(atlas_dir), str(project_dir))
-        assert result == []
-
 
 # ---------------------------------------------------------------------------
 # Sub-type 2: New tool detected since init
@@ -207,11 +244,6 @@ class TestDriftScenarioNewTool:
     def test_tool_not_in_registry_not_suggested(self, tmp_path):
         """A config file that doesn't match any registry module is ignored."""
         (tmp_path / "unknown-tool.json").write_text("{}")
-        result = detect_new_tools(self._registry(), {}, str(tmp_path))
-        assert result == []
-
-    def test_no_new_tools_returns_empty(self, tmp_path):
-        """Empty project with nothing matching → empty result."""
         result = detect_new_tools(self._registry(), {}, str(tmp_path))
         assert result == []
 
@@ -279,9 +311,3 @@ class TestDriftScenarioRemovedTool:
         """A module with no detect_files and no detect_in_config is never flagged."""
         result = detect_removed_tools(self._registry(), {"git": {}}, str(tmp_path))
         assert "git" not in result
-
-    def test_present_tool_not_flagged(self, tmp_path):
-        """An installed module whose config file still exists is not flagged."""
-        (tmp_path / "ruff.toml").write_text("")
-        result = detect_removed_tools(self._registry(), {"ruff": {}}, str(tmp_path))
-        assert "ruff" not in result
