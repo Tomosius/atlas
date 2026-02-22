@@ -13,7 +13,14 @@ from pathlib import Path
 
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
-from mcp.types import Resource, TextContent, Tool
+from mcp.types import (
+    GetPromptResult,
+    Prompt,
+    PromptMessage,
+    Resource,
+    TextContent,
+    Tool,
+)
 
 from atlas.core.errors import error_result
 from atlas.parser import parse_input
@@ -102,6 +109,34 @@ def _serialise(result: object) -> str:
     if isinstance(result, dict):
         return json.dumps(result, indent=2, ensure_ascii=False)
     return str(result)
+
+
+def build_prompt_list() -> list[Prompt]:
+    """Return the list of MCP prompts Atlas exposes."""
+    return [
+        Prompt(
+            name="atlas-context",
+            description="Project context — auto-injected at session start",
+        )
+    ]
+
+
+def build_prompt_result(atlas: Atlas, name: str) -> GetPromptResult:
+    """Build the GetPromptResult for the named prompt."""
+    if name != "atlas-context":
+        return GetPromptResult(messages=[])
+    if not atlas.is_initialized:
+        text = "Atlas: project not initialized — run `atlas init`"
+    else:
+        text = atlas.build_session_brief()
+    return GetPromptResult(
+        messages=[
+            PromptMessage(
+                role="user",
+                content=TextContent(type="text", text=text),
+            )
+        ]
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -196,6 +231,16 @@ async def list_resources() -> list[Resource]:
         )
 
     return resources
+
+
+@server.list_prompts()
+async def list_prompts() -> list[Prompt]:
+    return build_prompt_list()
+
+
+@server.get_prompt()
+async def get_prompt(name: str, arguments: dict | None = None) -> GetPromptResult:
+    return build_prompt_result(_get_atlas(), name)
 
 
 @server.read_resource()

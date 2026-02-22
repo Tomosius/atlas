@@ -11,6 +11,8 @@ from atlas.server import (
     _serialise,
     build_description,
     build_input_help,
+    build_prompt_list,
+    build_prompt_result,
 )
 
 
@@ -208,3 +210,50 @@ class TestSerialise:
         # Lists are not str or dict — falls through to str()
         result = _serialise([1, 2, 3])
         assert "1" in result
+
+
+# ---------------------------------------------------------------------------
+# build_prompt_list / build_prompt_result
+# ---------------------------------------------------------------------------
+
+
+class TestPromptHandlers:
+    def test_list_prompts_always_returns_atlas_context(self):
+        result = build_prompt_list()
+        assert len(result) == 1
+        assert result[0].name == "atlas-context"
+
+    def test_list_prompts_contains_description(self):
+        result = build_prompt_list()
+        assert result[0].description
+        assert isinstance(result[0].description, str)
+
+    def test_get_prompt_not_initialized_returns_not_initialized_message(self):
+        atlas = _make_atlas(initialized=False)
+        result = build_prompt_result(atlas, "atlas-context")
+        assert len(result.messages) == 1
+        assert "not initialized" in result.messages[0].content.text
+
+    def test_get_prompt_initialized_returns_brief(self):
+        atlas = _make_atlas(initialized=True)
+        atlas.build_session_brief.return_value = "# Atlas — my-project\nInstalled: python"
+        result = build_prompt_result(atlas, "atlas-context")
+        assert len(result.messages) == 1
+        assert "my-project" in result.messages[0].content.text
+
+    def test_get_prompt_unknown_name_returns_empty_messages(self):
+        atlas = _make_atlas(initialized=True)
+        result = build_prompt_result(atlas, "unknown-prompt")
+        assert result.messages == []
+
+    def test_get_prompt_result_has_user_role(self):
+        atlas = _make_atlas(initialized=True)
+        atlas.build_session_brief.return_value = "brief text"
+        result = build_prompt_result(atlas, "atlas-context")
+        assert result.messages[0].role == "user"
+
+    def test_get_prompt_result_is_text_content(self):
+        atlas = _make_atlas(initialized=True)
+        atlas.build_session_brief.return_value = "brief text"
+        result = build_prompt_result(atlas, "atlas-context")
+        assert result.messages[0].content.type == "text"
