@@ -410,8 +410,58 @@ class Atlas:
         return entries
 
     def _quick_git_status(self) -> str:
-        """Return a quick git status string. Implemented in #97."""
-        return ""
+        """Return a formatted git status string for the session brief."""
+        import subprocess
+
+        def _run(cmd: list[str]) -> str:
+            try:
+                return subprocess.check_output(
+                    cmd,
+                    cwd=self.project_dir,
+                    stderr=subprocess.DEVNULL,
+                    timeout=3,
+                ).decode().strip()
+            except Exception:
+                return ""
+
+        branch = _run(["git", "rev-parse", "--abbrev-ref", "HEAD"])
+        if not branch or branch == "HEAD":
+            return ""
+
+        lines: list[str] = []
+
+        # Ahead/behind vs upstream
+        counts = _run(["git", "rev-list", "--left-right", "--count", "HEAD...@{upstream}"])
+        if counts:
+            parts = counts.split()
+            if len(parts) == 2:
+                ahead, behind = int(parts[0]), int(parts[1])
+                suffix = ""
+                if ahead and behind:
+                    suffix = f" ({ahead} ahead, {behind} behind)"
+                elif ahead:
+                    suffix = f" ({ahead} ahead)"
+                elif behind:
+                    suffix = f" ({behind} behind)"
+                lines.append(f"  Branch: {branch}{suffix}")
+            else:
+                lines.append(f"  Branch: {branch}")
+        else:
+            lines.append(f"  Branch: {branch}")
+
+        # Unstaged modifications
+        unstaged = _run(["git", "diff", "--name-only"])
+        if unstaged:
+            files = ", ".join(unstaged.splitlines())
+            lines.append(f"  Modified (unstaged): {files}")
+
+        # Staged changes
+        staged = _run(["git", "diff", "--cached", "--name-only"])
+        if staged:
+            files = ", ".join(staged.splitlines())
+            lines.append(f"  Staged: {files}")
+
+        return "\n".join(lines)
 
     # ------------------------------------------------------------------
     # Warehouse path resolution
