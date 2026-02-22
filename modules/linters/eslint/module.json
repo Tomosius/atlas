@@ -34,5 +34,7 @@
   },
 
   "system_tool": "eslint",
-  "health_check": "eslint --version"
+  "health_check": "eslint --version",
+
+  "error_codes": {}
 }

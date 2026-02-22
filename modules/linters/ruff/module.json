@@ -35,5 +35,19 @@
   },
 
   "system_tool": "ruff",
-  "health_check": "ruff --version"
+  "health_check": "ruff --version",
+
+  "error_codes": {
+    "E501": "Line too long — break at a logical point; don't truncate strings. Auto-fix: atlas just format",
+    "E302": "Expected 2 blank lines before top-level definition. Add blank lines above the def/class.",
+    "E303": "Too many blank lines — reduce to at most 2 between top-level definitions.",
+    "E711": "Comparison to None should use 'is' or 'is not', not '==' or '!='.",
+    "E712": "Comparison to True/False should use 'is' or plain boolean check, not '=='.",
+    "W291": "Trailing whitespace — remove spaces at end of line. Auto-fix: atlas just format",
+    "W293": "Whitespace before a blank line — remove indentation from blank lines.",
+    "F401": "Unused import — remove it. Ruff auto-fixes: atlas just fix",
+    "F811": "Redefinition of unused name — earlier binding is shadowed; remove the duplicate.",
+    "F841": "Local variable assigned but never used — remove the assignment or use the variable.",
+    "I001": "Import block unsorted — run atlas just fix to auto-sort imports with ruff."
+  }
 }

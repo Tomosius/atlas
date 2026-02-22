@@ -1,0 +1,35 @@
+{
+  "id": "golangci-lint",
+  "name": "golangci-lint",
+  "version": "1.0.0",
+  "category": "linter",
+  "description": "Go linter runner (aggregates staticcheck, errcheck, govet, and more)",
+
+  "detect_files": [".golangci.yml", ".golangci.yaml", ".golangci.json", ".golangci.toml"],
+  "detect_in_config": {},
+
+  "for_languages": ["go"],
+
+  "requires": ["go"],
+  "combines_with": ["go"],
+  "conflicts_with": [],
+
+  "commands": {
+    "check": "golangci-lint run",
+    "fix": "golangci-lint run --fix"
+  },
+
+  "config_locations": [
+    {"file": ".golangci.yml", "format": "yaml", "section": null, "priority": 1},
+    {"file": ".golangci.yaml", "format": "yaml", "section": null, "priority": 2},
+    {"file": ".golangci.toml", "format": "toml", "section": null, "priority": 3},
+    {"file": ".golangci.json", "format": "json", "section": null, "priority": 4}
+  ],
+
+  "config_keys": {},
+
+  "system_tool": "golangci-lint",
+  "health_check": "golangci-lint --version",
+
+  "error_codes": {}
+}

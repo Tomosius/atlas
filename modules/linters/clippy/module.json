@@ -29,5 +29,7 @@
   },
 
   "system_tool": "cargo",
-  "health_check": "cargo clippy --version"
+  "health_check": "cargo clippy --version",
+
+  "error_codes": {}
 }
