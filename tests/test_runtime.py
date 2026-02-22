@@ -7,6 +7,7 @@ import os
 import sys
 
 import pytest
+from unittest.mock import MagicMock
 
 from atlas.runtime import Atlas
 
@@ -475,6 +476,47 @@ class TestBuildSessionBrief:
         atlas._manifest = {"installed_modules": {}}
         result = atlas.build_session_brief()
         assert isinstance(result, str)
+
+    def test_recent_activity_section_included_when_history_present(self, tmp_path):
+        atlas = _make_atlas(tmp_path)
+        atlas._manifest = {"installed_modules": {}}
+        atlas._read_recent_history = lambda limit=5: [
+            {"ago": "2h ago", "summary": "ran tests"}
+        ]
+        result = atlas.build_session_brief()
+        assert "Recent Activity" in result
+        assert "ran tests" in result
+
+    def test_recent_activity_section_omitted_when_history_empty(self, tmp_path):
+        atlas = _make_atlas(tmp_path)
+        atlas._manifest = {"installed_modules": {}}
+        result = atlas.build_session_brief()
+        assert "Recent Activity" not in result
+
+    def test_git_status_section_included_when_vcs_installed_and_status_present(self, tmp_path):
+        atlas = _make_atlas(tmp_path)
+        atlas._manifest = {"installed_modules": {"git": {}}}
+        atlas._router = MagicMock()
+        atlas._router.has_category_installed.return_value = True
+        atlas._quick_git_status = lambda: "  Branch: main (2 ahead)"
+        result = atlas.build_session_brief()
+        assert "Git Status" in result
+        assert "Branch: main" in result
+
+    def test_git_status_section_omitted_when_no_vcs_installed(self, tmp_path):
+        atlas = _make_atlas(tmp_path)
+        atlas._manifest = {"installed_modules": {}}
+        result = atlas.build_session_brief()
+        assert "Git Status" not in result
+
+    def test_git_status_section_omitted_when_status_empty(self, tmp_path):
+        atlas = _make_atlas(tmp_path)
+        atlas._manifest = {"installed_modules": {"git": {}}}
+        atlas._router = MagicMock()
+        atlas._router.has_category_installed.return_value = True
+        atlas._quick_git_status = lambda: ""
+        result = atlas.build_session_brief()
+        assert "Git Status" not in result
 
 
 # ---------------------------------------------------------------------------

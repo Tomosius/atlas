@@ -344,6 +344,19 @@ class Atlas:
                 f"\n## Active Task\n→ {task['type']} #{task['id']}: {task['title']}"
             )
 
+        # Recent activity (from history.jsonl — last 3-5 entries)
+        history = self._read_recent_history(limit=5)
+        if history:
+            parts.append("\n## Recent Activity")
+            for entry in history:
+                parts.append(f"  {entry['ago']}: {entry['summary']}")
+
+        # Git status (quick subprocess if git installed)
+        if self.router.has_category_installed("vcs"):
+            git_status = self._quick_git_status()
+            if git_status:
+                parts.append(f"\n## Git Status\n{git_status}")
+
         all_notes: list[str] = []
         for mod, note_list in self.notes.items():
             for note in note_list:
@@ -357,6 +370,14 @@ class Atlas:
         parts.append("  Help: atlas list")
 
         return "\n".join(parts)
+
+    def _read_recent_history(self, limit: int = 5) -> list[dict]:
+        """Return recent history entries. Implemented in #96."""
+        return []
+
+    def _quick_git_status(self) -> str:
+        """Return a quick git status string. Implemented in #97."""
+        return ""
 
     # ------------------------------------------------------------------
     # Warehouse path resolution
