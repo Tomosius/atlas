@@ -23,7 +23,7 @@ One tool (`atlas`), 10 verbs, single string input.
 
 **Version:** `0.1.0` (pre-release, in development)
 **Active Phase:** Phase 1 — The Foundation
-**Current Issue:** #101 — Write history.jsonl entry on every operation (append-only, one JSON per line)
+**Current Issue:** #102 — Write tests for auto-brief, error augmentation, session resume
 
 ### Completed so far
 
@@ -130,10 +130,11 @@ One tool (`atlas`), 10 verbs, single string input.
 | #98 | Implement error augmentation in just verb: scan output for error codes, append rule hints | ✅ `src/atlas/core/runner.py`, `src/atlas/runtime.py`, `tests/test_augmentation.py` |
 | #99 | Create error code → rule mapping for ruff, eslint, clippy, golangci-lint | ✅ `modules/linters/ruff/module.json`, `modules/linters/golangci-lint/` |
 | #100 | Include recent activity + git status + active task in atlas status output | ✅ `src/atlas/core/retrieve.py`, `src/atlas/runtime.py` |
+| #101 | Write history.jsonl entry on every operation (append-only, one JSON per line) | ✅ `src/atlas/runtime.py`, `tests/test_history.py` |
 
 ### Not yet started (next up)
 
-Continue: #101 … through #114.
+Continue: #102 … through #114.
 
 ```bash
 # See all open Phase 1 issues
