@@ -682,7 +682,7 @@ class TestQueryStatusVirtualModule:
         # Write a stale static file with misleading content
         retrieve_dir = os.path.join(str(tmp_path), ".atlas", "retrieve")
         os.makedirs(retrieve_dir, exist_ok=True)
-        with open(os.path.join(retrieve_dir, "_status.md"), "w") as f:
+        with open(os.path.join(retrieve_dir, "status.md"), "w") as f:
             f.write("# Old stale content STALE_MARKER")
         result = atlas.query([["status"]])
         assert "STALE_MARKER" not in result
