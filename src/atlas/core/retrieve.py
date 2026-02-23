@@ -79,13 +79,22 @@ def build_retrieve_file(
     return content
 
 
-def build_status_file(manifest: dict, installed_modules: dict) -> str:
+def build_status_file(
+    manifest: dict,
+    installed_modules: dict,
+    *,
+    active_task: dict | None = None,
+    recent_activity: list[dict] | None = None,
+    git_status: str = "",
+) -> str:
     """Build the _status.md overview file.
 
     This is the first thing agents read at session start. It contains:
     - Project type, languages, stack
     - Installed modules grouped by category
-    - Available commands
+    - Active task (if provided)
+    - Recent activity (if provided)
+    - Git status (if provided)
     - Retrieval hints
     """
     detected = manifest.get("detected", {})
@@ -115,6 +124,28 @@ def build_status_file(manifest: dict, installed_modules: dict) -> str:
         for cat in sorted(by_category):
             mods = ", ".join(sorted(by_category[cat]))
             lines.append(f"- **{cat}:** {mods}")
+        lines.append("")
+
+    # Active task
+    if active_task:
+        task_type = active_task.get("type", "task")
+        task_id = active_task.get("id", "")
+        task_title = active_task.get("title", "")
+        lines.append("## Active Task")
+        lines.append(f"→ {task_type} #{task_id}: {task_title}")
+        lines.append("")
+
+    # Recent activity
+    if recent_activity:
+        lines.append("## Recent Activity")
+        for entry in recent_activity:
+            lines.append(f"  {entry.get('ago', '?')}: {entry.get('summary', '')}")
+        lines.append("")
+
+    # Git status
+    if git_status:
+        lines.append("## Git Status")
+        lines.append(git_status)
         lines.append("")
 
     # Available retrieve targets

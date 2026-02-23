@@ -391,6 +391,53 @@ class TestBuildStatusFile:
         result = build_status_file({}, {})
         assert isinstance(result, str)
 
+    def test_includes_active_task_when_provided(self):
+        task = {"type": "issue", "id": 42, "title": "Fix auth bug"}
+        result = build_status_file({}, {}, active_task=task)
+        assert "Active Task" in result
+        assert "Fix auth bug" in result
+        assert "42" in result
+
+    def test_active_task_omitted_when_not_provided(self):
+        result = build_status_file({}, {})
+        assert "Active Task" not in result
+
+    def test_includes_recent_activity_when_provided(self):
+        history = [{"ago": "2h ago", "summary": "added ruff"}, {"ago": "1d ago", "summary": "init"}]
+        result = build_status_file({}, {}, recent_activity=history)
+        assert "Recent Activity" in result
+        assert "added ruff" in result
+        assert "2h ago" in result
+
+    def test_recent_activity_omitted_when_empty(self):
+        result = build_status_file({}, {}, recent_activity=[])
+        assert "Recent Activity" not in result
+
+    def test_recent_activity_omitted_when_not_provided(self):
+        result = build_status_file({}, {})
+        assert "Recent Activity" not in result
+
+    def test_includes_git_status_when_provided(self):
+        result = build_status_file({}, {}, git_status="  Branch: main (2 ahead)")
+        assert "Git Status" in result
+        assert "Branch: main" in result
+
+    def test_git_status_omitted_when_empty_string(self):
+        result = build_status_file({}, {}, git_status="")
+        assert "Git Status" not in result
+
+    def test_git_status_omitted_when_not_provided(self):
+        result = build_status_file({}, {})
+        assert "Git Status" not in result
+
+    def test_dynamic_sections_appear_after_installed_modules(self):
+        installed = {"ruff": {"category": "linter"}}
+        task = {"type": "issue", "id": 1, "title": "Do thing"}
+        result = build_status_file({}, installed, active_task=task)
+        modules_pos = result.find("Installed Modules")
+        task_pos = result.find("Active Task")
+        assert modules_pos < task_pos
+
 
 # ---------------------------------------------------------------------------
 # build_all_retrieve_files
