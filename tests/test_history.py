@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
+import builtins
 import json
 import os
 import time
+from unittest.mock import patch
 
-import pytest
-
-from atlas.runtime import _relative_time, Atlas
+from atlas.runtime import Atlas, _relative_time
 
 
 # ---------------------------------------------------------------------------
@@ -128,7 +128,6 @@ class TestReadRecentHistory:
 
     def test_returns_empty_when_file_unreadable(self, tmp_path, monkeypatch):
         atlas = _make_atlas(tmp_path)
-        import builtins
         real_open = builtins.open
         def mock_open(path, *args, **kwargs):
             if "history.jsonl" in str(path):
@@ -177,9 +176,9 @@ class TestAppendHistory:
         atlas._append_history("second")
         atlas._append_history("third")
         path = tmp_path / ".atlas" / "history.jsonl"
-        lines = [l for l in path.read_text().splitlines() if l.strip()]
+        lines = [ln for ln in path.read_text().splitlines() if ln.strip()]
         assert len(lines) == 3
-        summaries = [json.loads(l)["summary"] for l in lines]
+        summaries = [json.loads(ln)["summary"] for ln in lines]
         assert summaries == ["first", "second", "third"]
 
     def test_does_not_rewrite_existing_entries(self, tmp_path):
@@ -187,7 +186,7 @@ class TestAppendHistory:
         path = tmp_path / ".atlas" / "history.jsonl"
         path.write_text(json.dumps({"ts": 1000.0, "summary": "existing"}) + "\n")
         atlas._append_history("new entry")
-        lines = [l for l in path.read_text().splitlines() if l.strip()]
+        lines = [ln for ln in path.read_text().splitlines() if ln.strip()]
         assert len(lines) == 2
         assert json.loads(lines[0])["summary"] == "existing"
         assert json.loads(lines[1])["summary"] == "new entry"
@@ -206,7 +205,6 @@ class TestAppendHistory:
 
 class TestAddModulesHistory:
     def test_history_written_when_module_installed(self, tmp_path):
-        from unittest.mock import patch
         atlas = _make_atlas(tmp_path)
         atlas._manifest = {"installed_modules": {}, "detected": {}}
         atlas._registry = {"modules": {}}
@@ -221,7 +219,6 @@ class TestAddModulesHistory:
         assert "ruff" in record["summary"]
 
     def test_no_history_when_all_installs_fail(self, tmp_path):
-        from unittest.mock import patch
         atlas = _make_atlas(tmp_path)
         atlas._manifest = {"installed_modules": {}, "detected": {}}
         atlas._registry = {"modules": {}}
