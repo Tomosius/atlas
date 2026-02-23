@@ -18,6 +18,7 @@ from atlas.core.modules import install_module, remove_module, update_modules
 from atlas.core.registry import load_registry
 from atlas.core.retrieve import (
     build_retrieve_file,
+    build_status_file,
     filter_sections,
 )
 from atlas.core.runner import augment_errors, run_task
@@ -172,23 +173,40 @@ class Atlas:
             module_name = group[0]
             filters = group[1:]
 
-            # Read the pre-built file
-            md_path = os.path.join(retrieve_dir, f"{module_name}.md")
-            if os.path.isfile(md_path):
-                try:
-                    with open(md_path) as f:
-                        content = f.read()
-                except OSError:
-                    content = ""
-            else:
-                # Fall back to building on-the-fly if not pre-built
-                content = build_retrieve_file(
-                    module_name,
-                    self.atlas_dir,
-                    self.registry,
-                    self.warehouse_dir,
+            # "status" is a virtual module — build live with dynamic data
+            if module_name == "status":
+                if not self.is_initialized:
+                    continue
+                active_task = self.context.get("active")
+                history = self._read_recent_history(limit=5)
+                git_status = ""
+                if self.router.has_category_installed("vcs"):
+                    git_status = self._quick_git_status()
+                content = build_status_file(
+                    self.manifest,
                     installed,
+                    active_task=active_task,
+                    recent_activity=history if history else None,
+                    git_status=git_status,
                 )
+            else:
+                # Read the pre-built file
+                md_path = os.path.join(retrieve_dir, f"{module_name}.md")
+                if os.path.isfile(md_path):
+                    try:
+                        with open(md_path) as f:
+                            content = f.read()
+                    except OSError:
+                        content = ""
+                else:
+                    # Fall back to building on-the-fly if not pre-built
+                    content = build_retrieve_file(
+                        module_name,
+                        self.atlas_dir,
+                        self.registry,
+                        self.warehouse_dir,
+                        installed,
+                    )
 
             if filters:
                 content = filter_sections(content, filters)

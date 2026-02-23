@@ -622,3 +622,78 @@ class TestJustAugmentation:
         with patch("atlas.runtime.run_task", return_value=fake_result):
             result = atlas.just("check")
         assert "📎" not in result["output"]
+
+
+# ---------------------------------------------------------------------------
+# query() — "status" virtual module
+# ---------------------------------------------------------------------------
+
+
+class TestQueryStatusVirtualModule:
+    """atlas status virtual module returns live status."""
+
+    def test_query_status_returns_project_status_header(self, tmp_path):
+        atlas = _make_atlas(tmp_path)
+        atlas._manifest = {"installed_modules": {}}
+        result = atlas.query([["status"]])
+        assert "# Atlas Project Status" in result
+
+    def test_query_status_includes_active_task(self, tmp_path):
+        atlas = _make_atlas(tmp_path)
+        atlas._manifest = {"installed_modules": {}}
+        atlas._context = {"active": {"type": "issue", "id": 7, "title": "Fix login"}}
+        result = atlas.query([["status"]])
+        assert "Fix login" in result
+        assert "7" in result
+        assert "Active Task" in result
+
+    def test_query_status_includes_recent_activity(self, tmp_path):
+        import time
+        atlas = _make_atlas(tmp_path)
+        atlas._manifest = {"installed_modules": {}}
+        history_path = os.path.join(str(tmp_path), ".atlas", "history.jsonl")
+        with open(history_path, "w") as f:
+            f.write(json.dumps({"ts": time.time() - 100, "summary": "added ruff"}) + "\n")
+        result = atlas.query([["status"]])
+        assert "Recent Activity" in result
+        assert "added ruff" in result
+
+    def test_query_status_includes_git_status_when_vcs_installed(self, tmp_path):
+        from unittest.mock import MagicMock
+        atlas = _make_atlas(tmp_path)
+        atlas._manifest = {"installed_modules": {"git": {}}}
+        atlas._router = MagicMock()
+        atlas._router.has_category_installed.return_value = True
+        atlas._quick_git_status = lambda: "  Branch: main"
+        result = atlas.query([["status"]])
+        assert "Git Status" in result
+        assert "Branch: main" in result
+
+    def test_query_status_omits_git_status_when_no_vcs(self, tmp_path):
+        atlas = _make_atlas(tmp_path)
+        atlas._manifest = {"installed_modules": {}}
+        result = atlas.query([["status"]])
+        assert "Git Status" not in result
+
+    def test_query_status_does_not_read_static_status_md(self, tmp_path):
+        """Live query should NOT serve stale _status.md content."""
+        atlas = _make_atlas(tmp_path)
+        atlas._manifest = {"installed_modules": {}}
+        # Write a stale static file with misleading content
+        retrieve_dir = os.path.join(str(tmp_path), ".atlas", "retrieve")
+        os.makedirs(retrieve_dir, exist_ok=True)
+        with open(os.path.join(retrieve_dir, "_status.md"), "w") as f:
+            f.write("# Old stale content STALE_MARKER")
+        result = atlas.query([["status"]])
+        assert "STALE_MARKER" not in result
+
+    def test_query_status_lists_installed_modules(self, tmp_path):
+        atlas = _make_atlas(tmp_path)
+        atlas._manifest = {"installed_modules": {"ruff": {"category": "linter"}}}
+        result = atlas.query([["status"]])
+        assert "ruff" in result
+
+    def test_query_status_empty_when_not_initialized(self, tmp_path):
+        atlas = Atlas(project_dir=str(tmp_path))
+        result = atlas.query([["status"]])
+        assert result == ""
