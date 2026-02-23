@@ -287,6 +287,7 @@ class Atlas:
         if result["ok"]:
             self.save_manifest()
             self.invalidate()
+            self._append_history(f"remove {name}")
         return result
 
     # ------------------------------------------------------------------
@@ -332,6 +333,8 @@ class Atlas:
             if merged_codes:
                 result["output"] = augment_errors(result["output"], merged_codes)
 
+        if result.get("ok"):
+            self._append_history(f"just {task_name}")
         return result
 
     # ------------------------------------------------------------------
@@ -346,6 +349,7 @@ class Atlas:
         notes_list = self.notes.setdefault(module_name, [])
         notes_list.append({"text": text})
         self.save_notes()
+        self._append_history(f"note add {module_name}")
         return ok_result(module=module_name, note=text, index=len(notes_list) - 1)
 
     def remove_note(self, module_name: str, index: int | str) -> dict:
@@ -370,6 +374,7 @@ class Atlas:
                 )
 
         self.save_notes()
+        self._append_history(f"note remove {module_name}")
         return ok_result(module=module_name, removed=index)
 
     # ------------------------------------------------------------------

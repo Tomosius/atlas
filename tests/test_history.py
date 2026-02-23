@@ -5,6 +5,7 @@ from __future__ import annotations
 import builtins
 import json
 import os
+import sys
 import time
 from unittest.mock import patch
 
@@ -227,5 +228,102 @@ class TestAddModulesHistory:
         with patch("atlas.runtime.install_module", return_value=fake_fail):
             atlas.add_modules(["nonexistent"])
 
+        path = tmp_path / ".atlas" / "history.jsonl"
+        assert not path.is_file()
+
+
+# ---------------------------------------------------------------------------
+# remove_module writes history
+# ---------------------------------------------------------------------------
+
+
+class TestRemoveModuleHistory:
+    def test_history_written_on_successful_remove(self, tmp_path):
+        atlas = _make_atlas(tmp_path)
+        atlas._manifest = {"installed_modules": {"ruff": {}}}
+        atlas._registry = {"modules": {}}
+
+        fake_ok = {"ok": True}
+        with patch("atlas.runtime.remove_module", return_value=fake_ok):
+            atlas.remove_module("ruff")
+
+        path = tmp_path / ".atlas" / "history.jsonl"
+        assert path.is_file()
+        record = json.loads(path.read_text().strip())
+        assert "ruff" in record["summary"]
+
+    def test_no_history_on_failed_remove(self, tmp_path):
+        atlas = _make_atlas(tmp_path)
+        atlas._manifest = {"installed_modules": {}}
+        atlas._registry = {"modules": {}}
+
+        fake_fail = {"ok": False, "error": "MODULE_NOT_INSTALLED"}
+        with patch("atlas.runtime.remove_module", return_value=fake_fail):
+            atlas.remove_module("nonexistent")
+
+        path = tmp_path / ".atlas" / "history.jsonl"
+        assert not path.is_file()
+
+
+# ---------------------------------------------------------------------------
+# just writes history
+# ---------------------------------------------------------------------------
+
+
+class TestJustHistory:
+    def test_history_written_after_task_runs(self, tmp_path):
+        atlas_dir = tmp_path / ".atlas"
+        (atlas_dir / "modules").mkdir(parents=True)
+        atlas = Atlas(project_dir=str(tmp_path))
+        atlas._manifest = {"installed_modules": {"mypkg": {}}, "detected": {}}
+        mod_path = atlas_dir / "modules" / "mypkg.json"
+        mod_path.write_text(json.dumps({"commands": {"hello": f"{sys.executable} -c \"print('hi')\""}}))
+
+        atlas.just("hello")
+
+        path = tmp_path / ".atlas" / "history.jsonl"
+        assert path.is_file()
+        record = json.loads(path.read_text().strip())
+        assert "hello" in record["summary"]
+
+    def test_no_history_when_task_not_found(self, tmp_path):
+        atlas = _make_atlas(tmp_path)
+        atlas._manifest = {"installed_modules": {}}
+        atlas.just("nonexistent_task")
+        path = tmp_path / ".atlas" / "history.jsonl"
+        assert not path.is_file()
+
+
+# ---------------------------------------------------------------------------
+# add_note / remove_note write history
+# ---------------------------------------------------------------------------
+
+
+class TestNoteHistory:
+    def test_add_note_writes_history(self, tmp_path):
+        atlas = _make_atlas(tmp_path)
+        atlas.add_note("python", "use async")
+        path = tmp_path / ".atlas" / "history.jsonl"
+        assert path.is_file()
+        record = json.loads(path.read_text().strip())
+        assert "python" in record["summary"]
+
+    def test_remove_note_writes_history(self, tmp_path):
+        atlas = _make_atlas(tmp_path)
+        atlas.add_note("python", "use async")
+        # Clear history written by add_note
+        (tmp_path / ".atlas" / "history.jsonl").unlink()
+
+        atlas.remove_note("python", 0)
+
+        path = tmp_path / ".atlas" / "history.jsonl"
+        assert path.is_file()
+        record = json.loads(path.read_text().strip())
+        assert "python" in record["summary"]
+
+    def test_remove_note_no_history_on_failure(self, tmp_path):
+        atlas = _make_atlas(tmp_path)
+        # remove_note on empty notes should fail → no history
+        atlas.remove_note("python", 0)
         path = tmp_path / ".atlas" / "history.jsonl"
         assert not path.is_file()
