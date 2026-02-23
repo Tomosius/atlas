@@ -293,6 +293,22 @@ class TestJustHistory:
         path = tmp_path / ".atlas" / "history.jsonl"
         assert not path.is_file()
 
+    def test_history_written_when_task_exits_nonzero(self, tmp_path):
+        atlas_dir = tmp_path / ".atlas"
+        (atlas_dir / "modules").mkdir(parents=True)
+        atlas = Atlas(project_dir=str(tmp_path))
+        atlas._manifest = {"installed_modules": {"mypkg": {}}, "detected": {}}
+        mod_path = atlas_dir / "modules" / "mypkg.json"
+        # Exit with code 1 (simulates a linter finding violations)
+        mod_path.write_text(json.dumps({"commands": {"check": f"{sys.executable} -c \"import sys; sys.exit(1)\""}}))
+
+        atlas.just("check")
+
+        path = tmp_path / ".atlas" / "history.jsonl"
+        assert path.is_file(), "history should be written even when task exits non-zero"
+        record = json.loads(path.read_text().strip())
+        assert "check" in record["summary"]
+
 
 # ---------------------------------------------------------------------------
 # add_note / remove_note write history
