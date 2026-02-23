@@ -139,3 +139,96 @@ class TestReadRecentHistory:
         monkeypatch.setattr(builtins, "open", mock_open)
         result = atlas._read_recent_history()
         assert result == []
+
+
+# ---------------------------------------------------------------------------
+# _append_history
+# ---------------------------------------------------------------------------
+
+
+class TestAppendHistory:
+    def test_creates_history_file_when_absent(self, tmp_path):
+        atlas = _make_atlas(tmp_path)
+        atlas._append_history("test operation")
+        path = tmp_path / ".atlas" / "history.jsonl"
+        assert path.is_file()
+
+    def test_writes_valid_json_line(self, tmp_path):
+        atlas = _make_atlas(tmp_path)
+        atlas._append_history("did something")
+        path = tmp_path / ".atlas" / "history.jsonl"
+        line = path.read_text().strip()
+        record = json.loads(line)
+        assert record["summary"] == "did something"
+        assert isinstance(record["ts"], float)
+
+    def test_ts_is_approximately_now(self, tmp_path):
+        before = time.time()
+        atlas = _make_atlas(tmp_path)
+        atlas._append_history("timed op")
+        after = time.time()
+        path = tmp_path / ".atlas" / "history.jsonl"
+        record = json.loads(path.read_text().strip())
+        assert before <= record["ts"] <= after
+
+    def test_appends_multiple_entries(self, tmp_path):
+        atlas = _make_atlas(tmp_path)
+        atlas._append_history("first")
+        atlas._append_history("second")
+        atlas._append_history("third")
+        path = tmp_path / ".atlas" / "history.jsonl"
+        lines = [l for l in path.read_text().splitlines() if l.strip()]
+        assert len(lines) == 3
+        summaries = [json.loads(l)["summary"] for l in lines]
+        assert summaries == ["first", "second", "third"]
+
+    def test_does_not_rewrite_existing_entries(self, tmp_path):
+        atlas = _make_atlas(tmp_path)
+        path = tmp_path / ".atlas" / "history.jsonl"
+        path.write_text(json.dumps({"ts": 1000.0, "summary": "existing"}) + "\n")
+        atlas._append_history("new entry")
+        lines = [l for l in path.read_text().splitlines() if l.strip()]
+        assert len(lines) == 2
+        assert json.loads(lines[0])["summary"] == "existing"
+        assert json.loads(lines[1])["summary"] == "new entry"
+
+    def test_skips_when_not_initialized(self, tmp_path):
+        """No .atlas/ dir — should not crash and not create file."""
+        atlas = Atlas(project_dir=str(tmp_path))
+        atlas._append_history("should not write")
+        assert not (tmp_path / ".atlas" / "history.jsonl").exists()
+
+
+# ---------------------------------------------------------------------------
+# add_modules writes history
+# ---------------------------------------------------------------------------
+
+
+class TestAddModulesHistory:
+    def test_history_written_when_module_installed(self, tmp_path):
+        from unittest.mock import patch
+        atlas = _make_atlas(tmp_path)
+        atlas._manifest = {"installed_modules": {}, "detected": {}}
+        atlas._registry = {"modules": {}}
+
+        fake_ok = {"ok": True, "module": "ruff"}
+        with patch("atlas.runtime.install_module", return_value=fake_ok):
+            atlas.add_modules(["ruff"])
+
+        path = tmp_path / ".atlas" / "history.jsonl"
+        assert path.is_file()
+        record = json.loads(path.read_text().strip())
+        assert "ruff" in record["summary"]
+
+    def test_no_history_when_all_installs_fail(self, tmp_path):
+        from unittest.mock import patch
+        atlas = _make_atlas(tmp_path)
+        atlas._manifest = {"installed_modules": {}, "detected": {}}
+        atlas._registry = {"modules": {}}
+
+        fake_fail = {"ok": False, "error": "NOT_FOUND"}
+        with patch("atlas.runtime.install_module", return_value=fake_fail):
+            atlas.add_modules(["nonexistent"])
+
+        path = tmp_path / ".atlas" / "history.jsonl"
+        assert not path.is_file()

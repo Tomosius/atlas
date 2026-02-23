@@ -270,6 +270,7 @@ class Atlas:
                     with open(os.path.join(retrieve_dir, f"{name}.md"), "w") as f:
                         f.write(content)
             self.invalidate()
+            self._append_history(f"add {', '.join(installed)}")
 
         return ok_result(installed=installed, failed=failed)
 
@@ -546,3 +547,19 @@ class Atlas:
         with open(path, "w") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
             f.write("\n")
+
+    def _append_history(self, summary: str) -> None:
+        """Append one record to .atlas/history.jsonl.
+
+        Silently skips when not initialized (no .atlas/ dir).
+        Each line is: {"ts": <unix float>, "summary": "<text>"}
+        """
+        if not self.is_initialized:
+            return
+        path = os.path.join(self.atlas_dir, "history.jsonl")
+        record = json.dumps({"ts": time.time(), "summary": summary})
+        try:
+            with open(path, "a") as f:
+                f.write(record + "\n")
+        except OSError:
+            pass
